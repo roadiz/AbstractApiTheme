@@ -1,0 +1,22 @@
+{
+    "name": "roadiz/abstract-api-theme",
+    "description": "Base theme for creating public RESTful API only restricted with API keys.",
+    "type": "library",
+    "require": {
+        "php":">=7.2",
+        "roadiz/roadiz": "^1.0 || dev-develop",
+        "ramsey/uuid": "^3.8"
+    },
+    "autoload": {
+        "psr-4": {
+            "Themes\\AbstractApiTheme\\": "src/"
+        }
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Ambroise Maupate",
+            "email": "ambroise@rezo-zero.com"
+        }
+    ]
+}
