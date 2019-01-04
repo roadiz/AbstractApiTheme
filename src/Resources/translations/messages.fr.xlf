@@ -22,6 +22,10 @@
         <source>api.applications.apiKey</source>
         <target xml:lang="fr" state="translated">Clé d’API</target>
       </trans-unit>
+      <trans-unit id="api.applications.are_you_sure_delete" xml:space="preserve">
+        <source>api.applications.are_you_sure_delete</source>
+        <target xml:lang="fr" state="translated">Êtes-vous sûr·e de vouloir supprimer cette application ? Cela détruira de manière permanente la clé d’API et supprimera tous les accès des applications en cours d’utilisation. Vous pouvez simplement désactiver une application si vous ne souhaitez suspendre l’accès que temporairement.</target>
+      </trans-unit>
       <trans-unit id="api.applications.delete" xml:space="preserve">
         <source>api.applications.delete</source>
         <target xml:lang="fr" state="translated">Supprimer l’application</target>
@@ -41,6 +45,10 @@
       <trans-unit id="api.applications.form.apply" xml:space="preserve">
         <source>api.applications.form.apply</source>
         <target xml:lang="fr" state="translated">Appliquer les changements</target>
+      </trans-unit>
+      <trans-unit id="api.applications.form.delete" xml:space="preserve">
+        <source>api.applications.form.delete</source>
+        <target xml:lang="fr" state="translated">Supprimer</target>
       </trans-unit>
       <trans-unit id="api.applications.name" xml:space="preserve">
         <source>api.applications.name</source>

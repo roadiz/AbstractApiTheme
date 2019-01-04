@@ -22,6 +22,10 @@
         <source>api.applications.apiKey</source>
         <target xml:lang="en" state="translated">API key</target>
       </trans-unit>
+      <trans-unit id="api.applications.are_you_sure_delete" xml:space="preserve">
+        <source>api.applications.are_you_sure_delete</source>
+        <target xml:lang="en" state="translated">Are you sure to delete current application? This will permanently destroy its API key and remove access to any application that was using it in production. You can disable an application if you just want to remove access temporarily.</target>
+      </trans-unit>
       <trans-unit id="api.applications.delete" xml:space="preserve">
         <source>api.applications.delete</source>
         <target xml:lang="en" state="translated">Delete application</target>
@@ -41,6 +45,10 @@
       <trans-unit id="api.applications.form.apply" xml:space="preserve">
         <source>api.applications.form.apply</source>
         <target xml:lang="en" state="translated">Save application details</target>
+      </trans-unit>
+      <trans-unit id="api.applications.form.delete" xml:space="preserve">
+        <source>api.applications.form.delete</source>
+        <target xml:lang="en" state="translated">Delete</target>
       </trans-unit>
       <trans-unit id="api.applications.name" xml:space="preserve">
         <source>api.applications.name</source>

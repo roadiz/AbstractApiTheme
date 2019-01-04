@@ -3,6 +3,7 @@
 namespace Themes\AbstractApiTheme\Controllers\Admin;
 
 use RZ\Roadiz\Core\ListManagers\EntityListManager;
+use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\HttpFoundation\Request;
 use Themes\AbstractApiTheme\AbstractApiThemeApp;
 use Themes\AbstractApiTheme\Entity\Application;
@@ -116,6 +117,46 @@ class ApplicationController extends RozierApp
 
         return $this->render(
             'admin/applications/edit.html.twig',
+            $this->assignation,
+            null,
+            AbstractApiThemeApp::getThemeDir()
+        );
+    }
+
+    public function deleteAction(Request $request, $id)
+    {
+        $this->validateAccessForRole('ROLE_ADMIN_API');
+
+        /** @var Application|null $application */
+        $application = $this->get('em')->find(Application::class, $id);
+
+        if (null === $application) {
+            throw $this->createNotFoundException();
+        }
+
+        $form = $this->createForm(FormType::class);
+        $form->handleRequest($request);
+
+        if ($form->isValid()) {
+            $this->get('em')->remove($application);
+            $this->get('em')->flush();
+
+            $msg = $this->getTranslator()->trans(
+                'api.applications.%name%.was_deleted',
+                [
+                    '%name%' => $application->getAppName(),
+                ]
+            );
+            $this->publishConfirmMessage($request, $msg);
+
+            return $this->redirect($this->get('urlGenerator')->generate('adminApiApplications'));
+        }
+
+        $this->assignation['form'] = $form->createView();
+        $this->assignation['application'] = $application;
+
+        return $this->render(
+            'admin/applications/delete.html.twig',
             $this->assignation,
             null,
             AbstractApiThemeApp::getThemeDir()
