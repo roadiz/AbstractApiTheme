@@ -60,9 +60,9 @@ class Application extends AbstractDateTimed implements UserInterface, AdvancedUs
 
     /**
      * @var string
-     * @ORM\Column(type="string", name="referer_regex")
+     * @ORM\Column(type="string", name="referer_regex", nullable=true)
      */
-    private $refererRegex = '';
+    private $refererRegex;
 
     /**
      * @param string $baseRole
@@ -72,8 +72,6 @@ class Application extends AbstractDateTimed implements UserInterface, AdvancedUs
     {
         $this->namespace = $namespace;
         $this->roles = [$baseRole];
-
-        $this->regenerateApiKey();
     }
 
     /**
@@ -89,11 +87,7 @@ class Application extends AbstractDateTimed implements UserInterface, AdvancedUs
      */
     public function regenerateApiKey(): void
     {
-        if ('' !== $this->namespace) {
-            $uuid = Uuid::uuid5(Uuid::NAMESPACE_DNS, $this->namespace);
-        } else {
-            $uuid = Uuid::uuid4();
-        }
+        $uuid = Uuid::uuid4();
         $this->apiKey = $uuid->toString();
     }
 
@@ -204,7 +198,7 @@ class Application extends AbstractDateTimed implements UserInterface, AdvancedUs
     /**
      * @return string
      */
-    public function getRefererRegex(): string
+    public function getRefererRegex(): ?string
     {
         return $this->refererRegex;
     }
@@ -214,10 +208,20 @@ class Application extends AbstractDateTimed implements UserInterface, AdvancedUs
      *
      * @return Application
      */
-    public function setRefererRegex(string $refererRegex): Application
+    public function setRefererRegex(?string $refererRegex): Application
     {
         $this->refererRegex = $refererRegex;
 
         return $this;
+    }
+
+    /**
+     * @ORM\PrePersist
+     */
+    public function prePersist()
+    {
+        parent::prePersist();
+
+        $this->regenerateApiKey();
     }
 }

@@ -24,22 +24,22 @@ class AbstractApiThemeApp extends FrontendController
     public static $priority = 9;
 
     /**
-     * @param Response $response
-     *
-     * @return Response
+     * @inheritDoc
      */
-    protected function restrictToDomains(Response $response): Response
+    public function makeResponseCachable(Request $request, Response $response, $minutes)
     {
+        $response = parent::makeResponseCachable($request, $response, $minutes);
+
         /** @var Request $request */
-        $request = $this->get('requestStack')->getMasterRequest();
         $response->headers->add([
             'Access-Control-Allow-Origin' => '*',
             'Access-Control-Allow-Methods' => 'GET',
-            'Vary' => ['Access-Control-Allow-Origin', 'x-api-key', 'Referer'],
         ]);
+        $response->setVary('Accept-Encoding, X-Partial, x-requested-with, Access-Control-Allow-Origin, x-api-key, Referer');
 
         return $response;
     }
+
 
     /**
      * @inheritDoc

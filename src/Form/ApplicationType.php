@@ -54,6 +54,11 @@ class ApplicationType extends AbstractType
                 new UniqueEntity([
                     'fields' => 'appName',
                     'entityManager' => $options->offsetGet('entityManager')
+                ]),
+                new UniqueEntity([
+                    'fields' => 'apiKey',
+                    'entityManager' => $options->offsetGet('entityManager'),
+                    'message' => 'Api key is already is use.'
                 ])
             ];
         });
