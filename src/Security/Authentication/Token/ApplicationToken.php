@@ -15,41 +15,38 @@ use Themes\AbstractApiTheme\Entity\Application;
 class ApplicationToken extends AbstractToken
 {
     /**
-     * @var Application|null
+     * @var string
      */
-    private $application = null;
+    protected $referer = '';
 
     /**
      * @inheritDoc
      */
-    public function __construct(array $roles = [])
-    {
-        parent::__construct($roles);
-
-        $this->setAuthenticated(sizeof($roles) > 0);
-    }
-
     public function getCredentials()
     {
-        return $this->application;
+        $user = $this->getUser();
+        if ($user instanceof Application) {
+            return $user->getApiKey();
+        }
+        return false;
     }
 
     /**
-     * @return Application|null
+     * @return string
      */
-    public function getApplication(): ?Application
+    public function getReferer(): string
     {
-        return $this->application;
+        return $this->referer;
     }
 
     /**
-     * @param Application|null $application
+     * @param string $referer
      *
      * @return ApplicationToken
      */
-    public function setApplication(?Application $application): ApplicationToken
+    public function setReferer(string $referer): ApplicationToken
     {
-        $this->application = $application;
+        $this->referer = $referer;
 
         return $this;
     }

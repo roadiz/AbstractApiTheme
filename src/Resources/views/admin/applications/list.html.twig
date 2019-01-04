@@ -1,0 +1,50 @@
+{% extends "@AbstractApiTheme/admin/base.html.twig" %}
+
+{%- block content_title -%}{% trans %}api.menu.applications{% endtrans %}{%- endblock -%}
+
+{%- block content_header_actions -%}
+    <a class="uk-button" href="{{ path('adminApiApplicationsAdd') }}">
+        <i class="uk-icon-plus"></i> {% trans %}api.applications.add{% endtrans %}
+    </a>
+{%- endblock -%}
+
+{%- block content_filters -%}
+    {% include '@Rozier/widgets/filtersBar.html.twig' %}
+{%- endblock -%}
+
+{%- block content_body -%}
+    <article class="content content-no-action-menu">
+        <div class="content-table-cont">
+            <table class="content-table uk-table">
+                <thead>
+                <tr>
+                    <th>{% trans %}api.applications.name{% endtrans %}</th>
+                    <th>{% trans %}api.applications.apiKey{% endtrans %}</th>
+                    <th class="uk-visible-xlarge">{% trans %}updated_at{% endtrans %}</th>
+                    <th>{% trans %}actions{% endtrans %}</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for application in applications %}
+                    {% spaceless %}
+                        <tr>
+                            <td>{{ application.appName }}</td>
+                            <td><code>{{ application.apiKey }}</code></td>
+                            <td class="uk-visible-xlarge">{{ application.updatedAt|localizeddate('short', 'short') }}</td>
+                            <td class="table-actions-row">
+                                <a href="{{ path('adminApiApplicationsDetails', {id: application.id}) }}"
+                                   title="{% trans %}edit{% endtrans %}"
+                                   class="uk-button uk-button-content uk-button-small"><i class="uk-icon-rz-pencil"></i></a>
+                            </td>
+                        </tr>
+                    {% endspaceless %}
+                {% else %}
+                    <tr>
+                        <td colspan="3">{% trans %}api.no_application{% endtrans %}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </article>
+{%- endblock -%}

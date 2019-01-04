@@ -16,10 +16,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class AbstractApiThemeApp extends FrontendController
 {
-    /**
-     * {@inheritdoc}
-     */
-    public static $priority = 10;
+    protected static $themeName = 'Abstract Api theme';
+    protected static $themeAuthor = 'REZO ZERO';
+    protected static $themeCopyright = 'REZO ZERO';
+    protected static $themeDir = 'AbstractApiTheme';
+    protected static $backendTheme = false;
+    public static $priority = 9;
 
     /**
      * @param Response $response
@@ -33,7 +35,7 @@ class AbstractApiThemeApp extends FrontendController
         $response->headers->add([
             'Access-Control-Allow-Origin' => '*',
             'Access-Control-Allow-Methods' => 'GET',
-            'Vary' => 'Access-Control-Allow-Origin',
+            'Vary' => ['Access-Control-Allow-Origin', 'x-api-key', 'Referer'],
         ]);
 
         return $response;
@@ -44,17 +46,31 @@ class AbstractApiThemeApp extends FrontendController
      */
     public static function addDefaultFirewallEntry(Container $container)
     {
-        /*
-         * Add default API firewall entry.
-         */
-        $container['firewallMap']->add(
-            $container['api.request_matcher'],
-            $container['api.firewall_listener']
-        );
+        // do nothing
+    }
 
-        $container['accessMap']->add(
-            $container['api.request_matcher'],
-            $container['api.base_role']
-        );
+
+    public static function setupDependencyInjection(Container $container)
+    {
+        parent::setupDependencyInjection($container);
+
+        $container->extend('backoffice.entries', function (array $entries, $c) {
+            $entries['api'] = [
+                'name' => 'api.menu',
+                'path' => null,
+                'icon' => 'uk-icon-gears',
+                'roles' => ['ROLE_ADMIN_API'],
+                'subentries' => [
+                    'applications' => [
+                        'name' => 'api.menu.applications',
+                        'path' => $c['urlGenerator']->generate('adminApiApplications'),
+                        'icon' => 'uk-icon-gears',
+                        'roles' => ['ROLE_ADMIN_API'],
+                    ],
+                ]
+            ];
+
+            return $entries;
+        });
     }
 }

@@ -12,9 +12,9 @@ namespace Themes\AbstractApiTheme\Services;
 use Doctrine\ORM\EntityRepository;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
-use Symfony\Component\HttpFoundation\RequestMatcher;
 use Themes\AbstractApiTheme\Entity\Application;
 use Themes\AbstractApiTheme\Extractor\ApplicationExtractor;
+use Themes\AbstractApiTheme\Security\Authentication\Provider\AuthenticationProvider;
 use Themes\AbstractApiTheme\Security\Firewall\ApplicationListener;
 
 class AbstractApiServiceProvider implements ServiceProviderInterface
@@ -29,18 +29,7 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
          *
          * @return string
          */
-        $container['api.base_role'] = function (Container $c) {
-            return 'ROLE_API';
-        };
-
-        /**
-         * @param Container $c
-         *
-         * @return RequestMatcher
-         */
-        $container['api.request_matcher'] = function (Container $c) {
-            return new RequestMatcher('^/api/1.0/');
-        };
+        $container['api.base_role'] = 'ROLE_API';
 
         /**
          * @param Container $c
@@ -63,11 +52,20 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
         /**
          * @param Container $c
          *
+         * @return AuthenticationProvider
+         */
+        $container['api.authentication_manager'] = function (Container $c) {
+            return new AuthenticationProvider($c['api.application_extractor']);
+        };
+
+        /**
+         * @param Container $c
+         *
          * @return ApplicationListener
          */
         $container['api.firewall_listener'] = function (Container $c) {
             return new ApplicationListener(
-                $c['authentificationManager'],
+                $c['api.authentication_manager'],
                 $c['securityTokenStorage'],
                 $c['api.application_extractor']
             );

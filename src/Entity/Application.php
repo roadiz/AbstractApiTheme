@@ -20,7 +20,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
  *
  * @ORM\Entity(repositoryClass="RZ\Roadiz\Core\Repositories\EntityRepository")
  * @ORM\HasLifecycleCallbacks
- * @ORM\Table(indexes={
+ * @ORM\Table(name="api_applications", indexes={
  *     @ORM\Index(columns={"api_key"}),
  *     @ORM\Index(columns={"created_at"}),
  *     @ORM\Index(columns={"updated_at"})
@@ -42,13 +42,13 @@ class Application extends AbstractDateTimed implements UserInterface, AdvancedUs
 
     /**
      * @var bool
-     * @ORM\Column(type="boolean", nullable=false, unique=false)
+     * @ORM\Column(type="boolean", nullable=false)
      */
     private $enabled = true;
 
     /**
-     * @var string|null
-     * @ORM\Column(type="string", name="api_key", nullable=false)
+     * @var string
+     * @ORM\Column(type="string", name="api_key", nullable=false, unique=true)
      */
     private $apiKey = '';
 
@@ -57,6 +57,12 @@ class Application extends AbstractDateTimed implements UserInterface, AdvancedUs
      * @ORM\Column(type="simple_array", name="roles")
      */
     private $roles = [];
+
+    /**
+     * @var string
+     * @ORM\Column(type="string", name="referer_regex")
+     */
+    private $refererRegex = '';
 
     /**
      * @param string $baseRole
@@ -191,6 +197,26 @@ class Application extends AbstractDateTimed implements UserInterface, AdvancedUs
     public function setEnabled(bool $enabled): Application
     {
         $this->enabled = $enabled;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRefererRegex(): string
+    {
+        return $this->refererRegex;
+    }
+
+    /**
+     * @param string $refererRegex
+     *
+     * @return Application
+     */
+    public function setRefererRegex(string $refererRegex): Application
+    {
+        $this->refererRegex = $refererRegex;
 
         return $this;
     }

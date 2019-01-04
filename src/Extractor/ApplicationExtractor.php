@@ -11,9 +11,11 @@ namespace Themes\AbstractApiTheme\Extractor;
 
 use Doctrine\ORM\EntityRepository;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Themes\AbstractApiTheme\Entity\Application;
+use Themes\AbstractApiTheme\Security\Authentication\Provider\ApplicationProviderInterface;
 
-class ApplicationExtractor implements ApplicationExtractorInterface
+class ApplicationExtractor implements ApplicationExtractorInterface, ApplicationProviderInterface
 {
     /**
      * @var EntityRepository
@@ -67,5 +69,13 @@ class ApplicationExtractor implements ApplicationExtractorInterface
         }
 
         return null;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function loadApplicationByApiKey(string $apiKey): ?Application
+    {
+        return $this->applicationRepository->findOneByApiKey($apiKey);
     }
 }

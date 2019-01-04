@@ -1,0 +1,19 @@
+#
+# SubscriptionTypes
+#
+adminApiApplications:
+    path:     /rz-admin/api/applications
+    defaults:
+        _controller: Themes\AbstractApiTheme\Controllers\Admin\ApplicationController::listAction
+
+adminApiApplicationsDetails:
+    path:     /rz-admin/api/applications/{id}
+    defaults:
+        _controller: Themes\AbstractApiTheme\Controllers\Admin\ApplicationController::editAction
+    requirements:
+        id: "[0-9]+"
+
+adminApiApplicationsAdd:
+    path:     /rz-admin/api/applications/add
+    defaults:
+        _controller: Themes\AbstractApiTheme\Controllers\Admin\ApplicationController::addAction
