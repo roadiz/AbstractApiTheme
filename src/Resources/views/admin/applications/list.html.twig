@@ -20,7 +20,7 @@
                 <tr>
                     <th>{% trans %}api.applications.name{% endtrans %}</th>
                     <th>{% trans %}api.applications.apiKey{% endtrans %}</th>
-                    <th class="uk-visible-xlarge">{% trans %}updated_at{% endtrans %}</th>
+                    <th class="uk-visible-xlarge">{% trans %}api.applications.updated_at{% endtrans %}</th>
                     <th>{% trans %}actions{% endtrans %}</th>
                 </tr>
                 </thead>
@@ -40,7 +40,7 @@
                     {% endspaceless %}
                 {% else %}
                     <tr>
-                        <td colspan="3">{% trans %}api.no_application{% endtrans %}</td>
+                        <td colspan="4">{% trans %}api.no_application{% endtrans %}</td>
                     </tr>
                 {% endfor %}
                 </tbody>

@@ -13,6 +13,13 @@ adminApiApplicationsDetails:
     requirements:
         id: "[0-9]+"
 
+adminApiApplicationsDelete:
+    path:     /rz-admin/api/applications/{id}/delete
+    defaults:
+        _controller: Themes\AbstractApiTheme\Controllers\Admin\ApplicationController::deleteAction
+    requirements:
+        id: "[0-9]+"
+
 adminApiApplicationsAdd:
     path:     /rz-admin/api/applications/add
     defaults:

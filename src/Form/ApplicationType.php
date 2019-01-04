@@ -23,17 +23,17 @@ class ApplicationType extends AbstractType
         parent::buildForm($builder, $options);
 
         $builder->add('appName', TextType::class, [
-                'label' => 'application.name',
+                'label' => 'api.applications.name',
                 'constraints' => [
                     new NotBlank()
                 ]
             ])
             ->add('enabled', CheckboxType::class, [
-                'label' => 'application.enabled',
+                'label' => 'api.applications.enabled',
                 'required' => false,
             ])
             ->add('refererRegex', TextType::class, [
-                'label' => 'application.referer',
+                'label' => 'api.applications.referer',
                 'required' => false,
             ])
         ;
@@ -58,7 +58,7 @@ class ApplicationType extends AbstractType
                 new UniqueEntity([
                     'fields' => 'apiKey',
                     'entityManager' => $options->offsetGet('entityManager'),
-                    'message' => 'Api key is already is use.'
+                    'message' => 'api.applications.api_key_in_use'
                 ])
             ];
         });

@@ -56,6 +56,14 @@ class ApplicationController extends RozierApp
             $this->get('em')->persist($application);
             $this->get('em')->flush();
 
+            $msg = $this->getTranslator()->trans(
+                'api.applications.%name%.was_created',
+                [
+                    '%name%' => $application->getAppName(),
+                ]
+            );
+            $this->publishConfirmMessage($request, $msg);
+
             return $this->redirect($this->get('urlGenerator')->generate('adminApiApplicationsDetails', [
                 'id' => $application->getId(),
             ]));
@@ -90,12 +98,21 @@ class ApplicationController extends RozierApp
         if ($form->isValid()) {
             $this->get('em')->flush();
 
+            $msg = $this->getTranslator()->trans(
+                'api.applications.%name%.was_updated',
+                [
+                    '%name%' => $application->getAppName(),
+                ]
+            );
+            $this->publishConfirmMessage($request, $msg);
+
             return $this->redirect($this->get('urlGenerator')->generate('adminApiApplicationsDetails', [
                 'id' => $application->getId(),
             ]));
         }
 
         $this->assignation['form'] = $form->createView();
+        $this->assignation['application'] = $application;
 
         return $this->render(
             'admin/applications/edit.html.twig',

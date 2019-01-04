@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="none" original="" target-language="en" datatype="plaintext">
+    <body>
+      <trans-unit id="api.applications._name_.was_created" xml:space="preserve">
+        <source>api.applications.%name%.was_created</source>
+        <target xml:lang="en" state="translated">API application «%name%» was created.</target>
+      </trans-unit>
+      <trans-unit id="api.applications._name_.was_updated" xml:space="preserve">
+        <source>api.applications.%name%.was_updated</source>
+        <target xml:lang="en" state="translated">API application «%name%» was updated.</target>
+      </trans-unit>
+      <trans-unit id="api.applications.add" xml:space="preserve">
+        <source>api.applications.add</source>
+        <target xml:lang="en" state="translated">Create an application</target>
+      </trans-unit>
+      <trans-unit id="api.applications.api_key_in_use" xml:space="preserve">
+        <source>api.applications.api_key_in_use</source>
+        <target xml:lang="en" state="translated">Api key is already is use.</target>
+      </trans-unit>
+      <trans-unit id="api.applications.apiKey" xml:space="preserve">
+        <source>api.applications.apiKey</source>
+        <target xml:lang="en" state="translated">API key</target>
+      </trans-unit>
+      <trans-unit id="api.applications.delete" xml:space="preserve">
+        <source>api.applications.delete</source>
+        <target xml:lang="en" state="translated">Delete application</target>
+      </trans-unit>
+      <trans-unit id="api.applications.edit" xml:space="preserve">
+        <source>api.applications.edit</source>
+        <target xml:lang="en" state="translated">Edit</target>
+      </trans-unit>
+      <trans-unit id="api.applications.enabled" xml:space="preserve">
+        <source>api.applications.enabled</source>
+        <target xml:lang="en" state="translated">Enabled?</target>
+      </trans-unit>
+      <trans-unit id="api.applications.form.add" xml:space="preserve">
+        <source>api.applications.form.add</source>
+        <target xml:lang="en" state="translated">Create application</target>
+      </trans-unit>
+      <trans-unit id="api.applications.form.apply" xml:space="preserve">
+        <source>api.applications.form.apply</source>
+        <target xml:lang="en" state="translated">Save application details</target>
+      </trans-unit>
+      <trans-unit id="api.applications.name" xml:space="preserve">
+        <source>api.applications.name</source>
+        <target xml:lang="en" state="translated">Application name</target>
+      </trans-unit>
+      <trans-unit id="api.applications.referer" xml:space="preserve">
+        <source>api.applications.referer</source>
+        <target xml:lang="en" state="translated">Authorized referrer (regular expression)</target>
+      </trans-unit>
+      <trans-unit id="api.applications.updated_at" xml:space="preserve">
+        <source>api.applications.updated_at</source>
+        <target xml:lang="en" state="translated">Updated at</target>
+      </trans-unit>
+      <trans-unit id="api.menu" xml:space="preserve">
+        <source>api.menu</source>
+        <target xml:lang="en" state="translated">API</target>
+      </trans-unit>
+      <trans-unit id="api.menu.applications" xml:space="preserve">
+        <source>api.menu.applications</source>
+        <target xml:lang="en" state="translated">Applications</target>
+      </trans-unit>
+      <trans-unit id="api.no_application" xml:space="preserve">
+        <source>api.no_application</source>
+        <target xml:lang="en" state="translated">No application available</target>
+      </trans-unit>
+      <trans-unit id="back_to.applications" xml:space="preserve">
+        <source>back_to.applications</source>
+        <target xml:lang="en" state="translated">Back to applications list</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>
