@@ -38,8 +38,6 @@ class ApplicationListener implements ListenerInterface
     private $applicationExtractor;
 
     /**
-     *
-     *
      * @param AuthenticationManagerInterface $authenticationManager
      * @param TokenStorageInterface          $tokenStorage
      * @param ApplicationExtractorInterface  $applicationExtractor

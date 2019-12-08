@@ -11,7 +11,6 @@ namespace Themes\AbstractApiTheme\Extractor;
 
 use Doctrine\ORM\EntityRepository;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Security\Core\User\UserInterface;
 use Themes\AbstractApiTheme\Entity\Application;
 use Themes\AbstractApiTheme\Security\Authentication\Provider\ApplicationProviderInterface;
 
