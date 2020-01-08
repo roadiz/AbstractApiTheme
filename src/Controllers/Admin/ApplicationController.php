@@ -16,7 +16,7 @@ class ApplicationController extends RozierApp
 
     public function listAction(Request $request)
     {
-        $this->validateAccessForRole('ROLE_ADMIN_API');
+        $this->denyAccessUnlessGranted('ROLE_ADMIN_API');
 
         $elm = new EntityListManager(
             $request,
@@ -43,7 +43,7 @@ class ApplicationController extends RozierApp
 
     public function addAction(Request $request)
     {
-        $this->validateAccessForRole('ROLE_ADMIN_API');
+        $this->denyAccessUnlessGranted('ROLE_ADMIN_API');
 
         /** @var Application $application */
         $application = $this->get('api.application_factory');
@@ -53,7 +53,7 @@ class ApplicationController extends RozierApp
         ]);
         $form->handleRequest($request);
 
-        if ($form->isValid()) {
+        if ($form->isSubmitted() && $form->isValid()) {
             $this->get('em')->persist($application);
             $this->get('em')->flush();
 
@@ -82,7 +82,7 @@ class ApplicationController extends RozierApp
 
     public function editAction(Request $request, $id)
     {
-        $this->validateAccessForRole('ROLE_ADMIN_API');
+        $this->denyAccessUnlessGranted('ROLE_ADMIN_API');
 
         /** @var Application|null $application */
         $application = $this->get('em')->find(Application::class, $id);
@@ -96,7 +96,7 @@ class ApplicationController extends RozierApp
         ]);
         $form->handleRequest($request);
 
-        if ($form->isValid()) {
+        if ($form->isSubmitted() && $form->isValid()) {
             $this->get('em')->flush();
 
             $msg = $this->getTranslator()->trans(
@@ -125,7 +125,7 @@ class ApplicationController extends RozierApp
 
     public function deleteAction(Request $request, $id)
     {
-        $this->validateAccessForRole('ROLE_ADMIN_API');
+        $this->denyAccessUnlessGranted('ROLE_ADMIN_API');
 
         /** @var Application|null $application */
         $application = $this->get('em')->find(Application::class, $id);
@@ -137,7 +137,7 @@ class ApplicationController extends RozierApp
         $form = $this->createForm(FormType::class);
         $form->handleRequest($request);
 
-        if ($form->isValid()) {
+        if ($form->isSubmitted() && $form->isValid()) {
             $this->get('em')->remove($application);
             $this->get('em')->flush();
 

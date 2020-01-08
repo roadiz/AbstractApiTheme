@@ -14,6 +14,14 @@ use Symfony\Component\HttpFoundation\Request;
 use Themes\AbstractApiTheme\Entity\Application;
 use Themes\AbstractApiTheme\Security\Authentication\Provider\ApplicationProviderInterface;
 
+/**
+ * Extract a valid Application from Request.
+ *
+ * Can be extracted from query `api_key` param
+ * or `x-api-key` header param.
+ *
+ * @package Themes\AbstractApiTheme\Extractor
+ */
 class ApplicationExtractor implements ApplicationExtractorInterface, ApplicationProviderInterface
 {
     /**

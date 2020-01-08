@@ -12,6 +12,7 @@ namespace Themes\AbstractApiTheme\Services;
 use Doctrine\ORM\EntityRepository;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
+use RZ\Roadiz\Core\Kernel;
 use Themes\AbstractApiTheme\Entity\Application;
 use Themes\AbstractApiTheme\Extractor\ApplicationExtractor;
 use Themes\AbstractApiTheme\Security\Authentication\Provider\AuthenticationProvider;
@@ -73,6 +74,12 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
 
         $container['api.application_factory'] = $container->factory(function ($c) {
             return new Application($c['api.base_role'], $c['config']["appNamespace"]);
+        });
+
+        $container->extend('doctrine.relative_entities_paths', function (array $paths, Container $container) {
+            return array_filter(array_unique(array_merge($paths, [
+                '../vendor/roadiz/abstract-api-theme/src/Entity'
+            ])));
         });
     }
 }

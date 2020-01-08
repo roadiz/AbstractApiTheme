@@ -4,14 +4,25 @@
 
 ## Configuration
 
-- Add current theme’ entity path to your *Roadiz* config to persist any `Application` that will hold your api-key
+- Add API base services to your project `app/AppKernel.php`:
 
-```yaml
-entities:
-    - "../vendor/roadiz/abstract-api-theme/src/Entity"
+```php
+# AppKernel.php
+/**
+ * {@inheritdoc}
+ */
+public function register(\Pimple\Container $container)
+{
+    parent::register($container);
+
+    /*
+     * Add your own service providers.
+     */
+    $container->register(new \Themes\AbstractApiTheme\Services\AbstractApiServiceProvider());
+}
 ```
 
-- Add API base services to your *Roadiz* config:
+or in your `config.yml`:
 
 ```yaml
 additionalServiceProviders:
