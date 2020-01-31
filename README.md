@@ -66,7 +66,9 @@ class MyApiThemeApp extends AbstractApiThemeApp
      */
     public static function addDefaultFirewallEntry(Container $container)
     {
-        $requestMatcher = new RequestMatcher('^/api/1.0');
+        $requestMatcher = new RequestMatcher(
+            '^'.$container['api.prefix'].'/'.$container['api.version']
+        );
         /*
          * Add default API firewall entry.
          */

@@ -103,6 +103,5 @@ class ApplicationListener implements ListenerInterface
      */
     protected function onSuccess(TokenInterface $authToken)
     {
-
     }
 }

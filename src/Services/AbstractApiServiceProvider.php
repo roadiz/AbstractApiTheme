@@ -13,10 +13,18 @@ use Doctrine\ORM\EntityRepository;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 use RZ\Roadiz\Core\Kernel;
+use RZ\Roadiz\Core\Routing\RoadizRouteCollection;
+use Symfony\Component\Routing\RouteCollection;
 use Themes\AbstractApiTheme\Entity\Application;
 use Themes\AbstractApiTheme\Extractor\ApplicationExtractor;
 use Themes\AbstractApiTheme\Security\Authentication\Provider\AuthenticationProvider;
 use Themes\AbstractApiTheme\Security\Firewall\ApplicationListener;
+use Themes\AbstractApiTheme\src\Routing\ApiRouteCollection;
+use Themes\AbstractApiTheme\src\Serialization\EntityListManagerSubscriber;
+use Themes\KlepierreTheme\Serialization\CountryNameSubscriber;
+use Themes\KlepierreTheme\Serialization\DocumentUriSubscriber;
+use Themes\KlepierreTheme\Serialization\NodesSourcesUriSubscriber;
+use Themes\KlepierreTheme\Serialization\TypeSubscriber;
 
 class AbstractApiServiceProvider implements ServiceProviderInterface
 {
@@ -31,6 +39,19 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
          * @return string
          */
         $container['api.base_role'] = 'ROLE_API';
+
+        /**
+         * @param Container $c
+         *
+         * @return string
+         */
+        $container['api.version'] = '1.0';
+        /**
+         * @param Container $c
+         *
+         * @return string
+         */
+        $container['api.prefix'] = '/api';
 
         /**
          * @param Container $c
@@ -76,10 +97,33 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
             return new Application($c['api.base_role'], $c['config']["appNamespace"]);
         });
 
-        $container->extend('doctrine.relative_entities_paths', function (array $paths, Container $container) {
+        $container->extend('doctrine.relative_entities_paths', function (array $paths) {
             return array_filter(array_unique(array_merge($paths, [
                 '../vendor/roadiz/abstract-api-theme/src/Entity'
             ])));
+        });
+
+        $container->extend('routeCollection', function (RouteCollection $routeCollection, Container $c) {
+            if ($routeCollection instanceof RoadizRouteCollection) {
+                /** @var Kernel $kernel */
+                $kernel = $c['kernel'];
+                return new ApiRouteCollection(
+                    $c['nodeTypesBag'],
+                    $c['themeResolver'],
+                    $c['settingsBag'],
+                    $c['stopwatch'],
+                    $kernel->isPreview(),
+                    $c['api.prefix'],
+                    $c['api.version']
+                );
+            }
+
+            return $routeCollection;
+        });
+
+        $container->extend('serializer.subscribers', function (array $subscribers, $c) {
+            $subscribers[] = new EntityListManagerSubscriber($c['requestStack']);
+            return $subscribers;
         });
     }
 }
