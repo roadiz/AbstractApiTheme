@@ -33,6 +33,7 @@ final class EntityListManagerSubscriber implements EventSubscriberInterface
         return [[
             'event' => 'serializer.post_serialize',
             'method' => 'onPostSerialize',
+            'class' => EntityListManager::class
         ]];
     }
 
@@ -43,7 +44,7 @@ final class EntityListManagerSubscriber implements EventSubscriberInterface
         $context = $event->getContext();
 
         if ($visitor instanceof SerializationVisitorInterface &&
-            $entityListManager instanceof EntityListManager) {
+                $entityListManager instanceof EntityListManager) {
             $entities = $entityListManager->getEntities();
             $request = $this->requestStack->getCurrentRequest();
             if ($entities instanceof Paginator) {
@@ -54,7 +55,7 @@ final class EntityListManagerSubscriber implements EventSubscriberInterface
             } elseif (is_array($entities)) {
                 $visitor->visitProperty(
                     new StaticPropertyMetadata('array', 'hydra:members', []),
-                    $entities->getIterator()
+                    $entities
                 );
             }
 

@@ -21,6 +21,7 @@ use Themes\AbstractApiTheme\Security\Authentication\Provider\AuthenticationProvi
 use Themes\AbstractApiTheme\Security\Firewall\ApplicationListener;
 use Themes\AbstractApiTheme\src\Routing\ApiRouteCollection;
 use Themes\AbstractApiTheme\src\Serialization\EntityListManagerSubscriber;
+use Themes\AbstractApiTheme\src\Serialization\NodeSourceApiSubscriber;
 use Themes\KlepierreTheme\Serialization\CountryNameSubscriber;
 use Themes\KlepierreTheme\Serialization\DocumentUriSubscriber;
 use Themes\KlepierreTheme\Serialization\NodesSourcesUriSubscriber;
@@ -97,6 +98,19 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
             return new Application($c['api.base_role'], $c['config']["appNamespace"]);
         });
 
+        $container['api.route_collection'] = function (Container $c) {
+            /** @var Kernel $kernel */
+            $kernel = $c['kernel'];
+            return new ApiRouteCollection(
+                $c['nodeTypesBag'],
+                $c['settingsBag'],
+                $c['stopwatch'],
+                $kernel->isPreview(),
+                $c['api.prefix'],
+                $c['api.version']
+            );
+        };
+
         $container->extend('doctrine.relative_entities_paths', function (array $paths) {
             return array_filter(array_unique(array_merge($paths, [
                 '../vendor/roadiz/abstract-api-theme/src/Entity'
@@ -104,25 +118,14 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
         });
 
         $container->extend('routeCollection', function (RouteCollection $routeCollection, Container $c) {
-            if ($routeCollection instanceof RoadizRouteCollection) {
-                /** @var Kernel $kernel */
-                $kernel = $c['kernel'];
-                return new ApiRouteCollection(
-                    $c['nodeTypesBag'],
-                    $c['themeResolver'],
-                    $c['settingsBag'],
-                    $c['stopwatch'],
-                    $kernel->isPreview(),
-                    $c['api.prefix'],
-                    $c['api.version']
-                );
-            }
-
+            $c['api.route_collection']->parseResources();
+            $routeCollection->addCollection($c['api.route_collection']);
             return $routeCollection;
         });
 
         $container->extend('serializer.subscribers', function (array $subscribers, $c) {
             $subscribers[] = new EntityListManagerSubscriber($c['requestStack']);
+            $subscribers[] = new NodeSourceApiSubscriber($c['router']);
             return $subscribers;
         });
     }

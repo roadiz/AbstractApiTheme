@@ -38,19 +38,37 @@ class NodeTypeApiController extends AbstractApiThemeApp
         $resolver = new OptionsResolver();
         $resolver->setDefaults(array_merge($this->getMetaOptions(), [
             'title' => null,
-            'node.nodeType.reachable' => null,
-            'node.visible' => null,
-            'node.parent' => null,
         ]));
         $resolver->setAllowedTypes('search', ['string', 'null']);
         $resolver->setAllowedTypes('title', ['string', 'null']);
         $resolver->setAllowedTypes('api_key', ['string', 'null']);
-        $resolver->setAllowedTypes('node.nodeType.reachable', ['bool', 'null']);
-        $resolver->setAllowedTypes('node.visible', ['bool', 'null']);
         $resolver->setAllowedTypes('order', ['array', 'null']);
 
         return $resolver->resolve($options);
     }
+
+    /**
+     * @param array $options
+     *
+     * @return array
+     */
+    protected function normalizeQueryParams(array $options): array
+    {
+        foreach ($options as $key => $value) {
+            if ($key === 'node_parent') {
+                $options['node.parent'] = $value;
+                unset($options['node_parent']);
+            } elseif ($key === 'node_visible') {
+                $options['node.visible'] = $value;
+                unset($options['node_visible']);
+            } elseif ($key === 'node_nodeType_reachable') {
+                $options['node.nodeType.reachable'] = $value;
+                unset($options['node_nodeType_reachable']);
+            }
+        }
+        return $options;
+    }
+
     /**
      * @param Request $request
      * @param int     $nodeTypeId
@@ -61,7 +79,7 @@ class NodeTypeApiController extends AbstractApiThemeApp
     {
         /** @var NodeType|null $nodeType */
         $nodeType = $this->get('em')->find(NodeType::class, $nodeTypeId);
-        $options = $this->resolveOptions($request->query->all());
+        $options = $this->resolveOptions($this->normalizeQueryParams($request->query->all()));
 
         /** @var Translation|null $translation */
         $translation = $this->get('em')->getRepository(Translation::class)->findOneByLocale($options['locale']);
@@ -115,14 +133,22 @@ class NodeTypeApiController extends AbstractApiThemeApp
     {
         /** @var NodeType|null $nodeType */
         $nodeType = $this->get('em')->find(NodeType::class, $nodeTypeId);
+        $options = $this->resolveOptions($this->normalizeQueryParams($request->query->all()));
 
         if (null === $nodeType) {
             throw $this->createNotFoundException();
         }
 
+        /** @var Translation|null $translation */
+        $translation = $this->get('em')->getRepository(Translation::class)->findOneByLocale($options['locale']);
+        if (null === $translation) {
+            throw $this->createNotFoundException();
+        }
+
         $nodeSource = $this->get('nodeSourceApi')->getOneBy([
             'node.nodeType' => $nodeType,
-            'node.id' => $id
+            'node.id' => $id,
+            'translation' => $translation
         ]);
 
         if (null === $nodeSource) {

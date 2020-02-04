@@ -6,14 +6,14 @@ namespace Themes\AbstractApiTheme\src\Routing;
 use RZ\Roadiz\Core\Bags\NodeTypes;
 use RZ\Roadiz\Core\Bags\Settings;
 use RZ\Roadiz\Core\Entities\NodeType;
-use RZ\Roadiz\Core\Routing\RoadizRouteCollection;
-use RZ\Roadiz\Utils\Theme\ThemeResolverInterface;
+use RZ\Roadiz\Core\Routing\DeferredRouteCollection;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Stopwatch\Stopwatch;
 use Themes\AbstractApiTheme\src\Controllers\NodeTypeApiController;
+use Themes\AbstractApiTheme\src\Controllers\RootApiController;
 
-final class ApiRouteCollection extends RoadizRouteCollection
+final class ApiRouteCollection extends DeferredRouteCollection
 {
     /**
      * @var NodeTypes
@@ -27,12 +27,27 @@ final class ApiRouteCollection extends RoadizRouteCollection
      * @var string
      */
     protected $apiPrefix;
+    /**
+     * @var string
+     */
+    protected $routePrefix;
+    /**
+     * @var Stopwatch|null
+     */
+    protected $stopwatch;
+    /**
+     * @var bool
+     */
+    protected $isPreview;
+    /**
+     * @var Settings
+     */
+    protected $settingsBag;
 
     /**
      * ApiRouteCollection constructor.
      *
      * @param NodeTypes              $nodeTypesBag
-     * @param ThemeResolverInterface $themeResolver
      * @param Settings               $settingsBag
      * @param Stopwatch|null         $stopwatch
      * @param bool                   $isPreview
@@ -41,38 +56,58 @@ final class ApiRouteCollection extends RoadizRouteCollection
      */
     public function __construct(
         NodeTypes $nodeTypesBag,
-        ThemeResolverInterface $themeResolver,
         Settings $settingsBag,
         Stopwatch $stopwatch = null,
         $isPreview = false,
         $apiPrefix = '/api',
         $apiVersion = '1.0'
     ) {
-        parent::__construct($themeResolver, $settingsBag, $stopwatch, $isPreview);
+        $this->stopwatch = $stopwatch;
+        $this->isPreview = $isPreview;
+        $this->settingsBag = $settingsBag;
         $this->nodeTypesBag = $nodeTypesBag;
         $this->apiVersion = $apiVersion;
         $this->apiPrefix = $apiPrefix;
+
+        $this->routePrefix = $this->apiPrefix . '/' . $this->apiVersion;
     }
 
     public function parseResources(): void
     {
-        parent::parseResources();
+        if (null !== $this->stopwatch) {
+            $this->stopwatch->start('apiRouteCollection');
+        }
+        $this->add(
+            'api_public_root',
+            new Route(
+                $this->routePrefix,
+                [
+                    '_controller' => RootApiController::class . '::getRootAction',
+                ],
+                [],
+                [],
+                '',
+                [],
+                ['GET'],
+                ''
+            )
+        );
 
         try {
             /** @var NodeType[] $nodeTypes */
             $nodeTypes = $this->nodeTypesBag->all();
-
             /** @var NodeType $nodeType */
             foreach ($this->nodeTypesBag->all() as $nodeType) {
-                if ($nodeType->isReachable()) {
-                    $this->addCollection($this->getCollectionForNodeType($nodeType));
-                }
+                $this->addCollection($this->getCollectionForNodeType($nodeType));
             }
         } catch (\Exception $e) {
             /*
              * Database tables don't exist yet
              * Need Install
              */
+        }
+        if (null !== $this->stopwatch) {
+            $this->stopwatch->stop('apiRouteCollection');
         }
     }
 
@@ -82,7 +117,7 @@ final class ApiRouteCollection extends RoadizRouteCollection
         $collection->add(
             'get_listing_'.mb_strtolower($nodeType->getName()),
             new Route(
-                $this->apiPrefix . '/' . $this->apiVersion . '/' . mb_strtolower($nodeType->getName()),
+                $this->routePrefix . '/' . mb_strtolower($nodeType->getName()),
                 [
                     '_controller' => NodeTypeApiController::class . '::getListingAction',
                     'nodeTypeId' => $nodeType->getId()
@@ -98,7 +133,7 @@ final class ApiRouteCollection extends RoadizRouteCollection
         $collection->add(
             'get_single_'.mb_strtolower($nodeType->getName()),
             new Route(
-                $this->apiPrefix . '/' . $this->apiVersion . '/' . mb_strtolower($nodeType->getName()) . '/{id}',
+                $this->routePrefix . '/' . mb_strtolower($nodeType->getName()) . '/{id}',
                 [
                     '_controller' => NodeTypeApiController::class . '::getDetailAction',
                     'nodeTypeId' => $nodeType->getId()
