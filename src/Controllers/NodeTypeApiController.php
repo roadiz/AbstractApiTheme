@@ -22,7 +22,7 @@ class NodeTypeApiController extends AbstractApiThemeApp
         return [
             'itemsPerPage' => 15,
             'page' => 1,
-            'locale' => $this->get('defaultTranslation')->getLocale(),
+            '_locale' => $this->get('defaultTranslation')->getLocale(),
             'search' => null,
             'api_key' => null,
             'order' => null,
@@ -82,7 +82,7 @@ class NodeTypeApiController extends AbstractApiThemeApp
         $options = $this->resolveOptions($this->normalizeQueryParams($request->query->all()));
 
         /** @var Translation|null $translation */
-        $translation = $this->get('em')->getRepository(Translation::class)->findOneByLocale($options['locale']);
+        $translation = $this->get('em')->getRepository(Translation::class)->findOneByLocale($options['_locale']);
         if (null === $translation) {
             throw $this->createNotFoundException();
         }
@@ -140,7 +140,7 @@ class NodeTypeApiController extends AbstractApiThemeApp
         }
 
         /** @var Translation|null $translation */
-        $translation = $this->get('em')->getRepository(Translation::class)->findOneByLocale($options['locale']);
+        $translation = $this->get('em')->getRepository(Translation::class)->findOneByLocale($options['_locale']);
         if (null === $translation) {
             throw $this->createNotFoundException();
         }
