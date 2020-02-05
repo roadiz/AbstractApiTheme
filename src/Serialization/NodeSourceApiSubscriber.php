@@ -8,6 +8,7 @@ use JMS\Serializer\EventDispatcher\ObjectEvent;
 use JMS\Serializer\Metadata\StaticPropertyMetadata;
 use JMS\Serializer\Visitor\SerializationVisitorInterface;
 use RZ\Roadiz\Core\Entities\NodesSources;
+use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 final class NodeSourceApiSubscriber implements EventSubscriberInterface
@@ -45,16 +46,19 @@ final class NodeSourceApiSubscriber implements EventSubscriberInterface
 
         if ($visitor instanceof SerializationVisitorInterface &&
             $nodeSource instanceof NodesSources) {
-            $visitor->visitProperty(
-                new StaticPropertyMetadata('string', '@id', []),
-                $this->urlGenerator->generate(
-                    'get_single_'.mb_strtolower($nodeSource->getNode()->getNodeType()->getName()),
-                    [
-                        'id' => $nodeSource->getNode()->getId()
-                    ],
-                    UrlGeneratorInterface::ABSOLUTE_URL
-                )
-            );
+            try {
+                $visitor->visitProperty(
+                    new StaticPropertyMetadata('string', '@id', []),
+                    $this->urlGenerator->generate(
+                        'get_single_'.mb_strtolower($nodeSource->getNode()->getNodeType()->getName()),
+                        [
+                            'id' => $nodeSource->getNode()->getId()
+                        ],
+                        UrlGeneratorInterface::ABSOLUTE_URL
+                    )
+                );
+            } catch (RouteNotFoundException $e) {
+            }
         }
     }
 }

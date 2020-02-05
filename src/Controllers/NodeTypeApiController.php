@@ -114,7 +114,7 @@ class NodeTypeApiController extends AbstractApiThemeApp
             $serializer->serialize(
                 $entityListManager,
                 'json',
-                SerializationContext::create()->setGroups(['nodes_sources_base', 'urls', 'meta'])
+                SerializationContext::create()->setGroups(['nodes_sources_base', 'nodes_sources_default', 'urls', 'meta'])
             ),
             JsonResponse::HTTP_OK,
             [],
