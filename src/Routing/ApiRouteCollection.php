@@ -43,16 +43,21 @@ final class ApiRouteCollection extends DeferredRouteCollection
      * @var Settings
      */
     protected $settingsBag;
+    /**
+     * @var array|null
+     */
+    protected $nodeTypeWhitelist;
 
     /**
      * ApiRouteCollection constructor.
      *
-     * @param NodeTypes              $nodeTypesBag
-     * @param Settings               $settingsBag
-     * @param Stopwatch|null         $stopwatch
-     * @param bool                   $isPreview
-     * @param string                 $apiPrefix
-     * @param string                 $apiVersion
+     * @param NodeTypes      $nodeTypesBag
+     * @param Settings       $settingsBag
+     * @param Stopwatch|null $stopwatch
+     * @param bool           $isPreview
+     * @param string         $apiPrefix
+     * @param string         $apiVersion
+     * @param array|null     $nodeTypeWhitelist
      */
     public function __construct(
         NodeTypes $nodeTypesBag,
@@ -60,7 +65,8 @@ final class ApiRouteCollection extends DeferredRouteCollection
         Stopwatch $stopwatch = null,
         $isPreview = false,
         $apiPrefix = '/api',
-        $apiVersion = '1.0'
+        $apiVersion = '1.0',
+        $nodeTypeWhitelist = null
     ) {
         $this->stopwatch = $stopwatch;
         $this->isPreview = $isPreview;
@@ -70,6 +76,7 @@ final class ApiRouteCollection extends DeferredRouteCollection
         $this->apiPrefix = $apiPrefix;
 
         $this->routePrefix = $this->apiPrefix . '/' . $this->apiVersion;
+        $this->nodeTypeWhitelist = $nodeTypeWhitelist;
     }
 
     public function parseResources(): void
@@ -94,11 +101,21 @@ final class ApiRouteCollection extends DeferredRouteCollection
         );
 
         try {
-            /** @var NodeType[] $nodeTypes */
-            $nodeTypes = $this->nodeTypesBag->all();
-            /** @var NodeType $nodeType */
-            foreach ($this->nodeTypesBag->all() as $nodeType) {
-                $this->addCollection($this->getCollectionForNodeType($nodeType));
+            if (null === $this->nodeTypeWhitelist) {
+                /** @var NodeType[] $nodeTypes */
+                $nodeTypes = $this->nodeTypesBag->all();
+                /** @var NodeType $nodeType */
+                foreach ($nodeTypes as $nodeType) {
+                    $this->addCollection($this->getCollectionForNodeType($nodeType));
+                }
+            } else {
+                foreach ($this->nodeTypeWhitelist as $nodeTypeName) {
+                    /** @var NodeType|null $nodeTypes */
+                    $nodeType = $this->nodeTypesBag->get($nodeTypeName);
+                    if (null !== $nodeType) {
+                        $this->addCollection($this->getCollectionForNodeType($nodeType));
+                    }
+                }
             }
         } catch (\Exception $e) {
             /*

@@ -55,6 +55,11 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
         $container['api.prefix'] = '/api';
 
         /**
+         * @return null|array
+         */
+        $container['api.node_type_whitelist'] = null;
+
+        /**
          * @param Container $c
          *
          * @return EntityRepository
@@ -107,7 +112,8 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
                 $c['stopwatch'],
                 $kernel->isPreview(),
                 $c['api.prefix'],
-                $c['api.version']
+                $c['api.version'],
+                $c['api.node_type_whitelist']
             );
         };
 
