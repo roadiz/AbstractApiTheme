@@ -99,6 +99,54 @@ class NodeTypeApiController extends AbstractApiThemeApp
         return $options;
     }
 
+    protected function getListingSerializationGroups(): array
+    {
+        return [
+            'nodes_sources_base',
+            'tag_base',
+            'nodes_sources_default',
+            'urls',
+            'meta'
+        ];
+    }
+
+    /**
+     * @return SerializationContext
+     */
+    protected function getListingSerializationContext(): SerializationContext
+    {
+        $context = SerializationContext::create()
+            ->setAttribute('translation', $this->getTranslation())
+            ->enableMaxDepthChecks();
+        if (count($this->getListingSerializationGroups()) > 0) {
+            $context->setGroups($this->getListingSerializationGroups());
+        }
+
+        return $context;
+    }
+
+    protected function getDetailSerializationGroups(): array
+    {
+        return [
+            'nodes_sources',
+            'tag_base',
+            'urls'
+        ];
+    }
+
+    /**
+     * @return SerializationContext
+     */
+    protected function getDetailSerializationContext(): SerializationContext
+    {
+        $context = $this->getListingSerializationContext();
+        if (count($this->getDetailSerializationGroups()) > 0) {
+            $context->setGroups($this->getDetailSerializationGroups());
+        }
+
+        return $context;
+    }
+
     /**
      * @param Request $request
      * @param int     $nodeTypeId
@@ -151,13 +199,7 @@ class NodeTypeApiController extends AbstractApiThemeApp
             $serializer->serialize(
                 $entityListManager,
                 'json',
-                SerializationContext::create()->setGroups([
-                    'nodes_sources_base',
-                    'tag_base',
-                    'nodes_sources_default',
-                    'urls',
-                    'meta'
-                ])
+                $this->getListingSerializationContext()
             ),
             JsonResponse::HTTP_OK,
             [],
@@ -211,11 +253,7 @@ class NodeTypeApiController extends AbstractApiThemeApp
             $serializer->serialize(
                 $nodeSource,
                 'json',
-                SerializationContext::create()->setGroups([
-                    'nodes_sources',
-                    'tag_base', 
-                    'urls'
-                ])
+                $this->getDetailSerializationContext()
             ),
             JsonResponse::HTTP_OK,
             [],
