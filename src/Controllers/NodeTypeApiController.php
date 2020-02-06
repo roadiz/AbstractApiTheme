@@ -151,7 +151,13 @@ class NodeTypeApiController extends AbstractApiThemeApp
             $serializer->serialize(
                 $entityListManager,
                 'json',
-                SerializationContext::create()->setGroups(['nodes_sources_base', 'nodes_sources_default', 'urls', 'meta'])
+                SerializationContext::create()->setGroups([
+                    'nodes_sources_base',
+                    'tag_base',
+                    'nodes_sources_default',
+                    'urls',
+                    'meta'
+                ])
             ),
             JsonResponse::HTTP_OK,
             [],
@@ -205,7 +211,11 @@ class NodeTypeApiController extends AbstractApiThemeApp
             $serializer->serialize(
                 $nodeSource,
                 'json',
-                SerializationContext::create()->setGroups(['nodes_sources', 'urls'])
+                SerializationContext::create()->setGroups([
+                    'nodes_sources',
+                    'tag_base', 
+                    'urls'
+                ])
             ),
             JsonResponse::HTTP_OK,
             [],
