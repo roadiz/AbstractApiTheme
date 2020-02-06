@@ -9,6 +9,7 @@ use RZ\Roadiz\Core\Entities\NodeType;
 use RZ\Roadiz\Core\Entities\Translation;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Themes\AbstractApiTheme\AbstractApiThemeApp;
 
@@ -38,11 +39,40 @@ class NodeTypeApiController extends AbstractApiThemeApp
         $resolver = new OptionsResolver();
         $resolver->setDefaults(array_merge($this->getMetaOptions(), [
             'title' => null,
+            'publishedAt' => null
         ]));
         $resolver->setAllowedTypes('search', ['string', 'null']);
         $resolver->setAllowedTypes('title', ['string', 'null']);
         $resolver->setAllowedTypes('api_key', ['string', 'null']);
         $resolver->setAllowedTypes('order', ['array', 'null']);
+        $resolver->setAllowedTypes('publishedAt', ['array', 'string', 'null']);
+
+        $resolver->setNormalizer('publishedAt', function (Options $options, $value) {
+            if (null !== $value && is_string($value)) {
+                return new \DateTime($value);
+            }
+            if (is_array($value)) {
+                if (isset($value['after']) && isset($value['before'])) {
+                    return ['BETWEEN', new \DateTime($value['after']), new \DateTime($value['before'])];
+                }
+                if (isset($value['strictly_after']) && isset($value['strictly_before'])) {
+                    return ['BETWEEN', new \DateTime($value['strictly_after']), new \DateTime($value['strictly_before'])];
+                }
+                if (isset($value['after'])) {
+                    return ['>=', new \DateTime($value['after'])];
+                }
+                if (isset($value['strictly_after'])) {
+                    return ['>', new \DateTime($value['strictly_after'])];
+                }
+                if (isset($value['before'])) {
+                    return ['<=', new \DateTime($value['before'])];
+                }
+                if (isset($value['strictly_before'])) {
+                    return ['<', new \DateTime($value['strictly_before'])];
+                }
+            }
+            return $value;
+        });
 
         return $resolver->resolve($options);
     }
@@ -74,6 +104,7 @@ class NodeTypeApiController extends AbstractApiThemeApp
      * @param int     $nodeTypeId
      *
      * @return JsonResponse
+     * @throws \Exception
      */
     public function getListingAction(Request $request, int $nodeTypeId)
     {
@@ -90,10 +121,16 @@ class NodeTypeApiController extends AbstractApiThemeApp
         if (null === $nodeType) {
             throw $this->createNotFoundException();
         }
+
+        $defaultCriteria = [
+            'translation' => $translation
+        ];
+        if ($nodeType->isPublishable()) {
+            $defaultCriteria['publishedAt'] = ['<=', new \DateTime()];
+        }
+
         $criteria = array_merge(
-            [
-                'translation' => $translation
-            ],
+            $defaultCriteria,
             array_filter(array_filter($options), function ($key) {
                 return !array_key_exists($key, $this->getMetaOptions());
             }, ARRAY_FILTER_USE_KEY)
@@ -128,6 +165,7 @@ class NodeTypeApiController extends AbstractApiThemeApp
      * @param int     $id
      *
      * @return JsonResponse
+     * @throws \Exception
      */
     public function getDetailAction(Request $request, int $nodeTypeId, int $id)
     {
@@ -145,11 +183,17 @@ class NodeTypeApiController extends AbstractApiThemeApp
             throw $this->createNotFoundException();
         }
 
-        $nodeSource = $this->get('nodeSourceApi')->getOneBy([
+        $criteria = [
             'node.nodeType' => $nodeType,
             'node.id' => $id,
             'translation' => $translation
-        ]);
+        ];
+
+        if ($nodeType->isPublishable()) {
+            $criteria['publishedAt'] = ['<=', new \DateTime()];
+        }
+
+        $nodeSource = $this->get('nodeSourceApi')->getOneBy($criteria);
 
         if (null === $nodeSource) {
             throw $this->createNotFoundException();
