@@ -5,7 +5,9 @@ namespace Themes\AbstractApiTheme\src\Controllers;
 
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
+use RZ\Roadiz\Core\Entities\Node;
 use RZ\Roadiz\Core\Entities\NodeType;
+use RZ\Roadiz\Core\Entities\Tag;
 use RZ\Roadiz\Core\Entities\Translation;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -39,13 +41,24 @@ class NodeTypeApiController extends AbstractApiThemeApp
         $resolver = new OptionsResolver();
         $resolver->setDefaults(array_merge($this->getMetaOptions(), [
             'title' => null,
-            'publishedAt' => null
+            'publishedAt' => null,
+            'tags' => null,
+            'tagExclusive' => false,
+            'node.parent' => false,
+            'node.visible' => false,
+            'node.nodeType.reachable' => null
         ]));
         $resolver->setAllowedTypes('search', ['string', 'null']);
         $resolver->setAllowedTypes('title', ['string', 'null']);
         $resolver->setAllowedTypes('api_key', ['string', 'null']);
         $resolver->setAllowedTypes('order', ['array', 'null']);
         $resolver->setAllowedTypes('publishedAt', ['array', 'string', 'null']);
+        $resolver->setAllowedTypes('tags', ['array', 'string', 'null']);
+        $resolver->setAllowedTypes('tagExclusive', ['boolean', 'string', 'int']);
+
+        $resolver->setNormalizer('tagExclusive', function (Options $options, $value) {
+            return $this->normalizeBoolean($value);
+        });
 
         $resolver->setNormalizer('publishedAt', function (Options $options, $value) {
             if (null !== $value && is_string($value)) {
@@ -74,7 +87,72 @@ class NodeTypeApiController extends AbstractApiThemeApp
             return $value;
         });
 
+        $resolver->setNormalizer('tags', function (Options $options, $value) {
+            if (is_array($value)) {
+                return array_map(function ($singleValue) {
+                    return $this->normalizeTagFilter($singleValue);
+                }, $value);
+            }
+            return $this->normalizeTagFilter($value);
+        });
+
         return $resolver->resolve($options);
+    }
+
+    /**
+     * @param $value
+     *
+     * @return bool
+     */
+    protected function normalizeBoolean($value): bool
+    {
+        return $value === 'true' || $value === 'on' || $value === '1' || $value === 1;
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return Tag|null
+     */
+    protected function normalizeTagFilter($value): ?Tag
+    {
+        if (null !== $value && $value instanceof Tag) {
+            return $value;
+        }
+        if (null !== $value && is_string($value)) {
+            return $this->get('tagApi')->getOneBy([
+                'tagName' => $value,
+            ]);
+        }
+        if (null !== $value && is_numeric($value)) {
+            return $this->get('tagApi')->getOneBy([
+                'id' => $value,
+            ]);
+        }
+        return null;
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return Node|null
+     */
+    protected function normalizeNodeFilter($value): ?Node
+    {
+        if (null !== $value && $value instanceof Node) {
+            return $value;
+        }
+        if (null !== $value && is_string($value)) {
+            return $this->get('nodeApi')->getOneBy([
+                'nodeName' => $value,
+            ]);
+        }
+        if (null !== $value && is_numeric($value)) {
+            return $this->get('nodeApi')->getOneBy([
+                'id' => $value,
+            ]);
+        }
+        return null;
     }
 
     /**
@@ -86,13 +164,13 @@ class NodeTypeApiController extends AbstractApiThemeApp
     {
         foreach ($options as $key => $value) {
             if ($key === 'node_parent') {
-                $options['node.parent'] = $value;
+                $options['node.parent'] = $this->normalizeNodeFilter($value);
                 unset($options['node_parent']);
             } elseif ($key === 'node_visible') {
-                $options['node.visible'] = $value;
+                $options['node.visible'] = $this->normalizeBoolean($value);
                 unset($options['node_visible']);
             } elseif ($key === 'node_nodeType_reachable') {
-                $options['node.nodeType.reachable'] = $value;
+                $options['node.nodeType.reachable'] = $this->normalizeBoolean($value);
                 unset($options['node_nodeType_reachable']);
             }
         }
