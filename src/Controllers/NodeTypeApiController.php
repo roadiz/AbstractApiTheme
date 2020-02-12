@@ -100,7 +100,7 @@ class NodeTypeApiController extends AbstractApiThemeApp
     }
 
     /**
-     * @param $value
+     * @param mixed $value
      *
      * @return bool
      */
