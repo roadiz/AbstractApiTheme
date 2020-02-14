@@ -7,6 +7,7 @@ use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
 use RZ\Roadiz\Core\Entities\Node;
 use RZ\Roadiz\Core\Entities\NodeType;
+use RZ\Roadiz\Core\Entities\NodeTypeField;
 use RZ\Roadiz\Core\Entities\Tag;
 use RZ\Roadiz\Core\Entities\Translation;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -31,12 +32,15 @@ class NodeTypeApiController extends AbstractApiThemeApp
             'order' => null,
         ];
     }
+
     /**
-     * @param array $options
+     * @param array    $options
+     * @param NodeType $nodeType
      *
      * @return array
+     * @throws \Exception
      */
-    protected function resolveOptions(array $options): array
+    protected function resolveOptions(array $options, NodeType $nodeType): array
     {
         $resolver = new OptionsResolver();
         $resolver->setDefaults(array_merge($this->getMetaOptions(), [
@@ -46,7 +50,7 @@ class NodeTypeApiController extends AbstractApiThemeApp
             'tagExclusive' => false,
             'node.parent' => false,
             'node.visible' => false,
-            'node.nodeType.reachable' => null
+            'node.nodeType.reachable' => null,
         ]));
         $resolver->setAllowedTypes('search', ['string', 'null']);
         $resolver->setAllowedTypes('title', ['string', 'null']);
@@ -60,7 +64,46 @@ class NodeTypeApiController extends AbstractApiThemeApp
             return $this->normalizeBoolean($value);
         });
 
-        $resolver->setNormalizer('publishedAt', function (Options $options, $value) {
+        $resolver->setNormalizer('publishedAt', $this->normalizeDateTimeFilter());
+
+        $resolver->setNormalizer('tags', function (Options $options, $value) {
+            if (is_array($value)) {
+                return array_map(function ($singleValue) {
+                    return $this->normalizeTagFilter($singleValue);
+                }, $value);
+            }
+            return $this->normalizeTagFilter($value);
+        });
+
+        $indexedFields = $nodeType->getFields()->filter(function (NodeTypeField $field) {
+            return $field->isIndexed();
+        });
+        /** @var NodeTypeField $field */
+        foreach ($indexedFields as $field) {
+            switch ($field->getType()) {
+                case NodeTypeField::DATE_T:
+                case NodeTypeField::DATETIME_T:
+                    $resolver->setDefault($field->getVarName(), null);
+                    $resolver->setNormalizer($field->getVarName(), $this->normalizeDateTimeFilter());
+                    break;
+                case NodeTypeField::BOOLEAN_T:
+                    $resolver->setDefault($field->getVarName(), null);
+                    $resolver->setNormalizer($field->getVarName(), function (Options $options, $value) {
+                        return $this->normalizeBoolean($value);
+                    });
+            }
+        }
+
+        return $resolver->resolve($options);
+    }
+
+    /**
+     * @return \Closure
+     * @throws \Exception
+     */
+    protected function normalizeDateTimeFilter()
+    {
+        return function(Options $options, $value) {
             if (null !== $value && is_string($value)) {
                 return new \DateTime($value);
             }
@@ -85,18 +128,7 @@ class NodeTypeApiController extends AbstractApiThemeApp
                 }
             }
             return $value;
-        });
-
-        $resolver->setNormalizer('tags', function (Options $options, $value) {
-            if (is_array($value)) {
-                return array_map(function ($singleValue) {
-                    return $this->normalizeTagFilter($singleValue);
-                }, $value);
-            }
-            return $this->normalizeTagFilter($value);
-        });
-
-        return $resolver->resolve($options);
+        };
     }
 
     /**
@@ -184,7 +216,7 @@ class NodeTypeApiController extends AbstractApiThemeApp
             'tag_base',
             'nodes_sources_default',
             'urls',
-            'meta'
+            'meta',
         ];
     }
 
@@ -208,7 +240,7 @@ class NodeTypeApiController extends AbstractApiThemeApp
         return [
             'nodes_sources',
             'tag_base',
-            'urls'
+            'urls',
         ];
     }
 
@@ -236,7 +268,11 @@ class NodeTypeApiController extends AbstractApiThemeApp
     {
         /** @var NodeType|null $nodeType */
         $nodeType = $this->get('em')->find(NodeType::class, $nodeTypeId);
-        $options = $this->resolveOptions($this->normalizeQueryParams($request->query->all()));
+        if (null === $nodeType) {
+            throw $this->createNotFoundException();
+        }
+
+        $options = $this->resolveOptions($this->normalizeQueryParams($request->query->all()), $nodeType);
 
         /** @var Translation|null $translation */
         $translation = $this->get('em')->getRepository(Translation::class)->findOneByLocale($options['_locale']);
@@ -244,12 +280,8 @@ class NodeTypeApiController extends AbstractApiThemeApp
             throw $this->createNotFoundException();
         }
 
-        if (null === $nodeType) {
-            throw $this->createNotFoundException();
-        }
-
         $defaultCriteria = [
-            'translation' => $translation
+            'translation' => $translation,
         ];
         if ($nodeType->isPublishable()) {
             $defaultCriteria['publishedAt'] = ['<=', new \DateTime()];
@@ -312,7 +344,7 @@ class NodeTypeApiController extends AbstractApiThemeApp
         $criteria = [
             'node.nodeType' => $nodeType,
             'node.id' => $id,
-            'translation' => $translation
+            'translation' => $translation,
         ];
 
         if ($nodeType->isPublishable()) {
