@@ -103,7 +103,7 @@ class NodeTypeApiController extends AbstractApiThemeApp
      */
     protected function normalizeDateTimeFilter()
     {
-        return function(Options $options, $value) {
+        return function (Options $options, $value) {
             if (null !== $value && is_string($value)) {
                 return new \DateTime($value);
             }
@@ -329,7 +329,7 @@ class NodeTypeApiController extends AbstractApiThemeApp
     {
         /** @var NodeType|null $nodeType */
         $nodeType = $this->get('em')->find(NodeType::class, $nodeTypeId);
-        $options = $this->resolveOptions($this->normalizeQueryParams($request->query->all()));
+        $options = $this->resolveOptions($this->normalizeQueryParams($request->query->all()), $nodeType);
 
         if (null === $nodeType) {
             throw $this->createNotFoundException();
