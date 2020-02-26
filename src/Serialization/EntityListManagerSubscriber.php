@@ -49,12 +49,12 @@ final class EntityListManagerSubscriber implements EventSubscriberInterface
             $request = $this->requestStack->getCurrentRequest();
             if ($entities instanceof Paginator) {
                 $visitor->visitProperty(
-                    new StaticPropertyMetadata('Iterator', 'hydra:members', []),
+                    new StaticPropertyMetadata('Iterator', 'hydra:member', []),
                     $entities->getIterator()
                 );
             } elseif (is_array($entities)) {
                 $visitor->visitProperty(
-                    new StaticPropertyMetadata('array', 'hydra:members', []),
+                    new StaticPropertyMetadata('array', 'hydra:member', []),
                     $entities
                 );
             }
