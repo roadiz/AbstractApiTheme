@@ -96,3 +96,31 @@ bin/roadiz orm:schema-tool:update --dump-sql --force
 
 Applications hold your API keys and control incoming requests `Referer` against a *regex* pattern.
 
+## Generic Roadiz API
+
+### Listing nodes-sources
+
+#### Filters
+
+- itemsPerPage: `int`
+- page: `int`
+- _locale: `string`
+- search: `string`
+- order: `array` Example `order[publishedAt]: DESC` with values:
+    - `ASC`
+    - `DESC`
+- archive: `string` Example `archive: 2019-02` or `archive: 2019`. This parameter only works on `publishedAt` field
+
+On `NodesSources` content: 
+
+- title: `string`
+- publishedAt: `DateTime` or `array` with :
+    - `after`
+    - `before`
+    - `strictly_after`
+    - `strictly_before`
+- tags: `array<string>`
+- tagExclusive: `bool`
+- node.parent: `int`
+- node.visible: `bool`
+- node.nodeType.reachable: `bool`
