@@ -30,6 +30,7 @@ class NodeTypeApiController extends AbstractApiThemeApp
             'search' => null,
             'api_key' => null,
             'order' => null,
+            'archive' => null,
         ];
     }
 
@@ -104,6 +105,31 @@ class NodeTypeApiController extends AbstractApiThemeApp
     protected function normalizeDateTimeFilter()
     {
         return function (Options $options, $value) {
+            /*
+             * Support archive parameter with year or year-month
+             */
+            if (null !== $options['archive'] && $options['archive'] !== '') {
+                $archive = $options['archive'];
+                if (preg_match('#[0-9]{4}\-[0-9]{2}\-[0-9]{2}#', $archive) > 0) {
+                    $startDate = new \DateTime($archive . ' 00:00:00');
+                    $endDate = clone $startDate;
+                    $endDate->add(new \DateInterval('P1D'));
+
+                    return ['BETWEEN', $startDate, $endDate];
+                } elseif (preg_match('#[0-9]{4}\-[0-9]{2}#', $archive) > 0) {
+                    $startDate = new \DateTime($archive . '-01 00:00:00');
+                    $endDate = clone $startDate;
+                    $endDate->add(new \DateInterval('P1M'));
+
+                    return ['BETWEEN', $startDate, $endDate];
+                } elseif (preg_match('#[0-9]{4}#', $archive) > 0) {
+                    $startDate = new \DateTime($archive . '-01-01 00:00:00');
+                    $endDate = clone $startDate;
+                    $endDate->add(new \DateInterval('P1Y'));
+
+                    return ['BETWEEN', $startDate, $endDate];
+                }
+            }
             if (null !== $value && is_string($value)) {
                 return new \DateTime($value);
             }
