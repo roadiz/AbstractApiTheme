@@ -66,6 +66,9 @@ class MyApiThemeApp extends AbstractApiThemeApp
      */
     public static function addDefaultFirewallEntry(Container $container)
     {
+        /*
+         * API MUST be the first request matcher
+         */
         $requestMatcher = new RequestMatcher(
             '^'.$container['api.prefix'].'/'.$container['api.version']
         );
@@ -81,6 +84,10 @@ class MyApiThemeApp extends AbstractApiThemeApp
             $requestMatcher,
             [$container['api.base_role']]
         );
+
+        // Do not forget to register default frontend entries
+        // AFTER API not to lose preview feature
+        parent::addDefaultFirewallEntry($container);
     }
 }
 ```
