@@ -13,7 +13,6 @@ use Doctrine\ORM\EntityRepository;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 use RZ\Roadiz\Core\Kernel;
-use RZ\Roadiz\Core\Routing\RoadizRouteCollection;
 use Symfony\Component\Routing\RouteCollection;
 use Themes\AbstractApiTheme\Entity\Application;
 use Themes\AbstractApiTheme\Extractor\ApplicationExtractor;
@@ -22,10 +21,6 @@ use Themes\AbstractApiTheme\Security\Firewall\ApplicationListener;
 use Themes\AbstractApiTheme\src\Routing\ApiRouteCollection;
 use Themes\AbstractApiTheme\src\Serialization\EntityListManagerSubscriber;
 use Themes\AbstractApiTheme\src\Serialization\NodeSourceApiSubscriber;
-use Themes\KlepierreTheme\Serialization\CountryNameSubscriber;
-use Themes\KlepierreTheme\Serialization\DocumentUriSubscriber;
-use Themes\KlepierreTheme\Serialization\NodesSourcesUriSubscriber;
-use Themes\KlepierreTheme\Serialization\TypeSubscriber;
 
 class AbstractApiServiceProvider implements ServiceProviderInterface
 {
@@ -116,6 +111,11 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
                 $c['api.node_type_whitelist']
             );
         };
+
+        $container->extend('authenticationProviderList', function (array $list, Container $c) {
+            $list[] = $c['api.authentication_manager'];
+            return $list;
+        });
 
         $container->extend('doctrine.relative_entities_paths', function (array $paths) {
             return array_filter(array_unique(array_merge($paths, [
