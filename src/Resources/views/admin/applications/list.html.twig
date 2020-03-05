@@ -15,6 +15,7 @@
                 <thead>
                 <tr>
                     <th class="table-actions-row uk-visible-xlarge">{% trans %}api.applications.enabled{% endtrans %}</th>
+                    <th class="table-actions-row uk-visible-xlarge">{% trans %}api.applications.allowedPreview{% endtrans %}</th>
                     <th>
                         {% trans %}api.applications.name{% endtrans %}
                         {% include 'includes/column_ordering.html.twig' with {
@@ -44,7 +45,14 @@
                                     <div class="uk-button-status"><i class="uk-icon-ban"></i></div>
                                 {%- endif -%}
                             </td>
-                            <td>{{- application.appName -}}</td>
+                            <td class="uk-visible-xlarge">
+                                {%- if application.AllowedPreview -%}
+                                    <div class="uk-button-status"><i class="uk-icon-check"></i></div>
+                                {%- else -%}
+                                    <div class="uk-button-status"><i class="uk-icon-ban"></i></div>
+                                {%- endif -%}
+                            </td>
+                            <td><a href="{{ path('adminApiApplicationsDetails', {id: application.id}) }}">{{- application.appName -}}</a></td>
                             <td><code>{{- application.apiKey -}}</code></td>
                             <td class="uk-visible-xlarge">{{- application.updatedAt|localizeddate('short', 'short') -}}</td>
                             <td class="table-actions-row">

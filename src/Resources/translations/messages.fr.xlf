@@ -14,6 +14,14 @@
         <source>api.applications.add</source>
         <target xml:lang="fr" state="translated">Créer une application</target>
       </trans-unit>
+      <trans-unit id="api.applications.allowedPreview" xml:space="preserve">
+        <source>api.applications.allowedPreview</source>
+        <target xml:lang="fr" state="translated">Autoriser la prévisualisation</target>
+      </trans-unit>
+      <trans-unit id="api.applications.allowedPreview.help" xml:space="preserve">
+        <source>api.applications.allowedPreview.help</source>
+        <target xml:lang="fr" state="translated">**Attention**, cette application verra tous les nœuds non-publiés. Ne pas utiliser en mode public.</target>
+      </trans-unit>
       <trans-unit id="api.applications.api_key_in_use" xml:space="preserve">
         <source>api.applications.api_key_in_use</source>
         <target xml:lang="fr" state="translated">La clé d’API est déjà utilisée.</target>

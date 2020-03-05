@@ -12,6 +12,7 @@ namespace Themes\AbstractApiTheme\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 use RZ\Roadiz\Core\AbstractEntities\AbstractDateTimed;
+use RZ\Roadiz\Core\Entities\Role;
 use Symfony\Component\Security\Core\User\AdvancedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -192,6 +193,30 @@ class Application extends AbstractDateTimed implements UserInterface, AdvancedUs
     {
         $this->enabled = $enabled;
 
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isAllowedPreview(): bool
+    {
+        return in_array(Role::ROLE_BACKEND_USER, $this->roles);
+    }
+
+    /**
+     * @param bool $allowedPreview
+     *
+     * @return $this
+     */
+    public function setAllowedPreview(bool $allowedPreview)
+    {
+        if ($allowedPreview) {
+            $this->roles[] = Role::ROLE_BACKEND_USER;
+        } elseif (($key = array_search(Role::ROLE_BACKEND_USER, $this->roles)) !== false) {
+            unset($this->roles[$key]);
+        }
+        $this->roles = array_filter(array_unique($this->roles));
         return $this;
     }
 

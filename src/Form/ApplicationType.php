@@ -28,6 +28,11 @@ class ApplicationType extends AbstractType
                     new NotBlank()
                 ]
             ])
+            ->add('allowedPreview', CheckboxType::class, [
+                'label' => 'api.applications.allowedPreview',
+                'help' => 'api.applications.allowedPreview.help',
+                'required' => false,
+            ])
             ->add('enabled', CheckboxType::class, [
                 'label' => 'api.applications.enabled',
                 'required' => false,

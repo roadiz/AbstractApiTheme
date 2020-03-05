@@ -14,6 +14,14 @@
         <source>api.applications.add</source>
         <target xml:lang="en" state="translated">Create an application</target>
       </trans-unit>
+      <trans-unit id="api.applications.allowedPreview" xml:space="preserve">
+        <source>api.applications.allowedPreview</source>
+        <target xml:lang="en" state="translated">Allow preview mode</target>
+      </trans-unit>
+      <trans-unit id="api.applications.allowedPreview.help" xml:space="preserve">
+        <source>api.applications.allowedPreview.help</source>
+        <target xml:lang="en" state="translated">**Be careful**, this application will be able to access all non-published node. Do not use in public mode.</target>
+      </trans-unit>
       <trans-unit id="api.applications.api_key_in_use" xml:space="preserve">
         <source>api.applications.api_key_in_use</source>
         <target xml:lang="en" state="translated">Api key is already is use.</target>
