@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace Themes\AbstractApiTheme\Services;
 
-use Doctrine\ORM\EntityRepository;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 use RZ\Roadiz\Core\Kernel;
@@ -57,10 +56,10 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
         /**
          * @param Container $c
          *
-         * @return EntityRepository
+         * @return string
          */
-        $container['api.application_repository'] = function (Container $c) {
-            return $c['em']->getRepository(Application::class);
+        $container['api.application_class'] = function (Container $c) {
+            return Application::class;
         };
 
         /**
@@ -69,7 +68,7 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
          * @return ApplicationExtractor
          */
         $container['api.application_extractor'] = function (Container $c) {
-            return new ApplicationExtractor($c['api.application_repository']);
+            return new ApplicationExtractor($c, $c['api.application_class']);
         };
 
         /**
@@ -95,7 +94,8 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
         };
 
         $container['api.application_factory'] = $container->factory(function ($c) {
-            return new Application($c['api.base_role'], $c['config']["appNamespace"]);
+            $className = $c['api.application_class'];
+            return new $className($c['api.base_role'], $c['config']["appNamespace"]);
         });
 
         $container['api.route_collection'] = function (Container $c) {

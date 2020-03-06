@@ -21,7 +21,7 @@ class ApplicationController extends RozierApp
         $elm = new EntityListManager(
             $request,
             $this->get('em'),
-            Application::class,
+            $this->get('api.application_class'),
             [],
             [
                 'createdAt' => 'DESC'
@@ -85,7 +85,7 @@ class ApplicationController extends RozierApp
         $this->denyAccessUnlessGranted('ROLE_ADMIN_API');
 
         /** @var Application|null $application */
-        $application = $this->get('em')->find(Application::class, $id);
+        $application = $this->get('em')->find($this->get('api.application_class'), $id);
 
         if (null === $application) {
             throw $this->createNotFoundException();
@@ -128,7 +128,7 @@ class ApplicationController extends RozierApp
         $this->denyAccessUnlessGranted('ROLE_ADMIN_API');
 
         /** @var Application|null $application */
-        $application = $this->get('em')->find(Application::class, $id);
+        $application = $this->get('em')->find($this->get('api.application_class'), $id);
 
         if (null === $application) {
             throw $this->createNotFoundException();

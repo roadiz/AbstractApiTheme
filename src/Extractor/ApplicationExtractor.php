@@ -10,6 +10,9 @@ declare(strict_types=1);
 namespace Themes\AbstractApiTheme\Extractor;
 
 use Doctrine\ORM\EntityRepository;
+use Pimple\Container;
+use RZ\Roadiz\Core\ContainerAwareInterface;
+use RZ\Roadiz\Core\ContainerAwareTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Themes\AbstractApiTheme\Entity\Application;
 use Themes\AbstractApiTheme\Security\Authentication\Provider\ApplicationProviderInterface;
@@ -22,21 +25,29 @@ use Themes\AbstractApiTheme\Security\Authentication\Provider\ApplicationProvider
  *
  * @package Themes\AbstractApiTheme\Extractor
  */
-class ApplicationExtractor implements ApplicationExtractorInterface, ApplicationProviderInterface
+class ApplicationExtractor implements ApplicationExtractorInterface, ApplicationProviderInterface, ContainerAwareInterface
 {
+    use ContainerAwareTrait;
+
     /**
-     * @var EntityRepository
+     * @var Container
      */
-    private $applicationRepository;
+    protected $container;
+    /**
+     * @var string
+     */
+    protected $applicationClass;
 
     /**
      * ApplicationExtractor constructor.
      *
-     * @param EntityRepository $applicationRepository
+     * @param Container $container
+     * @param string    $applicationClass
      */
-    public function __construct(EntityRepository $applicationRepository)
+    public function __construct(Container $container, string $applicationClass)
     {
-        $this->applicationRepository = $applicationRepository;
+        $this->container = $container;
+        $this->applicationClass = $applicationClass;
     }
 
     /**
@@ -65,6 +76,11 @@ class ApplicationExtractor implements ApplicationExtractorInterface, Application
         return $this->getApiKey($request) !== null;
     }
 
+    protected function getRepository(): EntityRepository
+    {
+        return $this->get('em')->getRepository($this->applicationClass);
+    }
+
     /**
      * @inheritDoc
      */
@@ -72,7 +88,7 @@ class ApplicationExtractor implements ApplicationExtractorInterface, Application
     {
         $apiKey = $this->getApiKey($request);
         if (null !== $apiKey) {
-            return $this->applicationRepository->findOneByApiKey($apiKey);
+            return $this->getRepository()->findOneByApiKey($apiKey);
         }
 
         return null;
@@ -83,6 +99,6 @@ class ApplicationExtractor implements ApplicationExtractorInterface, Application
      */
     public function loadApplicationByApiKey(string $apiKey): ?Application
     {
-        return $this->applicationRepository->findOneByApiKey($apiKey);
+        return $this->getRepository()->findOneByApiKey($apiKey);
     }
 }
