@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Themes\AbstractApiTheme\src\Controllers;
+namespace Themes\AbstractApiTheme\Controllers;
 
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;

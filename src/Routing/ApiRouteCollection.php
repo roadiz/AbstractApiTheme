@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Themes\AbstractApiTheme\src\Routing;
+namespace Themes\AbstractApiTheme\Routing;
 
 use RZ\Roadiz\Core\Bags\NodeTypes;
 use RZ\Roadiz\Core\Bags\Settings;
@@ -10,8 +10,8 @@ use RZ\Roadiz\Core\Routing\DeferredRouteCollection;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Stopwatch\Stopwatch;
-use Themes\AbstractApiTheme\src\Controllers\NodeTypeApiController;
-use Themes\AbstractApiTheme\src\Controllers\RootApiController;
+use Themes\AbstractApiTheme\Controllers\NodeTypeApiController;
+use Themes\AbstractApiTheme\Controllers\RootApiController;
 
 final class ApiRouteCollection extends DeferredRouteCollection
 {

@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Themes\AbstractApiTheme\src\Serialization;
+namespace Themes\AbstractApiTheme\Serialization;
 
 use JMS\Serializer\EventDispatcher\EventSubscriberInterface;
 use JMS\Serializer\EventDispatcher\ObjectEvent;

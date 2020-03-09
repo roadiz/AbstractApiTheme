@@ -17,9 +17,9 @@ use Themes\AbstractApiTheme\Entity\Application;
 use Themes\AbstractApiTheme\Extractor\ApplicationExtractor;
 use Themes\AbstractApiTheme\Security\Authentication\Provider\AuthenticationProvider;
 use Themes\AbstractApiTheme\Security\Firewall\ApplicationListener;
-use Themes\AbstractApiTheme\src\Routing\ApiRouteCollection;
-use Themes\AbstractApiTheme\src\Serialization\EntityListManagerSubscriber;
-use Themes\AbstractApiTheme\src\Serialization\NodeSourceApiSubscriber;
+use Themes\AbstractApiTheme\Routing\ApiRouteCollection;
+use Themes\AbstractApiTheme\Serialization\EntityListManagerSubscriber;
+use Themes\AbstractApiTheme\Serialization\NodeSourceApiSubscriber;
 
 class AbstractApiServiceProvider implements ServiceProviderInterface
 {
