@@ -102,6 +102,15 @@ class NodeTypeApiController extends AbstractApiThemeApp
         return $resolver->resolve($options);
     }
 
+    protected function limitPublishedAtEndDate(\DateTime $endDate): \DateTime
+    {
+        $now = new \DateTime();
+        if ($endDate > $now) {
+            return $now;
+        }
+        return $endDate;
+    }
+
     /**
 
      * Support archive parameter with year or year-month
@@ -124,19 +133,19 @@ class NodeTypeApiController extends AbstractApiThemeApp
                 $endDate = clone $startDate;
                 $endDate->add(new \DateInterval('P1D'));
 
-                return ['BETWEEN', $startDate, $endDate];
+                return ['BETWEEN', $startDate, $this->limitPublishedAtEndDate($endDate)];
             } elseif (preg_match('#[0-9]{4}\-[0-9]{2}#', $archive) > 0) {
                 $startDate = new \DateTime($archive . '-01 00:00:00');
                 $endDate = clone $startDate;
                 $endDate->add(new \DateInterval('P1M'));
 
-                return ['BETWEEN', $startDate, $endDate];
+                return ['BETWEEN', $startDate, $this->limitPublishedAtEndDate($endDate)];
             } elseif (preg_match('#[0-9]{4}#', $archive) > 0) {
                 $startDate = new \DateTime($archive . '-01-01 00:00:00');
                 $endDate = clone $startDate;
                 $endDate->add(new \DateInterval('P1Y'));
 
-                return ['BETWEEN', $startDate, $endDate];
+                return ['BETWEEN', $startDate, $this->limitPublishedAtEndDate($endDate)];
             }
         }
         return $this->normalizeDateTimeFilter($value);
