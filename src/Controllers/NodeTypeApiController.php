@@ -65,7 +65,9 @@ class NodeTypeApiController extends AbstractApiThemeApp
             return $this->normalizeBoolean($value);
         });
 
-        $resolver->setNormalizer('publishedAt', $this->normalizeDateTimeFilter());
+        $resolver->setNormalizer('publishedAt', function (Options $options, $value) {
+            return $this->normalizePublishedAtFilter($options, $value);
+        });
 
         $resolver->setNormalizer('tags', function (Options $options, $value) {
             if (is_array($value)) {
@@ -85,7 +87,9 @@ class NodeTypeApiController extends AbstractApiThemeApp
                 case NodeTypeField::DATE_T:
                 case NodeTypeField::DATETIME_T:
                     $resolver->setDefault($field->getVarName(), null);
-                    $resolver->setNormalizer($field->getVarName(), $this->normalizeDateTimeFilter());
+                    $resolver->setNormalizer($field->getVarName(), function (Options $options, $value) {
+                        return $this->normalizeDateTimeFilter($value);
+                    });
                     break;
                 case NodeTypeField::BOOLEAN_T:
                     $resolver->setDefault($field->getVarName(), null);
@@ -99,62 +103,77 @@ class NodeTypeApiController extends AbstractApiThemeApp
     }
 
     /**
-     * @return \Closure
+
+     * Support archive parameter with year or year-month
+     *
+     * @param Options $options
+     * @param mixed   $value
+     *
+     * @return array
      * @throws \Exception
      */
-    protected function normalizeDateTimeFilter()
+    protected function normalizePublishedAtFilter(Options $options, $value)
     {
-        return function (Options $options, $value) {
-            /*
-             * Support archive parameter with year or year-month
-             */
-            if (null !== $options['archive'] && $options['archive'] !== '') {
-                $archive = $options['archive'];
-                if (preg_match('#[0-9]{4}\-[0-9]{2}\-[0-9]{2}#', $archive) > 0) {
-                    $startDate = new \DateTime($archive . ' 00:00:00');
-                    $endDate = clone $startDate;
-                    $endDate->add(new \DateInterval('P1D'));
+        /*
+         * Support archive parameter with year or year-month
+         */
+        if (null !== $options['archive'] && $options['archive'] !== '') {
+            $archive = $options['archive'];
+            if (preg_match('#[0-9]{4}\-[0-9]{2}\-[0-9]{2}#', $archive) > 0) {
+                $startDate = new \DateTime($archive . ' 00:00:00');
+                $endDate = clone $startDate;
+                $endDate->add(new \DateInterval('P1D'));
 
-                    return ['BETWEEN', $startDate, $endDate];
-                } elseif (preg_match('#[0-9]{4}\-[0-9]{2}#', $archive) > 0) {
-                    $startDate = new \DateTime($archive . '-01 00:00:00');
-                    $endDate = clone $startDate;
-                    $endDate->add(new \DateInterval('P1M'));
+                return ['BETWEEN', $startDate, $endDate];
+            } elseif (preg_match('#[0-9]{4}\-[0-9]{2}#', $archive) > 0) {
+                $startDate = new \DateTime($archive . '-01 00:00:00');
+                $endDate = clone $startDate;
+                $endDate->add(new \DateInterval('P1M'));
 
-                    return ['BETWEEN', $startDate, $endDate];
-                } elseif (preg_match('#[0-9]{4}#', $archive) > 0) {
-                    $startDate = new \DateTime($archive . '-01-01 00:00:00');
-                    $endDate = clone $startDate;
-                    $endDate->add(new \DateInterval('P1Y'));
+                return ['BETWEEN', $startDate, $endDate];
+            } elseif (preg_match('#[0-9]{4}#', $archive) > 0) {
+                $startDate = new \DateTime($archive . '-01-01 00:00:00');
+                $endDate = clone $startDate;
+                $endDate->add(new \DateInterval('P1Y'));
 
-                    return ['BETWEEN', $startDate, $endDate];
-                }
+                return ['BETWEEN', $startDate, $endDate];
             }
-            if (null !== $value && is_string($value)) {
-                return new \DateTime($value);
+        }
+        return $this->normalizeDateTimeFilter($value);
+    }
+
+    /**
+     * @param $value
+     *
+     * @return array|\DateTime
+     * @throws \Exception
+     */
+    protected function normalizeDateTimeFilter($value)
+    {
+        if (null !== $value && is_string($value)) {
+            return new \DateTime($value);
+        }
+        if (is_array($value)) {
+            if (isset($value['after']) && isset($value['before'])) {
+                return ['BETWEEN', new \DateTime($value['after']), new \DateTime($value['before'])];
             }
-            if (is_array($value)) {
-                if (isset($value['after']) && isset($value['before'])) {
-                    return ['BETWEEN', new \DateTime($value['after']), new \DateTime($value['before'])];
-                }
-                if (isset($value['strictly_after']) && isset($value['strictly_before'])) {
-                    return ['BETWEEN', new \DateTime($value['strictly_after']), new \DateTime($value['strictly_before'])];
-                }
-                if (isset($value['after'])) {
-                    return ['>=', new \DateTime($value['after'])];
-                }
-                if (isset($value['strictly_after'])) {
-                    return ['>', new \DateTime($value['strictly_after'])];
-                }
-                if (isset($value['before'])) {
-                    return ['<=', new \DateTime($value['before'])];
-                }
-                if (isset($value['strictly_before'])) {
-                    return ['<', new \DateTime($value['strictly_before'])];
-                }
+            if (isset($value['strictly_after']) && isset($value['strictly_before'])) {
+                return ['BETWEEN', new \DateTime($value['strictly_after']), new \DateTime($value['strictly_before'])];
             }
-            return $value;
-        };
+            if (isset($value['after'])) {
+                return ['>=', new \DateTime($value['after'])];
+            }
+            if (isset($value['strictly_after'])) {
+                return ['>', new \DateTime($value['strictly_after'])];
+            }
+            if (isset($value['before'])) {
+                return ['<=', new \DateTime($value['before'])];
+            }
+            if (isset($value['strictly_before'])) {
+                return ['<', new \DateTime($value['strictly_before'])];
+            }
+        }
+        return $value;
     }
 
     /**
