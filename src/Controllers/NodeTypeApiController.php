@@ -152,7 +152,7 @@ class NodeTypeApiController extends AbstractApiThemeApp
     }
 
     /**
-     * @param $value
+     * @param mixed $value
      *
      * @return array|\DateTime
      * @throws \Exception
