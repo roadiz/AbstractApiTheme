@@ -12,6 +12,7 @@ use RZ\Roadiz\Core\Entities\Tag;
 use RZ\Roadiz\Core\Entities\Translation;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\OptionsResolver\Exception\InvalidOptionsException;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Themes\AbstractApiTheme\AbstractApiThemeApp;
@@ -63,6 +64,21 @@ class NodeTypeApiController extends AbstractApiThemeApp
 
         $resolver->setNormalizer('tagExclusive', function (Options $options, $value) {
             return $this->normalizeBoolean($value);
+        });
+
+        $resolver->setNormalizer('order', function (Options $options, $value) {
+            if (!is_array($value)) {
+                throw new InvalidOptionsException();
+            }
+            foreach ($value as $key => $direction) {
+                if (!preg_match('#^[a-zA-Z\.]+$#', $key)) {
+                    throw new InvalidOptionsException('Order fields key must be only alpha and dot.');
+                }
+                if (!in_array(strtolower($direction), ['asc', 'desc'])) {
+                    throw new InvalidOptionsException('Order fields value must be ASC or DESC.');
+                }
+            }
+            return $value;
         });
 
         $resolver->setNormalizer('node.parent', function (Options $options, $value) {
