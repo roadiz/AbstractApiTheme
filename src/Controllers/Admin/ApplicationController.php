@@ -4,7 +4,9 @@ namespace Themes\AbstractApiTheme\Controllers\Admin;
 
 use RZ\Roadiz\Core\ListManagers\EntityListManager;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Themes\AbstractApiTheme\AbstractApiThemeApp;
 use Themes\AbstractApiTheme\Entity\Application;
 use Themes\AbstractApiTheme\Form\ApplicationType;
@@ -14,6 +16,12 @@ class ApplicationController extends RozierApp
 {
     const ITEM_PER_PAGE = 20;
 
+    /**
+     * @param Request $request
+     *
+     * @return Response
+     * @throws \Twig_Error_Runtime
+     */
     public function listAction(Request $request)
     {
         $this->denyAccessUnlessGranted('ROLE_ADMIN_API');
@@ -41,6 +49,12 @@ class ApplicationController extends RozierApp
         );
     }
 
+    /**
+     * @param Request $request
+     *
+     * @return RedirectResponse|Response
+     * @throws \Twig_Error_Runtime
+     */
     public function addAction(Request $request)
     {
         $this->denyAccessUnlessGranted('ROLE_ADMIN_API');

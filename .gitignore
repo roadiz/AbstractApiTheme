@@ -124,3 +124,6 @@ bh_unicode_properties.cache
 GitHub.sublime-settings
 
 # End of https://www.gitignore.io/api/composer,sublimetext,phpstorm+all
+
+.phpcs-cache
+report.txt
