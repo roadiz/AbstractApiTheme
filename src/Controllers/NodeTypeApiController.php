@@ -67,15 +67,17 @@ class NodeTypeApiController extends AbstractApiThemeApp
         });
 
         $resolver->setNormalizer('order', function (Options $options, $value) {
-            if (!is_array($value)) {
-                throw new InvalidOptionsException();
-            }
-            foreach ($value as $key => $direction) {
-                if (!preg_match('#^[a-zA-Z\.]+$#', $key)) {
-                    throw new InvalidOptionsException('Order fields key must be only alpha and dot.');
+            if (null !== $value) {
+                if (!is_array($value)) {
+                    throw new InvalidOptionsException();
                 }
-                if (!in_array(strtolower($direction), ['asc', 'desc'])) {
-                    throw new InvalidOptionsException('Order fields value must be ASC or DESC.');
+                foreach ($value as $key => $direction) {
+                    if (!preg_match('#^[a-zA-Z\.]+$#', $key)) {
+                        throw new InvalidOptionsException('Order fields key must be only alpha and dot.');
+                    }
+                    if (!in_array(strtolower($direction), ['asc', 'desc'])) {
+                        throw new InvalidOptionsException('Order fields value must be ASC or DESC.');
+                    }
                 }
             }
             return $value;
