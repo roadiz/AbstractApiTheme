@@ -65,6 +65,10 @@ class NodeTypeApiController extends AbstractApiThemeApp
             return $this->normalizeBoolean($value);
         });
 
+        $resolver->setNormalizer('node.parent', function (Options $options, $value) {
+            return $this->normalizeNodeFilter($value);
+        });
+
         $resolver->setNormalizer('publishedAt', function (Options $options, $value) {
             return $this->normalizePublishedAtFilter($options, $value);
         });
@@ -98,7 +102,6 @@ class NodeTypeApiController extends AbstractApiThemeApp
                     });
             }
         }
-
         return $resolver->resolve($options);
     }
 
@@ -228,14 +231,14 @@ class NodeTypeApiController extends AbstractApiThemeApp
         if (null !== $value && $value instanceof Node) {
             return $value;
         }
-        if (null !== $value && is_string($value)) {
-            return $this->get('nodeApi')->getOneBy([
-                'nodeName' => $value,
-            ]);
-        }
         if (null !== $value && is_numeric($value)) {
             return $this->get('nodeApi')->getOneBy([
                 'id' => $value,
+            ]);
+        }
+        if (null !== $value && is_string($value)) {
+            return $this->get('nodeApi')->getOneBy([
+                'nodeName' => $value,
             ]);
         }
         return null;
