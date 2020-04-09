@@ -39,6 +39,8 @@ themes:
 ```
 
 - Create a new theme with your API logic by extending `AbstractApiThemeApp`
+- **or** use `AbstractApiThemeTrait` in your custom theme app if you already inherits from
+an other middleware theme,
 - and add the API authentication scheme to Roadiz’ firewall-map…
 
 ```php
@@ -47,12 +49,14 @@ declare(strict_types=1);
 
 namespace Themes\MyApiTheme;
 
-use Themes\AbstractApiTheme\AbstractApiThemeApp;
 use Symfony\Component\HttpFoundation\RequestMatcher;
 use Pimple\Container;
+use Themes\AbstractApiTheme\AbstractApiThemeTrait;
 
-class MyApiThemeApp extends AbstractApiThemeApp
+class MyApiThemeApp extends FrontendController
 {
+    use AbstractApiThemeTrait;
+
     protected static $themeName = 'My API theme';
     protected static $themeAuthor = 'REZO ZERO';
     protected static $themeCopyright = 'REZO ZERO';
