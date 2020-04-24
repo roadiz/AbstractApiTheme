@@ -102,7 +102,7 @@ class NodeTypeApiController extends AbstractApiThemeApp
 
         /*
          * Search criteria is enabled on NodeTypeFields ONLY if they are
-         * indexed 
+         * indexed
          */
         $indexedFields = $nodeType->getFields()->filter(function (NodeTypeField $field) {
             return $field->isIndexed();
