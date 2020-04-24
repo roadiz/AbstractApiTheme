@@ -111,6 +111,8 @@ Applications hold your API keys and control incoming requests `Referer` against 
 
 ### Listing nodes-sources
 
+If you created a `Event` node-type, API content will be available at `/api/1.0/event` endpoint.
+
 #### Filters
 
 - itemsPerPage: `int`
@@ -135,3 +137,5 @@ On `NodesSources` content:
 - node.parent: `int`
 - node.visible: `bool`
 - node.nodeType.reachable: `bool`
+
+Plus **any** date, datetime and boolean node-type fields which are **indexed**.

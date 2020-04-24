@@ -100,6 +100,10 @@ class NodeTypeApiController extends AbstractApiThemeApp
             return $this->normalizeTagFilter($value);
         });
 
+        /*
+         * Search criteria is enabled on NodeTypeFields ONLY if they are
+         * indexed 
+         */
         $indexedFields = $nodeType->getFields()->filter(function (NodeTypeField $field) {
             return $field->isIndexed();
         });
