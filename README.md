@@ -113,6 +113,8 @@ Applications hold your API keys and control incoming requests `Referer` against 
 
 If you created a `Event` node-type, API content will be available at `/api/1.0/event` endpoint.
 
+Note: In listing context, only node-type-fields from *default* group will be exposed.
+
 ### Getting node-source details
 
 For each node-source, API will expose detailled content on `/api/1.0/event/{id}` endpoint.
@@ -120,6 +122,8 @@ For each node-source, API will expose detailled content on `/api/1.0/event/{id}`
 ### Listing node-source children
 
 For each node-source, API will expose recursively its children `/api/1.0/event/{id}/children` endpoint.
+
+Note: In children context, only node-type-fields from *default* group will be exposed.
 
 ### Filters
 
