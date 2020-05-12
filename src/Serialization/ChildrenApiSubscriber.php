@@ -48,6 +48,7 @@ final class ChildrenApiSubscriber implements EventSubscriberInterface
             $nodeSource instanceof NodesSources &&
             $context->hasAttribute('groups') &&
             $context->hasAttribute('childrenCriteria') &&
+            $context->hasAttribute('maxChildrenCount') &&
             in_array('nodes_source_children', $context->getAttribute('groups'))) {
             $children = $this->entityManager
                 ->getRepository(NodesSources::class)
@@ -55,7 +56,7 @@ final class ChildrenApiSubscriber implements EventSubscriberInterface
                     'node.parent' => $nodeSource->getNode()->getId()
                 ]), [
                     'node.position' => 'ASC'
-                ]);
+                ], (int) $context->getAttribute('maxChildrenCount'));
             $visitor->visitProperty(
                 new StaticPropertyMetadata('array', 'children', []),
                 $children

@@ -124,6 +124,7 @@ For each node-source, API will expose recursively its children `/api/1.0/event/{
 ### Filters
 
 - itemsPerPage: `int`
+- maxChildrenCount: `int` (only in *children* requests)
 - page: `int`
 - _locale: `string`
 - search: `string`

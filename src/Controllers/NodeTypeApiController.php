@@ -29,6 +29,7 @@ class NodeTypeApiController extends AbstractApiThemeApp
     {
         return [
             'itemsPerPage' => 15,
+            'maxChildrenCount' => 30,
             'page' => 1,
             '_locale' => $this->get('defaultTranslation')->getLocale(),
             'search' => null,
@@ -69,6 +70,14 @@ class NodeTypeApiController extends AbstractApiThemeApp
 
         $resolver->setNormalizer('tagExclusive', function (Options $options, $value) {
             return $this->normalizeBoolean($value);
+        });
+
+        $resolver->setNormalizer('maxChildrenCount', function (Options $options, $value) {
+            return intval($value) >= 0 && intval($value) < 100 ? intval($value) : 30;
+        });
+
+        $resolver->setNormalizer('itemsPerPage', function (Options $options, $value) {
+            return intval($value) > 0 && intval($value) < 200 ? intval($value) : 15;
         });
 
         $resolver->setNormalizer('node.nodeType.reachable', function (Options $options, $value) {
@@ -373,11 +382,12 @@ class NodeTypeApiController extends AbstractApiThemeApp
     /**
      * @return SerializationContext
      */
-    protected function getListingChildrenSerializationContext(array $criteria): SerializationContext
+    protected function getListingChildrenSerializationContext(array $criteria, int $maxChildrenCount = 30): SerializationContext
     {
         $context = SerializationContext::create()
             ->setAttribute('translation', $this->getTranslation())
             ->setAttribute('childrenCriteria', $criteria)
+            ->setAttribute('maxChildrenCount', $maxChildrenCount)
             ->enableMaxDepthChecks();
         if (count($this->getListingChildrenSerializationGroups()) > 0) {
             $context->setGroups($this->getListingChildrenSerializationGroups());
@@ -511,7 +521,7 @@ class NodeTypeApiController extends AbstractApiThemeApp
             $serializer->serialize(
                 $entityListManager,
                 'json',
-                $this->getListingChildrenSerializationContext($criteria)
+                $this->getListingChildrenSerializationContext($criteria, $options['maxChildrenCount'])
             ),
             JsonResponse::HTTP_OK,
             [],
