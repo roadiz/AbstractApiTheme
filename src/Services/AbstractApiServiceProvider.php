@@ -21,6 +21,7 @@ use Themes\AbstractApiTheme\Routing\ApiRouteCollection;
 use Themes\AbstractApiTheme\Serialization\ChildrenApiSubscriber;
 use Themes\AbstractApiTheme\Serialization\EntityListManagerSubscriber;
 use Themes\AbstractApiTheme\Serialization\NodeSourceApiSubscriber;
+use Themes\AbstractApiTheme\Serialization\TagTranslationNameSubscriber;
 
 class AbstractApiServiceProvider implements ServiceProviderInterface
 {
@@ -134,6 +135,7 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
             $subscribers[] = new EntityListManagerSubscriber($c['requestStack']);
             $subscribers[] = new NodeSourceApiSubscriber($c['router']);
             $subscribers[] = new ChildrenApiSubscriber($c['em']);
+            $subscribers[] = new TagTranslationNameSubscriber();
             return $subscribers;
         });
     }
