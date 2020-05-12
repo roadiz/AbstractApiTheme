@@ -6,6 +6,7 @@ namespace Themes\AbstractApiTheme\Controllers;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
 use RZ\Roadiz\Core\Entities\Node;
+use RZ\Roadiz\Core\Entities\NodesSources;
 use RZ\Roadiz\Core\Entities\NodeType;
 use RZ\Roadiz\Core\Entities\NodeTypeField;
 use RZ\Roadiz\Core\Entities\Tag;
@@ -16,6 +17,8 @@ use Symfony\Component\OptionsResolver\Exception\InvalidOptionsException;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Themes\AbstractApiTheme\AbstractApiThemeApp;
+use Themes\AbstractApiTheme\Serialization\EntityListManagerSubscriber;
+use Themes\AbstractApiTheme\Serialization\NodeSourceApiSubscriber;
 
 class NodeTypeApiController extends AbstractApiThemeApp
 {
@@ -36,13 +39,13 @@ class NodeTypeApiController extends AbstractApiThemeApp
     }
 
     /**
-     * @param array    $options
-     * @param NodeType $nodeType
+     * @param array         $options
+     * @param NodeType|null $nodeType
      *
      * @return array
      * @throws \Exception
      */
-    protected function resolveOptions(array $options, NodeType $nodeType): array
+    protected function resolveOptions(array $options, ?NodeType $nodeType): array
     {
         $resolver = new OptionsResolver();
         $resolver->setDefaults(array_merge($this->getMetaOptions(), [
@@ -51,7 +54,7 @@ class NodeTypeApiController extends AbstractApiThemeApp
             'tags' => null,
             'tagExclusive' => false,
             'node.parent' => false,
-            'node.visible' => false,
+            'node.visible' => null,
             'node.nodeType.reachable' => null,
         ]));
         $resolver->setAllowedTypes('search', ['string', 'null']);
@@ -61,9 +64,25 @@ class NodeTypeApiController extends AbstractApiThemeApp
         $resolver->setAllowedTypes('publishedAt', ['array', 'string', 'null']);
         $resolver->setAllowedTypes('tags', ['array', 'string', 'null']);
         $resolver->setAllowedTypes('tagExclusive', ['boolean', 'string', 'int']);
+        $resolver->setAllowedTypes('node.nodeType.reachable', ['boolean', 'string', 'int', 'null']);
+        $resolver->setAllowedTypes('node.visible', ['boolean', 'string', 'int', 'null']);
 
         $resolver->setNormalizer('tagExclusive', function (Options $options, $value) {
             return $this->normalizeBoolean($value);
+        });
+
+        $resolver->setNormalizer('node.nodeType.reachable', function (Options $options, $value) {
+            if (null !== $value) {
+                return $this->normalizeBoolean($value);
+            }
+            return null;
+        });
+
+        $resolver->setNormalizer('node.visible', function (Options $options, $value) {
+            if (null !== $value) {
+                return $this->normalizeBoolean($value);
+            }
+            return null;
         });
 
         $resolver->setNormalizer('order', function (Options $options, $value) {
@@ -104,26 +123,29 @@ class NodeTypeApiController extends AbstractApiThemeApp
          * Search criteria is enabled on NodeTypeFields ONLY if they are
          * indexed
          */
-        $indexedFields = $nodeType->getFields()->filter(function (NodeTypeField $field) {
-            return $field->isIndexed();
-        });
-        /** @var NodeTypeField $field */
-        foreach ($indexedFields as $field) {
-            switch ($field->getType()) {
-                case NodeTypeField::DATE_T:
-                case NodeTypeField::DATETIME_T:
-                    $resolver->setDefault($field->getVarName(), null);
-                    $resolver->setNormalizer($field->getVarName(), function (Options $options, $value) {
-                        return $this->normalizeDateTimeFilter($value);
-                    });
-                    break;
-                case NodeTypeField::BOOLEAN_T:
-                    $resolver->setDefault($field->getVarName(), null);
-                    $resolver->setNormalizer($field->getVarName(), function (Options $options, $value) {
-                        return $this->normalizeBoolean($value);
-                    });
+        if (null !== $nodeType) {
+            $indexedFields = $nodeType->getFields()->filter(function (NodeTypeField $field) {
+                return $field->isIndexed();
+            });
+            /** @var NodeTypeField $field */
+            foreach ($indexedFields as $field) {
+                switch ($field->getType()) {
+                    case NodeTypeField::DATE_T:
+                    case NodeTypeField::DATETIME_T:
+                        $resolver->setDefault($field->getVarName(), null);
+                        $resolver->setNormalizer($field->getVarName(), function (Options $options, $value) {
+                            return $this->normalizeDateTimeFilter($value);
+                        });
+                        break;
+                    case NodeTypeField::BOOLEAN_T:
+                        $resolver->setDefault($field->getVarName(), null);
+                        $resolver->setNormalizer($field->getVarName(), function (Options $options, $value) {
+                            return $this->normalizeBoolean($value);
+                        });
+                }
             }
         }
+
         return $resolver->resolve($options);
     }
 
@@ -217,7 +239,14 @@ class NodeTypeApiController extends AbstractApiThemeApp
      */
     protected function normalizeBoolean($value): bool
     {
-        return $value === 'true' || $value === 'on' || $value === '1' || $value === 1;
+        return $value === true ||
+            $value === 'true' ||
+            $value === 'ON' ||
+            $value === 'on' ||
+            $value === 'yes' ||
+            $value === '1' ||
+            $value === 1
+        ;
     }
 
     /**
@@ -271,6 +300,21 @@ class NodeTypeApiController extends AbstractApiThemeApp
      *
      * @return array
      */
+    protected function getCriteriaFromOptions(array &$options): array
+    {
+        $activeOptions = array_filter($options, function ($value) {
+            return null !== $value;
+        });
+        return array_filter($activeOptions, function ($key) {
+            return !array_key_exists($key, $this->getMetaOptions());
+        }, ARRAY_FILTER_USE_KEY);
+    }
+
+    /**
+     * @param array $options
+     *
+     * @return array
+     */
     protected function normalizeQueryParams(array $options): array
     {
         foreach ($options as $key => $value) {
@@ -309,6 +353,34 @@ class NodeTypeApiController extends AbstractApiThemeApp
             ->enableMaxDepthChecks();
         if (count($this->getListingSerializationGroups()) > 0) {
             $context->setGroups($this->getListingSerializationGroups());
+        }
+
+        return $context;
+    }
+
+    protected function getListingChildrenSerializationGroups(): array
+    {
+        return [
+            'nodes_sources_base',
+            'nodes_source_children',
+            'tag_base',
+            'nodes_sources_default',
+            'urls',
+            'meta',
+        ];
+    }
+
+    /**
+     * @return SerializationContext
+     */
+    protected function getListingChildrenSerializationContext(array $criteria): SerializationContext
+    {
+        $context = SerializationContext::create()
+            ->setAttribute('translation', $this->getTranslation())
+            ->setAttribute('childrenCriteria', $criteria)
+            ->enableMaxDepthChecks();
+        if (count($this->getListingChildrenSerializationGroups()) > 0) {
+            $context->setGroups($this->getListingChildrenSerializationGroups());
         }
 
         return $context;
@@ -368,9 +440,7 @@ class NodeTypeApiController extends AbstractApiThemeApp
 
         $criteria = array_merge(
             $defaultCriteria,
-            array_filter(array_filter($options), function ($key) {
-                return !array_key_exists($key, $this->getMetaOptions());
-            }, ARRAY_FILTER_USE_KEY)
+            $this->getCriteriaFromOptions($options)
         );
 
         $entityListManager = $this->createEntityListManager(
@@ -389,6 +459,59 @@ class NodeTypeApiController extends AbstractApiThemeApp
                 $entityListManager,
                 'json',
                 $this->getListingSerializationContext()
+            ),
+            JsonResponse::HTTP_OK,
+            [],
+            true
+        );
+    }
+
+    /**
+     * @param Request $request
+     * @param int     $nodeTypeId
+     * @param int     $id
+     *
+     * @return JsonResponse
+     * @throws \Exception
+     */
+    public function getChildrenAction(Request $request, int $nodeTypeId, int $id)
+    {
+        $options = $this->resolveOptions($this->normalizeQueryParams($request->query->all()), null);
+
+        /** @var Translation|null $translation */
+        $translation = $this->get('em')->getRepository(Translation::class)->findOneByLocale($options['_locale']);
+        if (null === $translation) {
+            throw $this->createNotFoundException();
+        }
+
+        $defaultCriteria = [
+            'translation' => $translation,
+            'node.parent' => $id,
+        ];
+
+        $criteria = array_merge(
+            $defaultCriteria,
+            $this->getCriteriaFromOptions($options)
+        );
+
+        $entityListManager = $this->createEntityListManager(
+            NodesSources::class,
+            $criteria,
+            null !== $options['order'] ? $options['order'] : [
+                'node.position' => 'ASC'
+            ]
+        );
+        $entityListManager->setItemPerPage($options['itemsPerPage']);
+        $entityListManager->setPage($options['page']);
+        $entityListManager->handle();
+
+        /** @var SerializerInterface $serializer */
+        $serializer = $this->get('serializer');
+        return new JsonResponse(
+            $serializer->serialize(
+                $entityListManager,
+                'json',
+                $this->getListingChildrenSerializationContext($criteria)
             ),
             JsonResponse::HTTP_OK,
             [],

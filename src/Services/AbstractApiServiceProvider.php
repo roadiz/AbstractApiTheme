@@ -18,6 +18,7 @@ use Themes\AbstractApiTheme\Extractor\ApplicationExtractor;
 use Themes\AbstractApiTheme\Security\Authentication\Provider\AuthenticationProvider;
 use Themes\AbstractApiTheme\Security\Firewall\ApplicationListener;
 use Themes\AbstractApiTheme\Routing\ApiRouteCollection;
+use Themes\AbstractApiTheme\Serialization\ChildrenApiSubscriber;
 use Themes\AbstractApiTheme\Serialization\EntityListManagerSubscriber;
 use Themes\AbstractApiTheme\Serialization\NodeSourceApiSubscriber;
 
@@ -132,6 +133,7 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
         $container->extend('serializer.subscribers', function (array $subscribers, $c) {
             $subscribers[] = new EntityListManagerSubscriber($c['requestStack']);
             $subscribers[] = new NodeSourceApiSubscriber($c['router']);
+            $subscribers[] = new ChildrenApiSubscriber($c['em']);
             return $subscribers;
         });
     }

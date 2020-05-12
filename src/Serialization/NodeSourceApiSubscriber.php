@@ -46,6 +46,19 @@ final class NodeSourceApiSubscriber implements EventSubscriberInterface
 
         if ($visitor instanceof SerializationVisitorInterface &&
             $nodeSource instanceof NodesSources) {
+            $className = get_class($nodeSource);
+            $visitor->visitProperty(
+                new StaticPropertyMetadata('string', '@type', []),
+                str_replace(
+                    [
+                        'GeneratedNodeSources\\NS',
+                        'RZ\\Roadiz\\Core\\Entities\\',
+                        'Proxies\\__CG__\\'
+                    ],
+                    ['', '', '', ''],
+                    $className
+                )
+            );
             try {
                 $visitor->visitProperty(
                     new StaticPropertyMetadata('string', '@id', []),

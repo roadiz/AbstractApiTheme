@@ -1,6 +1,6 @@
 # Abstract API theme
 
-**Base theme for restricting public RESTful API with API keys.**
+**Base theme for createing simple public RESTful API protected with referrer API keys.**
 
 ## Configuration
 
@@ -113,7 +113,15 @@ Applications hold your API keys and control incoming requests `Referer` against 
 
 If you created a `Event` node-type, API content will be available at `/api/1.0/event` endpoint.
 
-#### Filters
+### Getting node-source details
+
+For each node-source, API will expose detailled content on `/api/1.0/event/{id}` endpoint.
+
+### Listing node-source children
+
+For each node-source, API will expose recursively its children `/api/1.0/event/{id}/children` endpoint.
+
+### Filters
 
 - itemsPerPage: `int`
 - page: `int`
