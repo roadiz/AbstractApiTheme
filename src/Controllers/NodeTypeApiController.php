@@ -169,7 +169,7 @@ class NodeTypeApiController extends AbstractApiThemeApp
                                     return trim($value);
                                 }
                             }
-                            return $value;
+                            return null;
                         });
                         break;
                 }
