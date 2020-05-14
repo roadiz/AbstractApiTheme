@@ -149,8 +149,12 @@ class NodeTypeApiController extends AbstractApiThemeApp
                     case NodeTypeField::BOOLEAN_T:
                         $resolver->setDefault($field->getVarName(), null);
                         $resolver->setNormalizer($field->getVarName(), function (Options $options, $value) {
-                            return $this->normalizeBoolean($value);
+                            if (null !== $value) {
+                                return $this->normalizeBoolean($value);
+                            }
+                            return null;
                         });
+                        break;
                     case NodeTypeField::STRING_T:
                     case NodeTypeField::COUNTRY_T:
                     case NodeTypeField::ENUM_T:
@@ -167,6 +171,7 @@ class NodeTypeApiController extends AbstractApiThemeApp
                             }
                             return $value;
                         });
+                        break;
                 }
             }
         }
