@@ -151,6 +151,22 @@ class NodeTypeApiController extends AbstractApiThemeApp
                         $resolver->setNormalizer($field->getVarName(), function (Options $options, $value) {
                             return $this->normalizeBoolean($value);
                         });
+                    case NodeTypeField::STRING_T:
+                    case NodeTypeField::COUNTRY_T:
+                    case NodeTypeField::ENUM_T:
+                        $resolver->setDefault($field->getVarName(), null);
+                        $resolver->setAllowedTypes($field->getVarName(), ['null', 'string', 'array']);
+                        $resolver->setNormalizer($field->getVarName(), function (Options $options, $value) {
+                            if (null !== $value) {
+                                if (is_array($value)) {
+                                    return array_filter($value);
+                                }
+                                if (is_string($value)) {
+                                    return trim($value);
+                                }
+                            }
+                            return $value;
+                        });
                 }
             }
         }
