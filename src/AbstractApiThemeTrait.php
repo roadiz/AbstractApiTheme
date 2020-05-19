@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Themes\AbstractApiTheme;
 
 use Pimple\Container;

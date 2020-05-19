@@ -17,8 +17,6 @@ use Symfony\Component\OptionsResolver\Exception\InvalidOptionsException;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Themes\AbstractApiTheme\AbstractApiThemeApp;
-use Themes\AbstractApiTheme\Serialization\EntityListManagerSubscriber;
-use Themes\AbstractApiTheme\Serialization\NodeSourceApiSubscriber;
 
 class NodeTypeApiController extends AbstractApiThemeApp
 {

@@ -10,7 +10,6 @@ use JMS\Serializer\Visitor\SerializationVisitorInterface;
 use RZ\Roadiz\Core\Entities\Tag;
 use RZ\Roadiz\Core\Entities\TagTranslation;
 use RZ\Roadiz\Core\Entities\Translation;
-use RZ\Roadiz\Core\Exceptions\NoTranslationAvailableException;
 
 final class TagTranslationNameSubscriber implements EventSubscriberInterface
 {
