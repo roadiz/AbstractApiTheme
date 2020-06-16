@@ -483,7 +483,7 @@ class NodeTypeApiController extends AbstractApiThemeApp
 
         /** @var SerializerInterface $serializer */
         $serializer = $this->get('serializer');
-        return new JsonResponse(
+        $response = new JsonResponse(
             $serializer->serialize(
                 $entityListManager,
                 'json',
@@ -493,6 +493,14 @@ class NodeTypeApiController extends AbstractApiThemeApp
             [],
             true
         );
+
+        /** @var int $cacheTtl */
+        $cacheTtl = $this->get('api.cache.ttl');
+        if ($cacheTtl > 0) {
+            $this->makeResponseCachable($request, $response, $cacheTtl);
+        }
+
+        return $response;
     }
 
     /**
@@ -536,7 +544,7 @@ class NodeTypeApiController extends AbstractApiThemeApp
 
         /** @var SerializerInterface $serializer */
         $serializer = $this->get('serializer');
-        return new JsonResponse(
+        $response = new JsonResponse(
             $serializer->serialize(
                 $entityListManager,
                 'json',
@@ -546,6 +554,14 @@ class NodeTypeApiController extends AbstractApiThemeApp
             [],
             true
         );
+
+        /** @var int $cacheTtl */
+        $cacheTtl = $this->get('api.cache.ttl');
+        if ($cacheTtl > 0) {
+            $this->makeResponseCachable($request, $response, $cacheTtl);
+        }
+
+        return $response;
     }
 
     /**
@@ -590,7 +606,7 @@ class NodeTypeApiController extends AbstractApiThemeApp
 
         /** @var SerializerInterface $serializer */
         $serializer = $this->get('serializer');
-        return new JsonResponse(
+        $response = new JsonResponse(
             $serializer->serialize(
                 $nodeSource,
                 'json',
@@ -600,5 +616,13 @@ class NodeTypeApiController extends AbstractApiThemeApp
             [],
             true
         );
+
+        /** @var int $cacheTtl */
+        $cacheTtl = $this->get('api.cache.ttl');
+        if ($cacheTtl > 0) {
+            $this->makeResponseCachable($request, $response, $cacheTtl);
+        }
+
+        return $response;
     }
 }

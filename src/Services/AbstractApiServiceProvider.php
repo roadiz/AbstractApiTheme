@@ -56,6 +56,11 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
         $container['api.node_type_whitelist'] = null;
 
         /**
+         * @return int
+         */
+        $container['api.cache.ttl'] = 5;
+
+        /**
          * @param Container $c
          *
          * @return string

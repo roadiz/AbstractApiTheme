@@ -38,7 +38,7 @@ class RootApiController extends AbstractApiThemeApp
 
         /** @var SerializerInterface $serializer */
         $serializer = $this->get('serializer');
-        return new JsonResponse(
+        $response = new JsonResponse(
             $serializer->serialize(
                 $finalResponse,
                 'json'
@@ -47,5 +47,13 @@ class RootApiController extends AbstractApiThemeApp
             [],
             true
         );
+
+        /** @var int $cacheTtl */
+        $cacheTtl = $this->get('api.cache.ttl');
+        if ($cacheTtl > 0) {
+            $this->makeResponseCachable($request, $response, $cacheTtl);
+        }
+
+        return $response;
     }
 }
