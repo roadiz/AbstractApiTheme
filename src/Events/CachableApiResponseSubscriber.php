@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Themes\AbstractApiTheme\Events;
 
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
@@ -48,7 +49,11 @@ final class CachableApiResponseSubscriber implements EventSubscriberInterface
         $response->setMaxAge(60 * $this->minutes);
         $response->setSharedMaxAge(60 * $this->minutes);
         $response->headers->addCacheControlDirective('must-revalidate', true);
-        $response->setVary('Accept-Encoding, X-Partial, x-requested-with, x-api-key');
+        $response->headers->add([
+            'Access-Control-Allow-Origin' => '*',
+            'Access-Control-Allow-Methods' => 'GET',
+        ]);
+        $response->setVary('Accept-Encoding, X-Partial, x-requested-with, Access-Control-Allow-Origin, x-api-key, Referer');
 
         if ($event->getRequest()->isXmlHttpRequest()) {
             $response->headers->add([

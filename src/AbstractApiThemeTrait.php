@@ -8,27 +8,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 trait AbstractApiThemeTrait
 {
-    /**
-     * @param Request  $request
-     * @param Response $response
-     * @param int      $minutes
-     *
-     * @return Response
-     */
-    public function makeResponseCachable(Request $request, Response $response, $minutes)
-    {
-        $response = parent::makeResponseCachable($request, $response, $minutes);
-
-        /** @var Request $request */
-        $response->headers->add([
-            'Access-Control-Allow-Origin' => '*',
-            'Access-Control-Allow-Methods' => 'GET',
-        ]);
-        $response->setVary('Accept-Encoding, X-Partial, x-requested-with, Access-Control-Allow-Origin, x-api-key, Referer');
-
-        return $response;
-    }
-
     public static function setupDependencyInjection(Container $container)
     {
         parent::setupDependencyInjection($container);
