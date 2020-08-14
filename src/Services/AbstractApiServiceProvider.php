@@ -15,6 +15,7 @@ use RZ\Roadiz\Core\Kernel;
 use Symfony\Component\Routing\RouteCollection;
 use Themes\AbstractApiTheme\Entity\Application;
 use Themes\AbstractApiTheme\Extractor\ApplicationExtractor;
+use Themes\AbstractApiTheme\OptionsResolver\ApiRequestOptionsResolver;
 use Themes\AbstractApiTheme\Security\Authentication\Provider\AuthenticationProvider;
 use Themes\AbstractApiTheme\Security\Firewall\ApplicationListener;
 use Themes\AbstractApiTheme\Routing\ApiRouteCollection;
@@ -99,6 +100,14 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
                 $c['api.application_extractor']
             );
         };
+
+        $container[ApiRequestOptionsResolver::class] = $container->factory(function ($c) {
+            return new ApiRequestOptionsResolver(
+                $c['defaultTranslation']->getLocale(),
+                $c['tagApi'],
+                $c['nodeApi']
+            );
+        });
 
         $container['api.application_factory'] = $container->factory(function ($c) {
             $className = $c['api.application_class'];
