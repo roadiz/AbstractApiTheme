@@ -55,6 +55,8 @@ class NodeTypeApiController extends AbstractApiThemeApp
     protected function getDetailSerializationGroups(): array
     {
         return [
+            'walker', // rezozero tree-walker
+            'children', // rezozero tree-walker
             'nodes_sources',
             'tag_base',
             'urls',
