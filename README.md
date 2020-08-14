@@ -147,7 +147,7 @@ On `NodesSources` content:
     - `strictly_before`
 - tags: `array<string>`
 - tagExclusive: `bool`
-- node.parent: `int`
+- node.parent: `int` or `string` (node-name)
 - node.visible: `bool`
 - node.nodeType.reachable: `bool`
 
