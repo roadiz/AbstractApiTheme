@@ -399,6 +399,9 @@ class NodeTypeApiController extends AbstractApiThemeApp
     }
 
     /**
+     * @param array $criteria
+     * @param int   $maxChildrenCount
+     *
      * @return SerializationContext
      */
     protected function getListingChildrenSerializationContext(array $criteria, int $maxChildrenCount = 30): SerializationContext
@@ -488,67 +491,6 @@ class NodeTypeApiController extends AbstractApiThemeApp
                 $entityListManager,
                 'json',
                 $this->getListingSerializationContext()
-            ),
-            JsonResponse::HTTP_OK,
-            [],
-            true
-        );
-
-        /** @var int $cacheTtl */
-        $cacheTtl = $this->get('api.cache.ttl');
-        if ($cacheTtl > 0) {
-            $this->makeResponseCachable($request, $response, $cacheTtl);
-        }
-
-        return $response;
-    }
-
-    /**
-     * @param Request $request
-     * @param int     $nodeTypeId
-     * @param int     $id
-     *
-     * @return JsonResponse
-     * @throws \Exception
-     */
-    public function getChildrenAction(Request $request, int $nodeTypeId, int $id)
-    {
-        $options = $this->resolveOptions($this->normalizeQueryParams($request->query->all()), null);
-
-        /** @var Translation|null $translation */
-        $translation = $this->get('em')->getRepository(Translation::class)->findOneByLocale($options['_locale']);
-        if (null === $translation) {
-            throw $this->createNotFoundException();
-        }
-
-        $defaultCriteria = [
-            'translation' => $translation,
-            'node.parent' => $id,
-        ];
-
-        $criteria = array_merge(
-            $defaultCriteria,
-            $this->getCriteriaFromOptions($options)
-        );
-
-        $entityListManager = $this->createEntityListManager(
-            NodesSources::class,
-            $criteria,
-            null !== $options['order'] ? $options['order'] : [
-                'node.position' => 'ASC'
-            ]
-        );
-        $entityListManager->setItemPerPage($options['itemsPerPage']);
-        $entityListManager->setPage($options['page']);
-        $entityListManager->handle();
-
-        /** @var SerializerInterface $serializer */
-        $serializer = $this->get('serializer');
-        $response = new JsonResponse(
-            $serializer->serialize(
-                $entityListManager,
-                'json',
-                $this->getListingChildrenSerializationContext($criteria, $options['maxChildrenCount'])
             ),
             JsonResponse::HTTP_OK,
             [],

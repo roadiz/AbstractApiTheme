@@ -166,24 +166,6 @@ final class ApiRouteCollection extends DeferredRouteCollection
             )
         );
 
-        $collection->add(
-            'get_single_graph_'.mb_strtolower($nodeType->getName()),
-            new Route(
-                $this->routePrefix . '/' . mb_strtolower($nodeType->getName()) . '/{id}/children',
-                [
-                    '_controller' => NodeTypeApiController::class . '::getChildrenAction',
-                    'nodeTypeId' => $nodeType->getId()
-                ],
-                [
-                    'id' => '[0-9]+'
-                ],
-                [],
-                '',
-                [],
-                ['GET'],
-                ''
-            )
-        );
         return $collection;
     }
 }
