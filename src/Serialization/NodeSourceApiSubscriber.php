@@ -42,7 +42,6 @@ final class NodeSourceApiSubscriber implements EventSubscriberInterface
     {
         $nodeSource = $event->getObject();
         $visitor = $event->getVisitor();
-        $context = $event->getContext();
 
         if ($visitor instanceof SerializationVisitorInterface &&
             $nodeSource instanceof NodesSources &&

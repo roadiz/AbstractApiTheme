@@ -41,7 +41,6 @@ final class EntityListManagerSubscriber implements EventSubscriberInterface
     {
         $entityListManager = $event->getObject();
         $visitor = $event->getVisitor();
-        $context = $event->getContext();
 
         if ($visitor instanceof SerializationVisitorInterface &&
                 $entityListManager instanceof EntityListManager) {

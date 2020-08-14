@@ -12,7 +12,6 @@ namespace Themes\AbstractApiTheme;
 use Pimple\Container;
 use RZ\Roadiz\CMS\Controllers\FrontendController;
 use RZ\Roadiz\Core\Bags\Settings;
-use RZ\Roadiz\Core\Events\CachableResponseSubscriber;
 use RZ\Roadiz\Core\Kernel;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
