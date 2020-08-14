@@ -47,6 +47,9 @@ final class EntityListManagerSubscriber implements EventSubscriberInterface
                 $entityListManager instanceof EntityListManager) {
             $entities = $entityListManager->getEntities();
             $request = $this->requestStack->getCurrentRequest();
+            if (null === $request) {
+                return;
+            }
             if ($entities instanceof Paginator) {
                 $visitor->visitProperty(
                     new StaticPropertyMetadata('Iterator', 'hydra:member', []),

@@ -66,13 +66,12 @@ class ApplicationListener
             return;
         }
 
-        /** @var Application $application */
         $application = $this->applicationExtractor->extractApplication($request);
 
         if (null !== $application) {
             $token = new ApplicationToken();
             $token->setUser($application);
-            $token->setReferer($request->headers->get('referer', ''));
+            $token->setReferer($request->headers->get('referer', '') ?? '');
 
             try {
                 $authToken = $this->authenticationManager->authenticate($token);

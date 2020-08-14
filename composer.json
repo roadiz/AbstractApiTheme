@@ -4,9 +4,10 @@
     "type": "library",
     "require": {
         "php":">=7.2",
-        "roadiz/roadiz": "^1.4 || dev-develop",
-        "roadiz/documents": "^1.4 || dev-develop",
-        "roadiz/models": "^1.4 || dev-develop",
+        "roadiz/roadiz": "^1.5 || dev-develop",
+        "roadiz/documents": "^1.5 || dev-develop",
+        "roadiz/models": "^1.5 || dev-develop",
+        "roadiz/markdown": "^1.5 || dev-develop",
         "ramsey/uuid": "^3.8",
         "friendsofsymfony/jsrouting-bundle": "^2.5.3"
     },

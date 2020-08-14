@@ -193,7 +193,7 @@ class NodeTypeApiController extends AbstractApiThemeApp
      * @param Options $options
      * @param mixed   $value
      *
-     * @return array
+     * @return array|\DateTime
      * @throws \Exception
      */
     protected function normalizePublishedAtFilter(Options $options, $value)

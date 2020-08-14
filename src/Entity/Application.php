@@ -54,13 +54,13 @@ class Application extends AbstractDateTimed implements UserInterface, AdvancedUs
     private $apiKey = '';
 
     /**
-     * @var array
+     * @var array<string>
      * @ORM\Column(type="simple_array", name="roles")
      */
     private $roles = [];
 
     /**
-     * @var string
+     * @var string|null
      * @ORM\Column(type="string", name="referer_regex", nullable=true)
      */
     private $refererRegex;
@@ -113,7 +113,7 @@ class Application extends AbstractDateTimed implements UserInterface, AdvancedUs
     }
 
     /**
-     * @inheritDoc
+     * @return array|string[]
      */
     public function getRoles()
     {
@@ -229,7 +229,7 @@ class Application extends AbstractDateTimed implements UserInterface, AdvancedUs
     }
 
     /**
-     * @param string $refererRegex
+     * @param string|null $refererRegex
      *
      * @return Application
      */

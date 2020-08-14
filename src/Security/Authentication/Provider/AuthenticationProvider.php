@@ -31,7 +31,7 @@ class AuthenticationProvider implements AuthenticationProviderInterface
      * @param ApplicationProviderInterface $provider
      * @param TokenInterface        $token
      *
-     * @return bool|ApplicationToken
+     * @return false|ApplicationToken
      * @throws AuthenticationException
      */
     protected function doAuth($provider, TokenInterface $token)

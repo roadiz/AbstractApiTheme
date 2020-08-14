@@ -44,6 +44,7 @@ final class ChildrenApiSubscriber implements EventSubscriberInterface
 
         if ($visitor instanceof SerializationVisitorInterface &&
             $nodeSource instanceof NodesSources &&
+            null !== $nodeSource->getNode() &&
             $context->hasAttribute('groups') &&
             $context->hasAttribute('childrenCriteria') &&
             $context->hasAttribute('maxChildrenCount') &&
