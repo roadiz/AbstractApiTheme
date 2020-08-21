@@ -117,18 +117,36 @@ Note: In listing context, only node-type-fields from *default* group will be exp
 
 ### Getting node-source details
 
-For each node-source, API will expose detailled content on `/api/1.0/event/{id}` endpoint.
+For each node-source, API will expose detailed content on `/api/1.0/event/{id}` endpoint.
 
 ### Listing node-source children
 
-For each node-source, API will expose recursively its children `/api/1.0/event/{id}/children` endpoint.
+For safety reasons, we do not embed node-sources children automatically. We invite you to use [TreeWalker](https://github.com/rezozero/tree-walker) library to extend your JSON serialization to build a safe graph for each of your node-types.
 
-Note: In children context, only node-type-fields from *default* group will be exposed.
+```php
+$blockWalker = BlockNodeSourceWalker::build(
+    $nodeSource,
+    $this->get(NodeSourceWalkerContext::class),
+    4, // max graph level
+    $this->get('nodesSourcesUrlCacheProvider')
+);
+$visitor->visitProperty(
+    new StaticPropertyMetadata(
+        'Collection',
+        'children',
+        [],
+        array_merge($context->getAttribute('groups'), [
+            'walker',
+            'children'
+        ])
+    ),
+    $blockWalker->getChildren()
+);
+```
 
 ### Filters
 
 - itemsPerPage: `int`
-- maxChildrenCount: `int` (only in *children* requests)
 - page: `int`
 - _locale: `string`
 - search: `string`
