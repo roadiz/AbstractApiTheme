@@ -45,7 +45,8 @@ final class NodeSourceApiSubscriber implements EventSubscriberInterface
 
         if ($visitor instanceof SerializationVisitorInterface &&
             $nodeSource instanceof NodesSources &&
-            null !== $nodeSource->getNode()) {
+            null !== $nodeSource->getNode() &&
+            null !== $nodeSource->getNode()->getNodeType()) {
             $className = get_class($nodeSource);
             $visitor->visitProperty(
                 new StaticPropertyMetadata('string', '@type', []),
