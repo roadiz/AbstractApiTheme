@@ -54,7 +54,7 @@
                             </td>
                             <td><a href="{{ path('adminApiApplicationsDetails', {id: application.id}) }}">{{- application.appName -}}</a></td>
                             <td><code>{{- application.apiKey -}}</code></td>
-                            <td class="uk-visible-xlarge">{{- application.updatedAt|format_datetime('short', 'short') -}}</td>
+                            <td class="uk-visible-xlarge">{{- application.updatedAt|format_datetime('short', 'short', locale=app.request.locale) -}}</td>
                             <td class="table-actions-row">
                                 <a href="{{ path('adminApiApplicationsDetails', {id: application.id}) }}"
                                    title="{% trans %}edit{% endtrans %}"
