@@ -19,7 +19,7 @@
             }
         }) }}{{ form_widget(form) }}
         <fieldset data-uk-margin>
-            {% spaceless %}
+            {% apply spaceless %}
                 <button data-action-save="#application-form"
                         class="uk-button uk-button-primary rz-action-save" type="submit">
                     <span class="icon-container"><i class="uk-icon-rz-save"></i></span>
@@ -27,7 +27,7 @@
                                 {%- trans -%}api.applications.form.add{%- endtrans -%}
                             {% endblock %}</span></span>
                 </button>
-            {% endspaceless %}
+            {% endapply %}
         </fieldset>
         {{ form_end(form) }}
     </article>

@@ -1,18 +1,14 @@
-{% if not head.ajax %}{% set baseTemplate = '@Rozier/base.html.twig' %}{% else %}{% set baseTemplate = '@Rozier/ajaxBase.html.twig' %}{% endif %}
-{% extends baseTemplate %}
+{% extends "@Rozier/layout.html.twig" %}
 
 {% block content %}
     <section class="content-global">
         <header class="content-header">
             <h1 class="content-title">{%- block content_title -%}{%- endblock -%}</h1>
-
             <div class="content-header-action-menu">
                 {%- block content_header_actions -%}{%- endblock -%}
             </div>
 
-            {%- block content_header_nav -%}
-
-            {%- endblock -%}
+            {%- block content_header_nav -%}{%- endblock -%}
         </header>
         {%- block content_filters -%}{%- endblock -%}
 

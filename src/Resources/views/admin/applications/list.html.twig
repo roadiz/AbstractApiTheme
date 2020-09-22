@@ -36,7 +36,7 @@
                 </thead>
                 <tbody>
                 {% for application in applications %}
-                    {% spaceless %}
+                    {% apply spaceless %}
                         <tr>
                             <td class="uk-visible-xlarge">
                                 {%- if application.Enabled -%}
@@ -54,7 +54,7 @@
                             </td>
                             <td><a href="{{ path('adminApiApplicationsDetails', {id: application.id}) }}">{{- application.appName -}}</a></td>
                             <td><code>{{- application.apiKey -}}</code></td>
-                            <td class="uk-visible-xlarge">{{- application.updatedAt|localizeddate('short', 'short') -}}</td>
+                            <td class="uk-visible-xlarge">{{- application.updatedAt|format_datetime('short', 'short') -}}</td>
                             <td class="table-actions-row">
                                 <a href="{{ path('adminApiApplicationsDetails', {id: application.id}) }}"
                                    title="{% trans %}edit{% endtrans %}"
@@ -64,7 +64,7 @@
                                    class="uk-button uk-button-content uk-button-small uk-button-table-delete"><i class="uk-icon-rz-trash-mini-o"></i></a>
                             </td>
                         </tr>
-                    {% endspaceless %}
+                    {% endapply %}
                 {% else %}
                     <tr>
                         <td colspan="6">{% trans %}api.no_application{% endtrans %}</td>

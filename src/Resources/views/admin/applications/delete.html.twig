@@ -20,7 +20,7 @@
         }) }}{{ form_widget(form) }}
         <fieldset data-uk-margin>
             <legend class="uk-alert uk-alert-danger"><i class="uk-icon uk-icon-warning"></i> {% trans %}api.applications.are_you_sure_delete{% endtrans %}</legend>
-            {% spaceless %}
+            {% apply spaceless %}
                 <a href="{{ path('adminApiApplications') }}"
                    class="uk-button"><i class="uk-icon-rz-back-parent"></i> {% trans %}cancel{% endtrans %}</a>
                 <button data-action-save="#application-form"
@@ -30,7 +30,7 @@
                                 {%- trans -%}api.applications.form.delete{%- endtrans -%}
                             {% endblock %}</span></span>
                 </button>
-            {% endspaceless %}
+            {% endapply %}
         </fieldset>
         {{ form_end(form) }}
     </article>
