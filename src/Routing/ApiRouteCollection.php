@@ -104,7 +104,6 @@ final class ApiRouteCollection extends DeferredRouteCollection
             if (null === $this->nodeTypeWhitelist) {
                 /** @var NodeType[] $nodeTypes */
                 $nodeTypes = $this->nodeTypesBag->all();
-                /** @var NodeType $nodeType */
                 foreach ($nodeTypes as $nodeType) {
                     $this->addCollection($this->getCollectionForNodeType($nodeType));
                 }
@@ -157,6 +156,24 @@ final class ApiRouteCollection extends DeferredRouteCollection
                 ],
                 [
                     'id' => '[0-9]+'
+                ],
+                [],
+                '',
+                [],
+                ['GET'],
+                ''
+            )
+        );
+        $collection->add(
+            'get_single_slug_'.mb_strtolower($nodeType->getName()),
+            new Route(
+                $this->routePrefix . '/' . mb_strtolower($nodeType->getName()) . '/by-slug/{slug}',
+                [
+                    '_controller' => NodeTypeApiController::class . '::getDetailBySlugAction',
+                    'nodeTypeId' => $nodeType->getId()
+                ],
+                [
+                    'slug' => '[a-z\-0-9]+'
                 ],
                 [],
                 '',

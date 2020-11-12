@@ -5,10 +5,13 @@ namespace Themes\AbstractApiTheme\Controllers;
 
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
+use RZ\Roadiz\Core\Entities\Node;
+use RZ\Roadiz\Core\Entities\NodesSources;
 use RZ\Roadiz\Core\Entities\NodeType;
 use RZ\Roadiz\Core\Entities\Translation;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Themes\AbstractApiTheme\AbstractApiThemeApp;
 use Themes\AbstractApiTheme\OptionsResolver\ApiRequestOptionsResolver;
 
@@ -148,7 +151,7 @@ class NodeTypeApiController extends AbstractApiThemeApp
      * @param int     $nodeTypeId
      * @param int     $id
      *
-     * @return JsonResponse
+     * @return Response|JsonResponse
      * @throws \Exception
      */
     public function getDetailAction(Request $request, int $nodeTypeId, int $id)
@@ -179,6 +182,69 @@ class NodeTypeApiController extends AbstractApiThemeApp
             $criteria['publishedAt'] = ['<=', new \DateTime()];
         }
 
+        return $this->getNodesSourcesResponse($request, $criteria);
+    }
+
+    /**
+     * @param Request $request
+     * @param int $nodeTypeId
+     * @param string $slug
+     * @return Response
+     * @throws \Exception
+     */
+    public function getDetailBySlugAction(Request $request, int $nodeTypeId, string $slug)
+    {
+        /** @var NodeType|null $nodeType */
+        $nodeType = $this->get('em')->find(NodeType::class, $nodeTypeId);
+        /** @var ApiRequestOptionsResolver $apiOptionsResolver */
+        $apiOptionsResolver = $this->get(ApiRequestOptionsResolver::class);
+        $options = $apiOptionsResolver->resolve($request->query->all(), $nodeType);
+
+        if (null === $nodeType) {
+            throw $this->createNotFoundException();
+        }
+
+        /** @var Translation|null $translation */
+        $translation = $this->get('em')->getRepository(Translation::class)->findOneByLocale($options['_locale']);
+        if (null === $translation) {
+            $translation = $this->get('defaultTranslation');
+        }
+
+        /*
+         * Get a routing resource array
+         */
+        $array = $this->get('em')->getRepository(Node::class)
+            ->findNodeTypeNameAndSourceIdByIdentifier(
+                $slug,
+                $translation,
+                true // only find available translations
+            );
+
+        if (null === $array) {
+            throw $this->createNotFoundException();
+        }
+
+        $criteria = [
+            'node.nodeType' => $nodeType,
+            'node.id' => $array['id'],
+            'translation' => $translation,
+        ];
+
+        if ($nodeType->isPublishable()) {
+            $criteria['publishedAt'] = ['<=', new \DateTime()];
+        }
+
+        return $this->getNodesSourcesResponse($request, $criteria);
+    }
+
+    /**
+     * @param Request $request
+     * @param array $criteria
+     * @return Response
+     */
+    protected function getNodesSourcesResponse(Request $request, array &$criteria): Response
+    {
+        /** @var NodesSources|null $nodeSource */
         $nodeSource = $this->get('nodeSourceApi')->getOneBy($criteria);
 
         if (null === $nodeSource) {
