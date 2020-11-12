@@ -14,6 +14,8 @@ use Pimple\ServiceProviderInterface;
 use RZ\Roadiz\Core\Kernel;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouteCollection;
+use Themes\AbstractApiTheme\Controllers\NodeTypeApiController;
+use Themes\AbstractApiTheme\Controllers\RootApiController;
 use Themes\AbstractApiTheme\Entity\Application;
 use Themes\AbstractApiTheme\Extractor\ApplicationExtractor;
 use Themes\AbstractApiTheme\OptionsResolver\ApiRequestOptionsResolver;
@@ -56,6 +58,16 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
          * @return null|array
          */
         $container['api.node_type_whitelist'] = null;
+
+        /**
+         * @return string
+         */
+        $container['api.root_controller_class'] = RootApiController::class;
+
+        /**
+         * @return string
+         */
+        $container['api.node_type_controller_class'] = NodeTypeApiController::class;
 
         /**
          * @return int
@@ -129,7 +141,9 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
                 $kernel->isPreview(),
                 $c['api.prefix'],
                 $c['api.version'],
-                $c['api.node_type_whitelist']
+                $c['api.node_type_whitelist'],
+                $c['api.root_controller_class'],
+                $c['api.node_type_controller_class']
             );
         };
 

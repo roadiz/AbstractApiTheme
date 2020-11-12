@@ -117,7 +117,7 @@ Note: In listing context, only node-type-fields from *default* group will be exp
 
 ### Getting node-source details
 
-For each node-source, API will expose detailed content on `/api/1.0/event/{id}` endpoint.
+For each node-source, API will expose detailed content on `/api/1.0/event/{id}` and `/api/1.0/event/by-slug/{slug}` endpoints.
 
 ### Listing node-source children
 

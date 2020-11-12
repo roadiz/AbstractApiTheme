@@ -43,18 +43,6 @@ class NodeTypeApiController extends AbstractApiThemeApp
         return $context;
     }
 
-    protected function getListingChildrenSerializationGroups(): array
-    {
-        return [
-            'nodes_sources_base',
-            'nodes_source_children',
-            'tag_base',
-            'nodes_sources_default',
-            'urls',
-            'meta',
-        ];
-    }
-
     protected function getDetailSerializationGroups(): array
     {
         return [
@@ -63,6 +51,7 @@ class NodeTypeApiController extends AbstractApiThemeApp
             'nodes_sources',
             'tag_base',
             'urls',
+            'meta',
         ];
     }
 

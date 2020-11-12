@@ -47,17 +47,27 @@ final class ApiRouteCollection extends DeferredRouteCollection
      * @var array|null
      */
     protected $nodeTypeWhitelist;
+    /**
+     * @var string
+     */
+    private $rootControllerClass;
+    /**
+     * @var string
+     */
+    private $nodeTypeControllerClass;
 
     /**
      * ApiRouteCollection constructor.
      *
-     * @param NodeTypes      $nodeTypesBag
-     * @param Settings       $settingsBag
+     * @param NodeTypes $nodeTypesBag
+     * @param Settings $settingsBag
      * @param Stopwatch|null $stopwatch
-     * @param bool           $isPreview
-     * @param string         $apiPrefix
-     * @param string         $apiVersion
-     * @param array|null     $nodeTypeWhitelist
+     * @param bool $isPreview
+     * @param string $apiPrefix
+     * @param string $apiVersion
+     * @param array|null $nodeTypeWhitelist
+     * @param string $rootControllerClass
+     * @param string $nodeTypeControllerClass
      */
     public function __construct(
         NodeTypes $nodeTypesBag,
@@ -66,7 +76,9 @@ final class ApiRouteCollection extends DeferredRouteCollection
         $isPreview = false,
         $apiPrefix = '/api',
         $apiVersion = '1.0',
-        $nodeTypeWhitelist = null
+        $nodeTypeWhitelist = null,
+        $rootControllerClass = RootApiController::class,
+        $nodeTypeControllerClass = NodeTypeApiController::class
     ) {
         $this->stopwatch = $stopwatch;
         $this->isPreview = $isPreview;
@@ -77,6 +89,8 @@ final class ApiRouteCollection extends DeferredRouteCollection
 
         $this->routePrefix = $this->apiPrefix . '/' . $this->apiVersion;
         $this->nodeTypeWhitelist = $nodeTypeWhitelist;
+        $this->rootControllerClass = $rootControllerClass;
+        $this->nodeTypeControllerClass = $nodeTypeControllerClass;
     }
 
     public function parseResources(): void
@@ -89,7 +103,7 @@ final class ApiRouteCollection extends DeferredRouteCollection
             new Route(
                 $this->routePrefix,
                 [
-                    '_controller' => RootApiController::class . '::getRootAction',
+                    '_controller' => $this->rootControllerClass . '::getRootAction',
                 ],
                 [],
                 [],
@@ -135,7 +149,7 @@ final class ApiRouteCollection extends DeferredRouteCollection
             new Route(
                 $this->routePrefix . '/' . mb_strtolower($nodeType->getName()),
                 [
-                    '_controller' => NodeTypeApiController::class . '::getListingAction',
+                    '_controller' => $this->nodeTypeControllerClass . '::getListingAction',
                     'nodeTypeId' => $nodeType->getId()
                 ],
                 [],
@@ -151,7 +165,7 @@ final class ApiRouteCollection extends DeferredRouteCollection
             new Route(
                 $this->routePrefix . '/' . mb_strtolower($nodeType->getName()) . '/{id}',
                 [
-                    '_controller' => NodeTypeApiController::class . '::getDetailAction',
+                    '_controller' => $this->nodeTypeControllerClass . '::getDetailAction',
                     'nodeTypeId' => $nodeType->getId()
                 ],
                 [
@@ -169,7 +183,7 @@ final class ApiRouteCollection extends DeferredRouteCollection
             new Route(
                 $this->routePrefix . '/' . mb_strtolower($nodeType->getName()) . '/by-slug/{slug}',
                 [
-                    '_controller' => NodeTypeApiController::class . '::getDetailBySlugAction',
+                    '_controller' => $this->nodeTypeControllerClass . '::getDetailBySlugAction',
                     'nodeTypeId' => $nodeType->getId()
                 ],
                 [
