@@ -12,6 +12,7 @@ namespace Themes\AbstractApiTheme\Services;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 use RZ\Roadiz\Core\Kernel;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouteCollection;
 use Themes\AbstractApiTheme\Entity\Application;
 use Themes\AbstractApiTheme\Extractor\ApplicationExtractor;
@@ -114,6 +115,10 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
             return new $className($c['api.base_role'], $c['config']["appNamespace"]);
         });
 
+        $container['api.reference_type'] = function () {
+            return UrlGeneratorInterface::ABSOLUTE_URL;
+        };
+
         $container['api.route_collection'] = function (Container $c) {
             /** @var Kernel $kernel */
             $kernel = $c['kernel'];
@@ -147,7 +152,7 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
 
         $container->extend('serializer.subscribers', function (array $subscribers, $c) {
             $subscribers[] = new EntityListManagerSubscriber($c['requestStack']);
-            $subscribers[] = new NodeSourceApiSubscriber($c['router']);
+            $subscribers[] = new NodeSourceApiSubscriber($c['router'], $c['api.reference_type']);
             $subscribers[] = new ChildrenApiSubscriber($c['em']);
             $subscribers[] = new TagTranslationNameSubscriber();
             return $subscribers;

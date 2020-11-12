@@ -17,15 +17,23 @@ final class NodeSourceApiSubscriber implements EventSubscriberInterface
      * @var UrlGeneratorInterface
      */
     private $urlGenerator;
+    /**
+     * @var int
+     */
+    private $referenceType;
 
     /**
      * NodeSourceApiSubscriber constructor.
      *
      * @param UrlGeneratorInterface $urlGenerator
+     * @param int $referenceType
      */
-    public function __construct(UrlGeneratorInterface $urlGenerator)
-    {
+    public function __construct(
+        UrlGeneratorInterface $urlGenerator,
+        int $referenceType = UrlGeneratorInterface::ABSOLUTE_URL
+    ) {
         $this->urlGenerator = $urlGenerator;
+        $this->referenceType = $referenceType;
     }
 
 
@@ -68,7 +76,7 @@ final class NodeSourceApiSubscriber implements EventSubscriberInterface
                         [
                             'id' => $nodeSource->getNode()->getId()
                         ],
-                        UrlGeneratorInterface::ABSOLUTE_URL
+                        $this->referenceType
                     )
                 );
             } catch (RouteNotFoundException $e) {
