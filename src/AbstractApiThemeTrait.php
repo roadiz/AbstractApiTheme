@@ -3,8 +3,6 @@
 namespace Themes\AbstractApiTheme;
 
 use Pimple\Container;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 
 trait AbstractApiThemeTrait
 {

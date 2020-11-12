@@ -13,7 +13,7 @@ use Symfony\Component\Stopwatch\Stopwatch;
 use Themes\AbstractApiTheme\Controllers\NodeTypeApiController;
 use Themes\AbstractApiTheme\Controllers\RootApiController;
 
-final class ApiRouteCollection extends DeferredRouteCollection
+class ApiRouteCollection extends DeferredRouteCollection
 {
     /**
      * @var NodeTypes
@@ -69,7 +69,7 @@ final class ApiRouteCollection extends DeferredRouteCollection
      * @param string $rootControllerClass
      * @param string $nodeTypeControllerClass
      */
-    public function __construct(
+    final public function __construct(
         NodeTypes $nodeTypesBag,
         Settings $settingsBag,
         Stopwatch $stopwatch = null,
