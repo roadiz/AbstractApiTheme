@@ -36,7 +36,6 @@ final class NodeSourceApiSubscriber implements EventSubscriberInterface
         $this->referenceType = $referenceType;
     }
 
-
     public static function getSubscribedEvents()
     {
         return [[

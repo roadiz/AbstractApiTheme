@@ -33,7 +33,6 @@ final class EntityListManagerSubscriber implements EventSubscriberInterface
         return [[
             'event' => 'serializer.post_serialize',
             'method' => 'onPostSerialize',
-            'class' => EntityListManager::class
         ]];
     }
 

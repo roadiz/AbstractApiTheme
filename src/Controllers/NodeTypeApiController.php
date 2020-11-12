@@ -68,14 +68,19 @@ class NodeTypeApiController extends AbstractApiThemeApp
         return $context;
     }
 
+    protected function getListingType(?NodeType $nodeType): string
+    {
+        return $nodeType ? $nodeType->getSourceEntityFullQualifiedClassName() : NodesSources::class;
+    }
+
     /**
      * @param Request $request
      * @param int     $nodeTypeId
      *
-     * @return JsonResponse
+     * @return Response|JsonResponse
      * @throws \Exception
      */
-    public function getListingAction(Request $request, int $nodeTypeId)
+    public function getListingAction(Request $request, int $nodeTypeId): Response
     {
         /** @var NodeType|null $nodeType */
         $nodeType = $this->get('em')->find(NodeType::class, $nodeTypeId);
@@ -104,35 +109,12 @@ class NodeTypeApiController extends AbstractApiThemeApp
             $apiOptionsResolver->getCriteriaFromOptions($options)
         );
 
-        $entityListManager = $this->createEntityListManager(
-            $nodeType->getSourceEntityFullQualifiedClassName(),
+        return $this->getEntityListManagerResponse(
+            $request,
+            $nodeType,
             $criteria,
-            null !== $options['order'] ? $options['order'] : []
+            $options
         );
-        $entityListManager->setItemPerPage($options['itemsPerPage']);
-        $entityListManager->setPage($options['page']);
-        $entityListManager->handle();
-
-        /** @var SerializerInterface $serializer */
-        $serializer = $this->get('serializer');
-        $response = new JsonResponse(
-            $serializer->serialize(
-                $entityListManager,
-                'json',
-                $this->getListingSerializationContext()
-            ),
-            JsonResponse::HTTP_OK,
-            [],
-            true
-        );
-
-        /** @var int $cacheTtl */
-        $cacheTtl = $this->get('api.cache.ttl');
-        if ($cacheTtl > 0) {
-            $this->makeResponseCachable($request, $response, $cacheTtl);
-        }
-
-        return $response;
     }
 
     /**
@@ -143,7 +125,7 @@ class NodeTypeApiController extends AbstractApiThemeApp
      * @return Response|JsonResponse
      * @throws \Exception
      */
-    public function getDetailAction(Request $request, int $nodeTypeId, int $id)
+    public function getDetailAction(Request $request, int $nodeTypeId, int $id): Response
     {
         /** @var NodeType|null $nodeType */
         $nodeType = $this->get('em')->find(NodeType::class, $nodeTypeId);
@@ -181,7 +163,7 @@ class NodeTypeApiController extends AbstractApiThemeApp
      * @return Response
      * @throws \Exception
      */
-    public function getDetailBySlugAction(Request $request, int $nodeTypeId, string $slug)
+    public function getDetailBySlugAction(Request $request, int $nodeTypeId, string $slug): Response
     {
         /** @var NodeType|null $nodeType */
         $nodeType = $this->get('em')->find(NodeType::class, $nodeTypeId);
@@ -247,6 +229,50 @@ class NodeTypeApiController extends AbstractApiThemeApp
                 $nodeSource,
                 'json',
                 $this->getDetailSerializationContext()
+            ),
+            JsonResponse::HTTP_OK,
+            [],
+            true
+        );
+
+        /** @var int $cacheTtl */
+        $cacheTtl = $this->get('api.cache.ttl');
+        if ($cacheTtl > 0) {
+            $this->makeResponseCachable($request, $response, $cacheTtl);
+        }
+
+        return $response;
+    }
+
+    /**
+     * @param Request $request
+     * @param NodeType|null $nodeType
+     * @param array $criteria
+     * @param array $options
+     * @return Response
+     */
+    protected function getEntityListManagerResponse(
+        Request $request,
+        ?NodeType $nodeType,
+        array &$criteria,
+        array &$options
+    ): Response {
+        $entityListManager = $this->createEntityListManager(
+            $this->getListingType($nodeType),
+            $criteria,
+            null !== $options['order'] ? $options['order'] : []
+        );
+        $entityListManager->setItemPerPage($options['itemsPerPage']);
+        $entityListManager->setPage($options['page']);
+        $entityListManager->handle();
+
+        /** @var SerializerInterface $serializer */
+        $serializer = $this->get('serializer');
+        $response = new JsonResponse(
+            $serializer->serialize(
+                $entityListManager,
+                'json',
+                $this->getListingSerializationContext()
             ),
             JsonResponse::HTTP_OK,
             [],
