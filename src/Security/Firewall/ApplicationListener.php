@@ -9,14 +9,12 @@ declare(strict_types=1);
 
 namespace Themes\AbstractApiTheme\Security\Firewall;
 
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\Security\Core\Authentication\AuthenticationManagerInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
-use Themes\AbstractApiTheme\Entity\Application;
+use Themes\AbstractApiTheme\Exception\InvalidApiKeyException;
 use Themes\AbstractApiTheme\Extractor\ApplicationExtractorInterface;
 use Themes\AbstractApiTheme\Security\Authentication\Token\ApplicationToken;
 
@@ -30,7 +28,6 @@ class ApplicationListener
      * @var TokenStorageInterface
      */
     private $tokenStorage;
-
     /**
      * @var ApplicationExtractorInterface
      */
@@ -59,10 +56,6 @@ class ApplicationListener
         $request = $event->getRequest();
 
         if (false === $this->applicationExtractor->hasApiKey($request)) {
-            $response = new JsonResponse();
-            $response->setData(['message' => 'Api key is missing.']);
-            $response->setStatusCode(Response::HTTP_UNAUTHORIZED);
-            $event->setResponse($response);
             return;
         }
 
@@ -90,10 +83,7 @@ class ApplicationListener
             $message = 'Api key is not valid.';
         }
 
-        $response = new JsonResponse();
-        $response->setData(['message' => $message]);
-        $response->setStatusCode(Response::HTTP_FORBIDDEN);
-        $event->setResponse($response);
+        throw new InvalidApiKeyException($message);
     }
 
     /**

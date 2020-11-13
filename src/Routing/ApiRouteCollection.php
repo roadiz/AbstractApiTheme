@@ -12,6 +12,8 @@ use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Stopwatch\Stopwatch;
 use Themes\AbstractApiTheme\Controllers\NodeTypeApiController;
 use Themes\AbstractApiTheme\Controllers\RootApiController;
+use Themes\AbstractApiTheme\Controllers\TokenController;
+use Themes\AbstractApiTheme\Controllers\UserApiController;
 
 class ApiRouteCollection extends DeferredRouteCollection
 {
@@ -55,6 +57,10 @@ class ApiRouteCollection extends DeferredRouteCollection
      * @var string
      */
     private $nodeTypeControllerClass;
+    /**
+     * @var string
+     */
+    private $userControllerClass;
 
     /**
      * ApiRouteCollection constructor.
@@ -68,6 +74,7 @@ class ApiRouteCollection extends DeferredRouteCollection
      * @param array|null $nodeTypeWhitelist
      * @param string $rootControllerClass
      * @param string $nodeTypeControllerClass
+     * @param string $userControllerClass
      */
     final public function __construct(
         NodeTypes $nodeTypesBag,
@@ -78,7 +85,8 @@ class ApiRouteCollection extends DeferredRouteCollection
         $apiVersion = '1.0',
         $nodeTypeWhitelist = null,
         $rootControllerClass = RootApiController::class,
-        $nodeTypeControllerClass = NodeTypeApiController::class
+        $nodeTypeControllerClass = NodeTypeApiController::class,
+        $userControllerClass = UserApiController::class
     ) {
         $this->stopwatch = $stopwatch;
         $this->isPreview = $isPreview;
@@ -91,6 +99,7 @@ class ApiRouteCollection extends DeferredRouteCollection
         $this->nodeTypeWhitelist = $nodeTypeWhitelist;
         $this->rootControllerClass = $rootControllerClass;
         $this->nodeTypeControllerClass = $nodeTypeControllerClass;
+        $this->userControllerClass = $userControllerClass;
     }
 
     public function parseResources(): void
@@ -110,6 +119,38 @@ class ApiRouteCollection extends DeferredRouteCollection
                 '',
                 [],
                 ['GET'],
+                ''
+            )
+        );
+
+        $this->add(
+            'api_user_me',
+            new Route(
+                $this->routePrefix . '/me',
+                [
+                    '_controller' => $this->userControllerClass . '::getUserAction',
+                ],
+                [],
+                [],
+                '',
+                [],
+                ['GET'],
+                ''
+            )
+        );
+
+        $this->add(
+            'api_post_token',
+            new Route(
+                '/token',
+                [
+                    '_controller' => TokenController::class . '::defaultAction',
+                ],
+                [],
+                [],
+                '',
+                [],
+                ['POST'],
                 ''
             )
         );

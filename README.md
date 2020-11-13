@@ -4,6 +4,8 @@
 
 ## Configuration
 
+### Registering API theme
+
 - Add API base services to your project `app/AppKernel.php`:
 
 ```php
@@ -43,6 +45,11 @@ themes:
 an other middleware theme,
 - and add the API authentication scheme to Roadiz’ firewall-map…
 
+### Choose between simple *API-Key* or full *OAuth2* authentication schemes
+
+- *API-key* scheme is meant to control your **public** API usage using a Referer regex and *non-expiring* api-key. This is a very light protection that will only work from a browser and should only be used with public data.
+- *OAuth2* scheme will secure your API behind Authentication and Authorization middlewares with a short-living *access-token*.
+
 ```php
 <?php
 declare(strict_types=1);
@@ -74,20 +81,30 @@ class MyApiThemeApp extends FrontendController
          * API MUST be the first request matcher
          */
         $requestMatcher = new RequestMatcher(
-            '^'.$container['api.prefix'].'/'.$container['api.version']
-        );
-        /*
-         * Add default API firewall entry.
-         */
-        $container['firewallMap']->add(
-            $requestMatcher, // launch firewall rules for any request within /api/1.0 path
-            [$container['api.firewall_listener']]
+            '^'.preg_quote($container['api.prefix']).'/'.preg_quote($container['api.version'])
         );
 
         $container['accessMap']->add(
             $requestMatcher,
             [$container['api.base_role']]
         );
+
+        /*
+         * Add default API firewall entry.
+         */
+        $container['firewallMap']->add(
+            $requestMatcher, // launch firewall rules for any request within /api/1.0 path
+            [$container['api.firewall_listener']],
+            $container['api.exception_listener'] // do not forget to add exception listener to enforce accessMap rules
+        );
+        /*
+         * OR add OAuth2 API firewall entry.
+         */
+        // $container['firewallMap']->add(
+        //     $requestMatcher, // launch firewall rules for any request within /api/1.0 path
+        //     [$container['api.oauth2_firewall_listener']],
+        //     $container['api.exception_listener'] // do not forget to add exception listener to enforce accessMap rules
+        // );
 
         // Do not forget to register default frontend entries
         // AFTER API not to lose preview feature
@@ -103,11 +120,36 @@ class MyApiThemeApp extends FrontendController
 bin/roadiz orm:schema-tool:update --dump-sql --force
 ```
 
+### Enable grant types for your website
+
+```php
+/*
+ * Enable grant types
+ */
+$container->extend(AuthorizationServer::class, function (AuthorizationServer $server) {
+    // Enable the client credentials grant on the server
+    $server->enableGrantType(
+        new \League\OAuth2\Server\Grant\ClientCredentialsGrant(),
+        new \DateInterval('PT1H') // access tokens will expire after 1 hour
+    );
+
+    return $server;
+});
+```
+
 ## Create a new application
 
 Applications hold your API keys and control incoming requests `Referer` against a *regex* pattern.
 
 ## Generic Roadiz API
+
+### API Route listing
+
+- `/api/1.0` entry point will list all available routes
+
+### User detail entry point
+
+- `/api/1.0/me` entry point will display details about your Application / User
 
 ### Listing nodes-sources
 

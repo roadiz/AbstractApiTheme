@@ -10,6 +10,8 @@ declare(strict_types=1);
 namespace Themes\AbstractApiTheme\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
+use League\OAuth2\Server\Entities\ClientEntityInterface;
 use Ramsey\Uuid\Uuid;
 use RZ\Roadiz\Core\AbstractEntities\AbstractDateTimed;
 use RZ\Roadiz\Core\Entities\Role;
@@ -23,15 +25,18 @@ use Symfony\Component\Security\Core\User\UserInterface;
  * @ORM\HasLifecycleCallbacks
  * @ORM\Table(name="api_applications", indexes={
  *     @ORM\Index(columns={"api_key"}),
+ *     @ORM\Index(columns={"enabled"}),
+ *     @ORM\Index(columns={"confidential"}),
  *     @ORM\Index(columns={"created_at"}),
  *     @ORM\Index(columns={"updated_at"})
  * })
  */
-class Application extends AbstractDateTimed implements UserInterface, AdvancedUserInterface
+class Application extends AbstractDateTimed implements UserInterface, AdvancedUserInterface, ClientEntityInterface
 {
     /**
      * @var string
      * @ORM\Column(type="string", name="app_name", nullable=false, unique=true)
+     * @Serializer\Groups({"user"})
      */
     private $appName = '';
 
@@ -44,26 +49,51 @@ class Application extends AbstractDateTimed implements UserInterface, AdvancedUs
     /**
      * @var bool
      * @ORM\Column(type="boolean", nullable=false)
+     * @Serializer\Groups({"user"})
      */
     private $enabled = true;
 
     /**
      * @var string
      * @ORM\Column(type="string", name="api_key", nullable=false, unique=true)
+     * @Serializer\Groups({"secret"})
      */
     private $apiKey = '';
 
     /**
+     * @var string|null
+     * @ORM\Column(type="string", name="secret", nullable=true, unique=false)
+     * @Serializer\Groups({"secret"})
+     */
+    private $secret = '';
+
+    /**
      * @var array<string>
      * @ORM\Column(type="simple_array", name="roles")
+     * @Serializer\Groups({"user"})
      */
     private $roles = [];
 
     /**
      * @var string|null
      * @ORM\Column(type="string", name="referer_regex", nullable=true)
+     * @Serializer\Groups({"user"})
      */
     private $refererRegex;
+
+    /**
+     * @var string|null
+     * @ORM\Column(type="string", name="redirect_url", nullable=true)
+     * @Serializer\Groups({"user"})
+     */
+    private $redirectUrl;
+
+    /**
+     * @var bool|null
+     * @ORM\Column(type="boolean", name="confidential", nullable=true)
+     * @Serializer\Groups({"user"})
+     */
+    private $confidential;
 
     /**
      * @param string $baseRole
@@ -73,6 +103,7 @@ class Application extends AbstractDateTimed implements UserInterface, AdvancedUs
     {
         $this->namespace = $namespace;
         $this->roles = [$baseRole];
+        $this->confidential = false;
     }
 
     /**
@@ -98,6 +129,87 @@ class Application extends AbstractDateTimed implements UserInterface, AdvancedUs
     public function getAppName(): string
     {
         return $this->appName;
+    }
+
+    /**
+     * Get the client's identifier.
+     *
+     * @return string
+     */
+    public function getIdentifier()
+    {
+        return $this->getApiKey();
+    }
+
+    /**
+     * Get the client's name.
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->getAppName();
+    }
+
+    /**
+     * @param string|null $redirectUrl
+     * @return Application
+     */
+    public function setRedirectUrl(?string $redirectUrl): Application
+    {
+        $this->redirectUrl = $redirectUrl;
+        return $this;
+    }
+
+    /**
+     * Returns the registered redirect URI (as a string).
+     *
+     * Alternatively return an indexed array of redirect URIs.
+     *
+     * @return string|string[]|null
+     */
+    public function getRedirectUri()
+    {
+        return $this->redirectUrl;
+    }
+
+    /**
+     * Returns true if the client is confidential.
+     *
+     * @return bool
+     */
+    public function isConfidential()
+    {
+        return $this->confidential ?? false;
+    }
+
+    /**
+     * @param bool $confidential
+     * @return $this
+     */
+    public function setConfidential(bool $confidential): Application
+    {
+        $this->confidential = $confidential;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $secret
+     * @return Application
+     */
+    public function setSecret(?string $secret): Application
+    {
+        $this->secret = $secret;
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getSecret(): ?string
+    {
+        return $this->secret;
     }
 
     /**
@@ -248,5 +360,11 @@ class Application extends AbstractDateTimed implements UserInterface, AdvancedUs
         parent::prePersist();
 
         $this->regenerateApiKey();
+        $this->regenerateSecret();
+    }
+
+    public function regenerateSecret()
+    {
+        $this->setSecret(hash('sha512', random_bytes(32)));
     }
 }

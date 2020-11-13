@@ -11,6 +11,8 @@
 
 {%- block content_body -%}
     <article class="content">
+        {%- block content_body_before -%}{%- endblock -%}
+
         {% form_theme form '@Rozier/forms.html.twig' %}
         {{ form_start(form, {
             'attr': {

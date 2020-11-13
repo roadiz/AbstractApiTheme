@@ -1,7 +1,25 @@
 {% extends "@AbstractApiTheme/admin/applications/add.html.twig" %}
 
-{%- block content_title -%}{% trans %}api.applications.edit{% endtrans %}{%- endblock -%}
+{%- block content_title -%}{{ application.name|default('api.applications.edit'|trans) }}{%- endblock -%}
 
+{%- block content_body_before -%}
+    <div class="content-table-cont metadata-list">
+        <table class="uk-table content-table">
+            <tr>
+                <td><strong>{% trans %}created.at{% endtrans %}</strong></td>
+                <td>{{- application.createdAt|format_datetime('long', locale=app.request.locale)  -}}</td>
+            </tr>
+            <tr>
+                <td><strong>{% trans %}updated.at{% endtrans %}</strong></td>
+                <td>{{- application.updatedAt|format_datetime('long', locale=app.request.locale)  -}}</td>
+            </tr>
+            <tr>
+                <td><strong>{% trans %}api.applications.apiKey{% endtrans %}</strong></td>
+                <td><code>{{- application.apiKey -}}</code></td>
+            </tr>
+        </table>
+    </div>
+{%- endblock -%}
 {% block content_form_submit_label %}
     {%- trans -%}api.applications.form.apply{%- endtrans -%}
 {% endblock %}

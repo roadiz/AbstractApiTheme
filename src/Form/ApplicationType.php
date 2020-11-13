@@ -37,6 +37,11 @@ class ApplicationType extends AbstractType
                 'label' => 'api.applications.enabled',
                 'required' => false,
             ])
+            ->add('confidential', CheckboxType::class, [
+                'label' => 'api.applications.confidential',
+                'help' => 'api.applications.confidential.help',
+                'required' => false,
+            ])
             ->add('refererRegex', TextType::class, [
                 'label' => 'api.applications.referer',
                 'required' => false,
