@@ -9,6 +9,7 @@ use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Entities\ScopeEntityInterface;
 use League\OAuth2\Server\Exception\UniqueTokenIdentifierConstraintViolationException;
 use League\OAuth2\Server\Repositories\AccessTokenRepositoryInterface;
+use Themes\AbstractApiTheme\Model\AccessToken;
 
 class AccessTokenRepository implements AccessTokenRepositoryInterface
 {
@@ -30,7 +31,13 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
      */
     public function getNewToken(ClientEntityInterface $clientEntity, array $scopes, $userIdentifier = null)
     {
-        // TODO: Implement getNewToken() method.
+        $accessToken = new AccessToken();
+        $accessToken->setClient($clientEntity);
+        $accessToken->setUserIdentifier($userIdentifier);
+        foreach ($scopes as $scope) {
+            $accessToken->addScope($scope);
+        }
+        return $accessToken;
     }
 
     /**

@@ -141,6 +141,12 @@ $container->extend(AuthorizationServer::class, function (AuthorizationServer $se
 
 Applications hold your API keys and control incoming requests `Referer` against a *regex* pattern.
 
+### Confidential applications
+
+#### Reserved roles / scope
+
+- `preview` scope will be converted to `ROLE_BACKEND_USER` which is the required role name to access unpublished nodes.
+
 ## Generic Roadiz API
 
 ### API Route listing

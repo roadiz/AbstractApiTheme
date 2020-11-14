@@ -18,10 +18,12 @@ class OAuth2Token extends AbstractToken
         ServerRequestInterface $serverRequest,
         ?UserInterface $user,
         string $rolePrefix,
+        string $baseRole,
         string $providerKey
     ) {
         $this->setAttribute('server_request', $serverRequest);
         $this->setAttribute('role_prefix', $rolePrefix);
+        $this->setAttribute('base_role', $baseRole);
 
         $roles = $this->buildRolesFromScopes();
 
@@ -64,7 +66,9 @@ class OAuth2Token extends AbstractToken
     private function buildRolesFromScopes(): array
     {
         $prefix = $this->getAttribute('role_prefix');
-        $roles = [];
+        $roles = [
+            $this->getAttribute('base_role')
+        ];
 
         foreach ($this->getAttribute('server_request')->getAttribute('oauth_scopes', []) as $scope) {
             $roles[] = strtoupper(trim($prefix . $scope));

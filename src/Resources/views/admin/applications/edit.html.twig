@@ -17,6 +17,12 @@
                 <td><strong>{% trans %}api.applications.apiKey{% endtrans %}</strong></td>
                 <td><code>{{- application.apiKey -}}</code></td>
             </tr>
+            {% if application.Confidential %}
+                <tr>
+                    <td><strong>{% trans %}api.applications.secret{% endtrans %}</strong></td>
+                    <td><code>{{- application.secret -}}</code></td>
+                </tr>
+            {% endif %}
         </table>
     </div>
 {%- endblock -%}

@@ -6,7 +6,6 @@ namespace Themes\AbstractApiTheme\OAuth2\Repository;
 use Doctrine\ORM\EntityManagerInterface;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Repositories\ClientRepositoryInterface;
-use RZ\Roadiz\Core\Repositories\EntityRepository;
 use Themes\AbstractApiTheme\Entity\Application;
 
 class ClientRepository implements ClientRepositoryInterface
@@ -25,22 +24,16 @@ class ClientRepository implements ClientRepositoryInterface
     }
 
     /**
-     * @return EntityRepository
-     */
-    protected function getRepository()
-    {
-        return $this->entityManager->getRepository(Application::class);
-    }
-
-    /**
      * @inheritDoc
      */
     public function getClientEntity($clientIdentifier)
     {
-        return $this->getRepository()->findOneBy([
-            'apiKey' => trim($clientIdentifier),
-            'enabled' => true
-        ]);
+        return $this->entityManager
+            ->getRepository(Application::class)
+            ->findOneBy([
+                'apiKey' => trim($clientIdentifier),
+                'enabled' => true
+            ]);
     }
 
     /**

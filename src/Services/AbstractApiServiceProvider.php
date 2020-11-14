@@ -15,6 +15,7 @@ use League\OAuth2\Server\CryptKey;
 use League\OAuth2\Server\Repositories\AccessTokenRepositoryInterface;
 use League\OAuth2\Server\Repositories\ClientRepositoryInterface;
 use League\OAuth2\Server\Repositories\ScopeRepositoryInterface;
+use League\OAuth2\Server\ResourceServer;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
@@ -26,6 +27,7 @@ use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Security\Http\Firewall\ExceptionListener;
 use Themes\AbstractApiTheme\Controllers\NodeTypeApiController;
 use Themes\AbstractApiTheme\Controllers\RootApiController;
+use Themes\AbstractApiTheme\Converter\ScopeConverter;
 use Themes\AbstractApiTheme\Entity\Application;
 use Themes\AbstractApiTheme\Extractor\ApplicationExtractor;
 use Themes\AbstractApiTheme\OAuth2\Repository\AccessTokenRepository;
@@ -33,6 +35,7 @@ use Themes\AbstractApiTheme\OAuth2\Repository\ClientRepository;
 use Themes\AbstractApiTheme\OAuth2\Repository\ScopeRepository;
 use Themes\AbstractApiTheme\OptionsResolver\ApiRequestOptionsResolver;
 use Themes\AbstractApiTheme\Security\Authentication\Provider\AuthenticationProvider;
+use Themes\AbstractApiTheme\Security\Authentication\Provider\OAuth2Provider;
 use Themes\AbstractApiTheme\Security\Authentication\Token\OAuth2TokenFactory;
 use Themes\AbstractApiTheme\Security\Firewall\ApplicationListener;
 use Themes\AbstractApiTheme\Routing\ApiRouteCollection;
@@ -67,6 +70,16 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
             /** @var Kernel $kernel */
             $kernel = $c['kernel'];
             return 'file://' . $kernel->getRootDir() . '/jwt/private.pem';
+        };
+
+        /**
+         * @param Container $c
+         * @return string
+         */
+        $container['api.oauth2_public_key_path'] = function (Container $c) {
+            /** @var Kernel $kernel */
+            $kernel = $c['kernel'];
+            return 'file://' . $kernel->getRootDir() . '/jwt/public.pem';
         };
 
         /**
@@ -148,6 +161,20 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
         /**
          * @param Container $c
          *
+         * @return OAuth2Provider
+         */
+        $container['api.oauth2_authentication_manager'] = function (Container $c) {
+            return new OAuth2Provider(
+                $c['userProvider'],
+                $c[ResourceServer::class],
+                $c[OAuth2TokenFactory::class],
+                Kernel::SECURITY_DOMAIN
+            );
+        };
+
+        /**
+         * @param Container $c
+         *
          * @return ApplicationListener
          */
         $container['api.firewall_listener'] = function (Container $c) {
@@ -165,7 +192,7 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
         $container['api.oauth2_firewall_listener'] = function (Container $c) {
             return new OAuth2Listener(
                 $c['securityTokenStorage'],
-                $c['api.authentication_manager'],
+                $c['api.oauth2_authentication_manager'],
                 $c[HttpMessageFactoryInterface::class],
                 $c[OAuth2TokenFactory::class],
                 Kernel::SECURITY_DOMAIN
@@ -192,7 +219,10 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
         };
 
         $container[OAuth2TokenFactory::class] = function (Container $c) {
-            return new OAuth2TokenFactory($c['api.oauth2_role_prefix']);
+            return new OAuth2TokenFactory(
+                $c['api.oauth2_role_prefix'],
+                $c['api.base_role']
+            );
         };
 
         $container[ApiRequestOptionsResolver::class] = $container->factory(function ($c) {
@@ -270,12 +300,16 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
             return new AccessTokenRepository($c['em']);
         };
 
+        $container[ScopeConverter::class] = function (Container $c) {
+            return new ScopeConverter($c['rolesBag'], $c['api.oauth2_role_prefix']);
+        };
+
         /**
          * @param Container $c
          * @return ScopeRepository
          */
         $container[ScopeRepositoryInterface::class] = function (Container $c) {
-            return new ScopeRepository($c['em']);
+            return new ScopeRepository($c[ScopeConverter::class]);
         };
 
         $container[AuthorizationServer::class] = function (Container $c) {
@@ -285,6 +319,13 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
                 $c[ScopeRepositoryInterface::class],
                 new CryptKey($c['api.oauth2_private_key_path'], $c['api.oauth2_jwt_passphrase']),
                 Key::loadFromAsciiSafeString($c['api.oauth2_encryption_key'])
+            );
+        };
+
+        $container[ResourceServer::class] = function (Container $c) {
+            return new ResourceServer(
+                $c[AccessTokenRepositoryInterface::class],
+                $c['api.oauth2_public_key_path']
             );
         };
     }

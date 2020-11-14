@@ -39,7 +39,20 @@ class AbstractApiThemeApp extends FrontendController
     }
 
     /**
-     * Make current response cachable by reverse proxy and browsers.
+     * @param array|string $scope
+     */
+    protected function denyAccessUnlessScopeGranted($scope)
+    {
+        if (is_array($scope)) {
+            $scope = array_map(function (string $singleScope) {
+                return strtoupper($this->get('api.oauth2_role_prefix') . $singleScope);
+            }, $scope);
+        }
+        $this->denyAccessUnlessGranted($scope);
+    }
+
+    /**
+     * Make current response cacheable by reverse proxy and browsers.
      *
      * Pay attention that, some reverse proxies systems will need to remove your response
      * cookies header to actually save your response.

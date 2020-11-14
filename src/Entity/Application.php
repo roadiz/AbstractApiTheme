@@ -69,7 +69,7 @@ class Application extends AbstractDateTimed implements UserInterface, AdvancedUs
 
     /**
      * @var array<string>
-     * @ORM\Column(type="simple_array", name="roles")
+     * @ORM\Column(type="json", name="roles")
      * @Serializer\Groups({"user"})
      */
     private $roles = [];
@@ -221,6 +221,16 @@ class Application extends AbstractDateTimed implements UserInterface, AdvancedUs
     {
         $this->appName = $appName;
 
+        return $this;
+    }
+
+    /**
+     * @param array $roles
+     * @return Application
+     */
+    public function setRoles(array $roles): Application
+    {
+        $this->roles = $roles;
         return $this;
     }
 
