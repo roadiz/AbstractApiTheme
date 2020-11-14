@@ -62,5 +62,6 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
     public function isAccessTokenRevoked($tokenId)
     {
         // TODO: Implement isAccessTokenRevoked() method.
+        return false;
     }
 }

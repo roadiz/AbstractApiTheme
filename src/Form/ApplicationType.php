@@ -13,7 +13,6 @@ use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Themes\AbstractApiTheme\Entity\Application;
-use Themes\AbstractApiTheme\Entity\RoleNameType;
 
 class ApplicationType extends AbstractType
 {
@@ -54,7 +53,9 @@ class ApplicationType extends AbstractType
                 'entry_type' => RoleNameType::class,
                 'entry_options' => [
                     'label' => false,
-                    'entityManager' => $options['entityManager']
+                    'entityManager' => $options['entityManager'],
+                    'rolePrefix' => $options['rolePrefix'],
+                    'baseRole' => $options['baseRole'],
                 ]
             ]);
         } else {
@@ -81,7 +82,11 @@ class ApplicationType extends AbstractType
 
         $resolver->setDefault('entityClass', Application::class);
         $resolver->setRequired('entityManager');
+        $resolver->setRequired('rolePrefix');
+        $resolver->setRequired('baseRole');
         $resolver->addAllowedTypes('entityManager', [EntityManagerInterface::class]);
+        $resolver->addAllowedTypes('rolePrefix', ['string']);
+        $resolver->addAllowedTypes('baseRole', ['string']);
         $resolver->setNormalizer('constraints', function (Options $options) {
             return [
                 new UniqueEntity([

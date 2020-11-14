@@ -6,6 +6,7 @@ namespace Themes\AbstractApiTheme\Security\Authentication\Token;
 use Psr\Http\Message\ServerRequestInterface;
 use Symfony\Component\Security\Core\Authentication\Token\AbstractToken;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\String\UnicodeString;
 
 class OAuth2Token extends AbstractToken
 {
@@ -71,7 +72,13 @@ class OAuth2Token extends AbstractToken
         ];
 
         foreach ($this->getAttribute('server_request')->getAttribute('oauth_scopes', []) as $scope) {
-            $roles[] = strtoupper(trim($prefix . $scope));
+            $roles[] = (new UnicodeString($scope))
+                ->replace(' ', '_')
+                ->replace('-', '_')
+                ->replace('.', '_')
+                ->prepend($prefix)
+                ->upper()
+                ->toString();
         }
 
         return $roles;

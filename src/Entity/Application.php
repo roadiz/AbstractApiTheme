@@ -230,7 +230,7 @@ class Application extends AbstractDateTimed implements UserInterface, AdvancedUs
      */
     public function setRoles(array $roles): Application
     {
-        $this->roles = $roles;
+        $this->roles = array_filter($roles);
         return $this;
     }
 

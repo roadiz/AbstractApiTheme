@@ -64,6 +64,8 @@ class ApplicationController extends RozierApp
 
         $form = $this->createForm(ApplicationType::class, $application, [
             'entityManager' => $this->get('em'),
+            'rolePrefix' => $this->get('api.oauth2_role_prefix'),
+            'baseRole' => $this->get('api.base_role'),
         ]);
         $form->handleRequest($request);
 
@@ -107,6 +109,8 @@ class ApplicationController extends RozierApp
 
         $form = $this->createForm(ApplicationType::class, $application, [
             'entityManager' => $this->get('em'),
+            'rolePrefix' => $this->get('api.oauth2_role_prefix'),
+            'baseRole' => $this->get('api.base_role'),
         ]);
         $form->handleRequest($request);
 
