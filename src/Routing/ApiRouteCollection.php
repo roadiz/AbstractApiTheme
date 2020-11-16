@@ -10,7 +10,8 @@ use RZ\Roadiz\Core\Routing\DeferredRouteCollection;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Stopwatch\Stopwatch;
-use Themes\AbstractApiTheme\Controllers\NodeTypeApiController;
+use Themes\AbstractApiTheme\Controllers\NodeTypeListingApiController;
+use Themes\AbstractApiTheme\Controllers\NodeTypeSingleApiController;
 use Themes\AbstractApiTheme\Controllers\RootApiController;
 use Themes\AbstractApiTheme\Controllers\TokenController;
 use Themes\AbstractApiTheme\Controllers\UserApiController;
@@ -56,11 +57,15 @@ class ApiRouteCollection extends DeferredRouteCollection
     /**
      * @var string
      */
-    private $nodeTypeControllerClass;
+    private $userControllerClass;
     /**
      * @var string
      */
-    private $userControllerClass;
+    private $nodeTypeListingControllerClass;
+    /**
+     * @var string
+     */
+    private $nodeTypeSingleControllerClass;
 
     /**
      * ApiRouteCollection constructor.
@@ -73,7 +78,8 @@ class ApiRouteCollection extends DeferredRouteCollection
      * @param string $apiVersion
      * @param array|null $nodeTypeWhitelist
      * @param string $rootControllerClass
-     * @param string $nodeTypeControllerClass
+     * @param string $nodeTypeListingControllerClass
+     * @param string $nodeTypeSingleControllerClass
      * @param string $userControllerClass
      */
     final public function __construct(
@@ -85,7 +91,8 @@ class ApiRouteCollection extends DeferredRouteCollection
         $apiVersion = '1.0',
         $nodeTypeWhitelist = null,
         $rootControllerClass = RootApiController::class,
-        $nodeTypeControllerClass = NodeTypeApiController::class,
+        $nodeTypeListingControllerClass = NodeTypeListingApiController::class,
+        $nodeTypeSingleControllerClass = NodeTypeSingleApiController::class,
         $userControllerClass = UserApiController::class
     ) {
         $this->stopwatch = $stopwatch;
@@ -98,8 +105,9 @@ class ApiRouteCollection extends DeferredRouteCollection
         $this->routePrefix = $this->apiPrefix . '/' . $this->apiVersion;
         $this->nodeTypeWhitelist = $nodeTypeWhitelist;
         $this->rootControllerClass = $rootControllerClass;
-        $this->nodeTypeControllerClass = $nodeTypeControllerClass;
         $this->userControllerClass = $userControllerClass;
+        $this->nodeTypeListingControllerClass = $nodeTypeListingControllerClass;
+        $this->nodeTypeSingleControllerClass = $nodeTypeSingleControllerClass;
     }
 
     public function parseResources(): void
@@ -190,7 +198,7 @@ class ApiRouteCollection extends DeferredRouteCollection
             new Route(
                 $this->routePrefix . '/' . mb_strtolower($nodeType->getName()),
                 [
-                    '_controller' => $this->nodeTypeControllerClass . '::getListingAction',
+                    '_controller' => $this->nodeTypeListingControllerClass . '::defaultAction',
                     'nodeTypeId' => $nodeType->getId()
                 ],
                 [],
@@ -206,7 +214,7 @@ class ApiRouteCollection extends DeferredRouteCollection
             new Route(
                 $this->routePrefix . '/' . mb_strtolower($nodeType->getName()) . '/{id}',
                 [
-                    '_controller' => $this->nodeTypeControllerClass . '::getDetailAction',
+                    '_controller' => $this->nodeTypeSingleControllerClass . '::defaultAction',
                     'nodeTypeId' => $nodeType->getId()
                 ],
                 [
@@ -224,7 +232,7 @@ class ApiRouteCollection extends DeferredRouteCollection
             new Route(
                 $this->routePrefix . '/' . mb_strtolower($nodeType->getName()) . '/by-slug/{slug}',
                 [
-                    '_controller' => $this->nodeTypeControllerClass . '::getDetailBySlugAction',
+                    '_controller' => $this->nodeTypeSingleControllerClass . '::bySlugAction',
                     'nodeTypeId' => $nodeType->getId()
                 ],
                 [

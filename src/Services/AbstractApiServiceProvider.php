@@ -25,8 +25,10 @@ use Symfony\Bridge\PsrHttpMessage\HttpMessageFactoryInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Security\Http\Firewall\ExceptionListener;
-use Themes\AbstractApiTheme\Controllers\NodeTypeApiController;
+use Themes\AbstractApiTheme\Controllers\NodeTypeListingApiController;
+use Themes\AbstractApiTheme\Controllers\NodeTypeSingleApiController;
 use Themes\AbstractApiTheme\Controllers\RootApiController;
+use Themes\AbstractApiTheme\Controllers\UserApiController;
 use Themes\AbstractApiTheme\Converter\ScopeConverter;
 use Themes\AbstractApiTheme\Entity\Application;
 use Themes\AbstractApiTheme\Extractor\ApplicationExtractor;
@@ -125,7 +127,15 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
         /**
          * @return string
          */
-        $container['api.node_type_controller_class'] = NodeTypeApiController::class;
+        $container['api.node_type_single_controller_class'] = NodeTypeSingleApiController::class;
+        /**
+         * @return string
+         */
+        $container['api.node_type_listing_controller_class'] = NodeTypeListingApiController::class;
+        /**
+         * @return string
+         */
+        $container['api.user_controller_class'] = UserApiController::class;
 
         /**
          * @return int
@@ -255,7 +265,9 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
                 $c['api.version'],
                 $c['api.node_type_whitelist'],
                 $c['api.root_controller_class'],
-                $c['api.node_type_controller_class']
+                $c['api.node_type_listing_controller_class'],
+                $c['api.node_type_single_controller_class'],
+                $c['api.user_controller_class']
             );
         };
 

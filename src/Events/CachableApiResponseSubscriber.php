@@ -49,7 +49,17 @@ final class CachableApiResponseSubscriber implements EventSubscriberInterface
             'Access-Control-Allow-Origin' => '*',
             'Access-Control-Allow-Methods' => 'GET,POST',
         ]);
-        $response->setVary('Accept-Encoding, X-Partial, x-requested-with, Access-Control-Allow-Origin, x-api-key, Referer');
+        $response->setVary(implode(', ', [
+            'Accept-Encoding',
+            'Accept',
+            'Authorization',
+            'X-Partial',
+            'x-requested-with',
+            'Access-Control-Allow-Origin',
+            'x-api-key',
+            'Referer',
+            'Origin'
+        ]));
 
         if ($event->getRequest()->isXmlHttpRequest()) {
             $response->headers->add([

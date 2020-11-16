@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace Themes\AbstractApiTheme\Controllers;
 
-use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
 use RZ\Roadiz\Core\Entities\Node;
 use RZ\Roadiz\Core\Entities\NodesSources;
@@ -12,38 +11,11 @@ use RZ\Roadiz\Core\Entities\Translation;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Themes\AbstractApiTheme\AbstractApiThemeApp;
 use Themes\AbstractApiTheme\OptionsResolver\ApiRequestOptionsResolver;
 
-class NodeTypeApiController extends AbstractApiThemeApp
+class NodeTypeSingleApiController extends AbstractNodeTypeApiController
 {
-    protected function getListingSerializationGroups(): array
-    {
-        return [
-            'nodes_sources_base',
-            'tag_base',
-            'nodes_sources_default',
-            'urls',
-            'meta',
-        ];
-    }
-
-    /**
-     * @return SerializationContext
-     */
-    protected function getListingSerializationContext(): SerializationContext
-    {
-        $context = SerializationContext::create()
-            ->setAttribute('translation', $this->getTranslation())
-            ->enableMaxDepthChecks();
-        if (count($this->getListingSerializationGroups()) > 0) {
-            $context->setGroups($this->getListingSerializationGroups());
-        }
-
-        return $context;
-    }
-
-    protected function getDetailSerializationGroups(): array
+    protected function getSerializationGroups(): array
     {
         return [
             'walker', // rezozero tree-walker
@@ -56,68 +28,6 @@ class NodeTypeApiController extends AbstractApiThemeApp
     }
 
     /**
-     * @return SerializationContext
-     */
-    protected function getDetailSerializationContext(): SerializationContext
-    {
-        $context = $this->getListingSerializationContext();
-        if (count($this->getDetailSerializationGroups()) > 0) {
-            $context->setGroups($this->getDetailSerializationGroups());
-        }
-
-        return $context;
-    }
-
-    protected function getListingType(?NodeType $nodeType): string
-    {
-        return $nodeType ? $nodeType->getSourceEntityFullQualifiedClassName() : NodesSources::class;
-    }
-
-    /**
-     * @param Request $request
-     * @param int     $nodeTypeId
-     *
-     * @return Response|JsonResponse
-     * @throws \Exception
-     */
-    public function getListingAction(Request $request, int $nodeTypeId): Response
-    {
-        /** @var NodeType|null $nodeType */
-        $nodeType = $this->get('em')->find(NodeType::class, $nodeTypeId);
-        if (null === $nodeType) {
-            throw $this->createNotFoundException();
-        }
-        /** @var ApiRequestOptionsResolver $apiOptionsResolver */
-        $apiOptionsResolver = $this->get(ApiRequestOptionsResolver::class);
-        $options = $apiOptionsResolver->resolve($request->query->all(), $nodeType);
-
-        /** @var Translation|null $translation */
-        $translation = $this->get('em')->getRepository(Translation::class)->findOneByLocale($options['_locale']);
-        if (null === $translation) {
-            throw $this->createNotFoundException();
-        }
-
-        $defaultCriteria = [
-            'translation' => $translation,
-        ];
-        if ($nodeType->isPublishable()) {
-            $defaultCriteria['publishedAt'] = ['<=', new \DateTime()];
-        }
-
-        $criteria = array_merge(
-            $defaultCriteria,
-            $apiOptionsResolver->getCriteriaFromOptions($options)
-        );
-
-        return $this->getEntityListManagerResponse(
-            $request,
-            $nodeType,
-            $criteria,
-            $options
-        );
-    }
-
-    /**
      * @param Request $request
      * @param int     $nodeTypeId
      * @param int     $id
@@ -125,7 +35,7 @@ class NodeTypeApiController extends AbstractApiThemeApp
      * @return Response|JsonResponse
      * @throws \Exception
      */
-    public function getDetailAction(Request $request, int $nodeTypeId, int $id): Response
+    public function defaultAction(Request $request, int $nodeTypeId, int $id): Response
     {
         /** @var NodeType|null $nodeType */
         $nodeType = $this->get('em')->find(NodeType::class, $nodeTypeId);
@@ -136,6 +46,8 @@ class NodeTypeApiController extends AbstractApiThemeApp
         if (null === $nodeType) {
             throw $this->createNotFoundException();
         }
+
+        $this->denyAccessUnlessNodeTypeGranted($nodeType);
 
         /** @var Translation|null $translation */
         $translation = $this->get('em')->getRepository(Translation::class)->findOneByLocale($options['_locale']);
@@ -163,7 +75,7 @@ class NodeTypeApiController extends AbstractApiThemeApp
      * @return Response
      * @throws \Exception
      */
-    public function getDetailBySlugAction(Request $request, int $nodeTypeId, string $slug): Response
+    public function bySlugAction(Request $request, int $nodeTypeId, string $slug): Response
     {
         /** @var NodeType|null $nodeType */
         $nodeType = $this->get('em')->find(NodeType::class, $nodeTypeId);
@@ -174,6 +86,7 @@ class NodeTypeApiController extends AbstractApiThemeApp
         if (null === $nodeType) {
             throw $this->createNotFoundException();
         }
+        $this->denyAccessUnlessNodeTypeGranted($nodeType);
 
         /** @var Translation|null $translation */
         $translation = $this->get('em')->getRepository(Translation::class)->findOneByLocale($options['_locale']);
@@ -228,7 +141,7 @@ class NodeTypeApiController extends AbstractApiThemeApp
             $serializer->serialize(
                 $nodeSource,
                 'json',
-                $this->getDetailSerializationContext()
+                $this->getSerializationContext()
             ),
             JsonResponse::HTTP_OK,
             [],
@@ -243,40 +156,12 @@ class NodeTypeApiController extends AbstractApiThemeApp
     }
 
     /**
-     * @param Request $request
-     * @param NodeType|null $nodeType
-     * @param array $criteria
-     * @param array $options
-     * @return Response
+     * @param NodeType $nodeType
+     * @return void
      */
-    protected function getEntityListManagerResponse(
-        Request $request,
-        ?NodeType $nodeType,
-        array &$criteria,
-        array &$options
-    ): Response {
-        $entityListManager = $this->createEntityListManager(
-            $this->getListingType($nodeType),
-            $criteria,
-            null !== $options['order'] ? $options['order'] : []
-        );
-        $entityListManager->setItemPerPage($options['itemsPerPage']);
-        $entityListManager->setPage($options['page']);
-        $entityListManager->handle();
-
-        /** @var SerializerInterface $serializer */
-        $serializer = $this->get('serializer');
-        $response = new JsonResponse(
-            $serializer->serialize(
-                $entityListManager,
-                'json',
-                $this->getListingSerializationContext()
-            ),
-            JsonResponse::HTTP_OK,
-            [],
-            true
-        );
-
-        return $this->makeResponseCachable($request, $response, $this->get('api.cache.ttl'));
+    protected function denyAccessUnlessNodeTypeGranted(NodeType $nodeType): void
+    {
+        // TODO: implement your own access-control logic for each node-type.
+        // $this->denyAccessUnlessScopeGranted([strtolower($nodeType->getName())]);
     }
 }

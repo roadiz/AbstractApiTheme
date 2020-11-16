@@ -51,7 +51,7 @@ class AbstractApiThemeApp extends FrontendController
                 return strtoupper($this->get('api.oauth2_role_prefix') . $singleScope);
             }, $scope);
         }
-        $this->denyAccessUnlessGranted($scope);
+        $this->denyAccessUnlessGranted($scope, null, 'Insufficient scopes');
     }
 
     /**
