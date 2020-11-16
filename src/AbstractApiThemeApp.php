@@ -18,6 +18,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\String\UnicodeString;
 use Themes\AbstractApiTheme\Events\CachableApiResponseSubscriber;
 
 class AbstractApiThemeApp extends FrontendController
@@ -48,7 +49,13 @@ class AbstractApiThemeApp extends FrontendController
     {
         if (is_array($scope)) {
             $scope = array_map(function (string $singleScope) {
-                return strtoupper($this->get('api.oauth2_role_prefix') . $singleScope);
+                return (new UnicodeString($singleScope))
+                    ->replace(' ', '_')
+                    ->replace('-', '_')
+                    ->replace('.', '_')
+                    ->prepend($this->get('api.oauth2_role_prefix'))
+                    ->upper()
+                    ->toString();
             }, $scope);
         }
         $this->denyAccessUnlessGranted($scope, null, 'Insufficient scopes');
