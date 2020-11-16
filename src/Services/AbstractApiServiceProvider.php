@@ -314,7 +314,7 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
         };
 
         $container[ScopeConverter::class] = function (Container $c) {
-            return new ScopeConverter($c['rolesBag'], $c['api.oauth2_role_prefix']);
+            return new ScopeConverter($c['rolesBag'], $c['api.oauth2_role_prefix'], $c['api.base_role']);
         };
 
         /**

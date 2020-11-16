@@ -19,15 +19,21 @@ class ScopeConverter
      * @var string
      */
     private $rolePrefix;
+    /**
+     * @var string
+     */
+    private $baseRole;
 
     /**
      * @param Roles $rolesBag
      * @param string $rolePrefix
+     * @param string $baseRole
      */
-    public function __construct(Roles $rolesBag, string $rolePrefix = 'ROLE_OAUTH2_')
+    public function __construct(Roles $rolesBag, string $rolePrefix = 'ROLE_OAUTH2_', string $baseRole = 'ROLE_API')
     {
         $this->rolesBag = $rolesBag;
         $this->rolePrefix = $rolePrefix;
+        $this->baseRole = $baseRole;
     }
 
     /**
@@ -38,6 +44,9 @@ class ScopeConverter
     {
         if ((string) $role === Role::ROLE_BACKEND_USER) {
             return new Scope('preview');
+        }
+        if ((string) $role === $this->baseRole) {
+            return new Scope('api');
         }
         return new Scope(
             (new UnicodeString((string) $role))
@@ -58,6 +67,8 @@ class ScopeConverter
     {
         if ($identifier === 'preview') {
             $roleName = Role::ROLE_BACKEND_USER;
+        } elseif ($identifier === 'api') {
+            $roleName = $this->baseRole;
         } else {
             $roleName = (new UnicodeString($identifier))
                 ->replace(' ', '_')
