@@ -52,10 +52,22 @@ class ClientRepository implements ClientRepositoryInterface
             return true;
         }
 
-        if ($client instanceof Application && hash_equals($client->getSecret(), (string) $clientSecret)) {
+        if ($client instanceof Application &&
+            hash_equals($client->getSecret(), (string) $clientSecret) &&
+            $this->isGrantSupported($client, $grantType)
+        ) {
             return true;
         }
 
         return false;
+    }
+
+    private function isGrantSupported(Application $client, ?string $grant): bool
+    {
+        if (null === $grant) {
+            return true;
+        }
+
+        return \in_array($grant, $client->getGrantTypes());
     }
 }

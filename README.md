@@ -2,6 +2,12 @@
 
 **Base theme for createing simple public RESTful API protected with referrer API keys.**
 
+[![Build Status](https://travis-ci.org/roadiz/AbstractApiTheme.svg?branch=master)](https://travis-ci.org/roadiz/AbstractApiTheme)
+
+*OAuth2* classes and logic are highly based on [trikoder/oauth2-bundle](https://github.com/trikoder/oauth2-bundle)
+which implemented [thephpleague/oauth2-server](https://github.com/thephpleague/oauth2-server) to 
+Symfony ecosystem.
+
 ## Configuration
 
 ### Registering API theme
@@ -122,6 +128,9 @@ bin/roadiz orm:schema-tool:update --dump-sql --force
 
 ### Enable grant types for your website
 
+If you opted for OAuth2 applications, you must enable grant-type(s) for the Authorization server before
+going further: just *extend* the `AuthorizationServer::class` Roadiz service as below:
+
 ```php
 /*
  * Enable grant types
@@ -132,7 +141,6 @@ $container->extend(AuthorizationServer::class, function (AuthorizationServer $se
         new \League\OAuth2\Server\Grant\ClientCredentialsGrant(),
         new \DateInterval('PT1H') // access tokens will expire after 1 hour
     );
-
     return $server;
 });
 ```
@@ -141,7 +149,7 @@ $container->extend(AuthorizationServer::class, function (AuthorizationServer $se
 
 Applications hold your API keys and control incoming requests `Referer` against a *regex* pattern.
 
-### Confidential applications
+### Confidential applications: *OAuth2*
 
 #### Reserved roles / scope
 

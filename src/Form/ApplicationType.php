@@ -6,6 +6,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use RZ\Roadiz\CMS\Forms\Constraints\UniqueEntity;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -31,6 +32,7 @@ class ApplicationType extends AbstractType
             ])
             ->add('enabled', CheckboxType::class, [
                 'label' => 'api.applications.enabled',
+                'help' => 'api.applications.enabled.help',
                 'required' => false,
             ])
             ->add('confidential', CheckboxType::class, [
@@ -41,23 +43,41 @@ class ApplicationType extends AbstractType
         ;
 
         if ($builder->getData()->isConfidential()) {
-            $builder->add('roles', CollectionType::class, [
-                'label' => 'api.applications.roles',
-                'help' => 'api.applications.roles.help',
-                'required' => false,
-                'allow_add' => true,
-                'allow_delete' => true,
-                'attr' => [
-                    'class' => 'rz-collection-form-type'
-                ],
-                'entry_type' => RoleNameType::class,
-                'entry_options' => [
-                    'label' => false,
-                    'entityManager' => $options['entityManager'],
-                    'rolePrefix' => $options['rolePrefix'],
-                    'baseRole' => $options['baseRole'],
-                ]
-            ]);
+            $builder
+                ->add('grantTypes', ChoiceType::class, [
+                    'label' => 'api.applications.grantTypes',
+                    'help' => 'api.applications.grantTypes.help',
+                    'multiple' => true,
+                    'expanded' => true,
+                    'required' => false,
+                    'choices' => [
+                        Application::GRANT_CLIENT_CREDENTIALS => Application::GRANT_CLIENT_CREDENTIALS,
+                        Application::GRANT_AUTHORIZATION_CODE => Application::GRANT_AUTHORIZATION_CODE
+                    ]
+                ])
+                ->add('redirectUri', TextType::class, [
+                    'label' => 'api.applications.redirectUri',
+                    'help' => 'api.applications.redirectUri.help',
+                    'required' => false
+                ])
+                ->add('roles', CollectionType::class, [
+                    'label' => 'api.applications.roles',
+                    'help' => 'api.applications.roles.help',
+                    'required' => false,
+                    'allow_add' => true,
+                    'allow_delete' => true,
+                    'attr' => [
+                        'class' => 'rz-collection-form-type'
+                    ],
+                    'entry_type' => RoleNameType::class,
+                    'entry_options' => [
+                        'label' => false,
+                        'entityManager' => $options['entityManager'],
+                        'rolePrefix' => $options['rolePrefix'],
+                        'baseRole' => $options['baseRole'],
+                    ]
+                ])
+            ;
         } else {
             $builder
                 ->add('allowedPreview', CheckboxType::class, [

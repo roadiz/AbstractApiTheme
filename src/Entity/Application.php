@@ -33,6 +33,9 @@ use Symfony\Component\Security\Core\User\UserInterface;
  */
 class Application extends AbstractDateTimed implements UserInterface, AdvancedUserInterface, ClientEntityInterface
 {
+    const GRANT_CLIENT_CREDENTIALS = 'client_credentials';
+    const GRANT_AUTHORIZATION_CODE = 'authorization_code';
+
     /**
      * @var string
      * @ORM\Column(type="string", name="app_name", nullable=false, unique=true)
@@ -75,6 +78,13 @@ class Application extends AbstractDateTimed implements UserInterface, AdvancedUs
     private $roles = [];
 
     /**
+     * @var array<string>
+     * @ORM\Column(type="json", name="grant_types")
+     * @Serializer\Groups({"user"})
+     */
+    private $grantTypes = [];
+
+    /**
      * @var string|null
      * @ORM\Column(type="string", name="referer_regex", nullable=true)
      * @Serializer\Groups({"user"})
@@ -83,10 +93,10 @@ class Application extends AbstractDateTimed implements UserInterface, AdvancedUs
 
     /**
      * @var string|null
-     * @ORM\Column(type="string", name="redirect_url", nullable=true)
+     * @ORM\Column(type="string", name="redirect_uri", nullable=true)
      * @Serializer\Groups({"user"})
      */
-    private $redirectUrl;
+    private $redirectUri;
 
     /**
      * @var bool|null
@@ -152,12 +162,12 @@ class Application extends AbstractDateTimed implements UserInterface, AdvancedUs
     }
 
     /**
-     * @param string|null $redirectUrl
+     * @param string|null $redirectUri
      * @return Application
      */
-    public function setRedirectUrl(?string $redirectUrl): Application
+    public function setRedirectUri(?string $redirectUri): Application
     {
-        $this->redirectUrl = $redirectUrl;
+        $this->redirectUri = $redirectUri;
         return $this;
     }
 
@@ -170,7 +180,7 @@ class Application extends AbstractDateTimed implements UserInterface, AdvancedUs
      */
     public function getRedirectUri()
     {
-        return $this->redirectUrl;
+        return $this->redirectUri;
     }
 
     /**
@@ -359,6 +369,24 @@ class Application extends AbstractDateTimed implements UserInterface, AdvancedUs
     {
         $this->refererRegex = $refererRegex;
 
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getGrantTypes(): array
+    {
+        return $this->grantTypes;
+    }
+
+    /**
+     * @param array $grantTypes
+     * @return Application
+     */
+    public function setGrantTypes(array $grantTypes): Application
+    {
+        $this->grantTypes = $grantTypes;
         return $this;
     }
 
