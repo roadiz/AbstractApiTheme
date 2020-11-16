@@ -145,6 +145,28 @@ $container->extend(AuthorizationServer::class, function (AuthorizationServer $se
 });
 ```
 
+### Customize CORS
+
+CORS handling is highly based on [nelmio/NelmioCorsBundle](https://github.com/nelmio/NelmioCorsBundle), options
+are just handled as a service you can extend for your website. \
+This will automatically intercept requests containing an `Origin` header. Pre-flight requests must be performed
+using `OPTIONS` verb and must contain `Origin` and `Access-Control-Request-Method` headers.
+
+```php
+/**
+ * @return array
+ */
+$container['api.cors_options'] = [
+    'allow_credentials' => true,
+    'allow_origin' => '*',
+    'allow_headers' => true,
+    'origin_regex' => false,
+    'allow_methods' => ['GET'],
+    'expose_headers' => [],
+    'max_age' => 60*60*24
+];
+```
+
 ## Create a new application
 
 Applications hold your API keys and control incoming requests `Referer` against a *regex* pattern.

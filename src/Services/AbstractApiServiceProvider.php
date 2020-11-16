@@ -22,6 +22,7 @@ use Pimple\ServiceProviderInterface;
 use RZ\Roadiz\Core\Kernel;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
 use Symfony\Bridge\PsrHttpMessage\HttpMessageFactoryInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Security\Http\Firewall\ExceptionListener;
@@ -31,6 +32,7 @@ use Themes\AbstractApiTheme\Controllers\RootApiController;
 use Themes\AbstractApiTheme\Controllers\UserApiController;
 use Themes\AbstractApiTheme\Converter\ScopeConverter;
 use Themes\AbstractApiTheme\Entity\Application;
+use Themes\AbstractApiTheme\Events\CorsSubscriber;
 use Themes\AbstractApiTheme\Extractor\ApplicationExtractor;
 use Themes\AbstractApiTheme\OAuth2\Repository\AccessTokenRepository;
 use Themes\AbstractApiTheme\OAuth2\Repository\ClientRepository;
@@ -141,6 +143,19 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
          * @return int
          */
         $container['api.cache.ttl'] = 5;
+
+        /**
+         * @return array
+         */
+        $container['api.cors_options'] = [
+            'allow_credentials' => true,
+            'allow_origin' => '*',
+            'allow_headers' => true,
+            'origin_regex' => false,
+            'allow_methods' => ['GET'],
+            'expose_headers' => [],
+            'max_age' => 60*60*24
+        ];
 
         /**
          * @param Container $c
@@ -295,6 +310,11 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
             $subscribers[] = new TagTranslationNameSubscriber();
             $subscribers[] = new TokenSubscriber();
             return $subscribers;
+        });
+
+        $container->extend('dispatcher', function (EventDispatcherInterface $dispatcher, Container $c) {
+            $dispatcher->addSubscriber(new CorsSubscriber($c['api.cors_options']));
+            return $dispatcher;
         });
 
         /**

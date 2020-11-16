@@ -45,10 +45,6 @@ final class CachableApiResponseSubscriber implements EventSubscriberInterface
         header_remove('vary');
         $response = $event->getResponse();
         $response->headers->remove('vary');
-        $response->headers->add([
-            'Access-Control-Allow-Origin' => '*',
-            'Access-Control-Allow-Methods' => 'GET,POST',
-        ]);
         $response->setVary(implode(', ', [
             'Accept-Encoding',
             'Accept',
