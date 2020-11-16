@@ -9,7 +9,6 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
 use Symfony\Bridge\PsrHttpMessage\HttpMessageFactoryInterface;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Themes\AbstractApiTheme\AbstractApiThemeApp;
@@ -27,10 +26,12 @@ class TokenController extends AbstractApiThemeApp
         $psrFactory = $this->get(HttpMessageFactoryInterface::class);
         $httpFoundationFactory = new HttpFoundationFactory();
 
-        return $httpFoundationFactory->createResponse($this->psrDefaultAction(
+        $response = $httpFoundationFactory->createResponse($this->psrDefaultAction(
             $psrFactory->createRequest($request),
             $psrFactory->createResponse(new Response())
         ));
+
+        return $this->makeResponseCachable($request, $response, $this->get('api.cache.ttl'));
     }
 
     /**

@@ -7,6 +7,7 @@ use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Themes\AbstractApiTheme\AbstractApiThemeApp;
 
@@ -33,6 +34,10 @@ class UserApiController extends AbstractApiThemeApp
         return $context;
     }
 
+    /**
+     * @param Request $request
+     * @return Response|JsonResponse
+     */
     public function getUserAction(Request $request)
     {
         /** @var TokenStorageInterface $tokenStorage */
@@ -45,7 +50,7 @@ class UserApiController extends AbstractApiThemeApp
 
         /** @var SerializerInterface $serializer */
         $serializer = $this->get('serializer');
-        return new JsonResponse(
+        $response = new JsonResponse(
             $serializer->serialize(
                 $token,
                 'json',
@@ -55,5 +60,7 @@ class UserApiController extends AbstractApiThemeApp
             [],
             true
         );
+
+        return $this->makeResponseCachable($request, $response, $this->get('api.cache.ttl'));
     }
 }

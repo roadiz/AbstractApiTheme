@@ -50,6 +50,7 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
 {
     /**
      * @inheritDoc
+     * @return void
      */
     public function register(Container $container)
     {

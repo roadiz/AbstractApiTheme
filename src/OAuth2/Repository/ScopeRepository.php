@@ -51,7 +51,7 @@ class ScopeRepository implements ScopeRepositoryInterface
      * @param Application $application
      * @param Role[] $requestedRoles
      *
-     * @return string[]
+     * @return array<Role|string>
      * @throws OAuthServerException
      */
     private function setupRoles(Application $application, array $requestedRoles): array

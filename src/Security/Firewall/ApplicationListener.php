@@ -50,6 +50,7 @@ class ApplicationListener
 
     /**
      * @param RequestEvent $event
+     * @return void
      */
     public function __invoke(RequestEvent $event)
     {
@@ -88,6 +89,7 @@ class ApplicationListener
 
     /**
      * @param TokenInterface $authToken
+     * @return void
      */
     protected function onSuccess(TokenInterface $authToken)
     {

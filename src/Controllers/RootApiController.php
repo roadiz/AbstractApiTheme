@@ -7,6 +7,7 @@ use FOS\JsRoutingBundle\Response\RoutesResponse;
 use JMS\Serializer\SerializerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Themes\AbstractApiTheme\AbstractApiThemeApp;
 
 class RootApiController extends AbstractApiThemeApp
@@ -14,7 +15,7 @@ class RootApiController extends AbstractApiThemeApp
     /**
      * @param Request $request
      *
-     * @return JsonResponse
+     * @return Response|JsonResponse
      */
     public function getRootAction(Request $request)
     {
@@ -48,12 +49,6 @@ class RootApiController extends AbstractApiThemeApp
             true
         );
 
-        /** @var int $cacheTtl */
-        $cacheTtl = $this->get('api.cache.ttl');
-        if ($cacheTtl > 0) {
-            $this->makeResponseCachable($request, $response, $cacheTtl);
-        }
-
-        return $response;
+        return $this->makeResponseCachable($request, $response, $this->get('api.cache.ttl'));
     }
 }

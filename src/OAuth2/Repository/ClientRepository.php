@@ -25,6 +25,7 @@ class ClientRepository implements ClientRepositoryInterface
 
     /**
      * @inheritDoc
+     * @return object|ClientEntityInterface|Application|null
      */
     public function getClientEntity($clientIdentifier)
     {
@@ -53,7 +54,7 @@ class ClientRepository implements ClientRepositoryInterface
         }
 
         if ($client instanceof Application &&
-            hash_equals($client->getSecret(), (string) $clientSecret) &&
+            hash_equals($client->getSecret() ?? '', (string) $clientSecret ?? '') &&
             $this->isGrantSupported($client, $grantType)
         ) {
             return true;

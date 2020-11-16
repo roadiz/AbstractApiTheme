@@ -45,6 +45,10 @@ final class NodeSourceApiSubscriber implements EventSubscriberInterface
         ]];
     }
 
+    /**
+     * @param ObjectEvent $event
+     * @return void
+     */
     public function onPostSerialize(ObjectEvent $event)
     {
         $nodeSource = $event->getObject();

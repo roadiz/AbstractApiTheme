@@ -16,6 +16,7 @@ class RoleNameType extends AbstractType
 {
     /**
      * {@inheritdoc}
+     * @return void
      */
     public function configureOptions(OptionsResolver $resolver)
     {

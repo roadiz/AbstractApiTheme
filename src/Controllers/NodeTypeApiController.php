@@ -218,7 +218,7 @@ class NodeTypeApiController extends AbstractApiThemeApp
         /** @var NodesSources|null $nodeSource */
         $nodeSource = $this->get('nodeSourceApi')->getOneBy($criteria);
 
-        if (null === $nodeSource) {
+        if (null === $nodeSource || null === $nodeSource->getNode()) {
             throw $this->createNotFoundException();
         }
 
@@ -235,13 +235,11 @@ class NodeTypeApiController extends AbstractApiThemeApp
             true
         );
 
-        /** @var int $cacheTtl */
-        $cacheTtl = $this->get('api.cache.ttl');
-        if ($cacheTtl > 0) {
-            $this->makeResponseCachable($request, $response, $cacheTtl);
-        }
-
-        return $response;
+        return $this->makeResponseCachable(
+            $request,
+            $response,
+            $nodeSource->getNode()->getTtl() ?? $this->get('api.cache.ttl')
+        );
     }
 
     /**
@@ -279,12 +277,6 @@ class NodeTypeApiController extends AbstractApiThemeApp
             true
         );
 
-        /** @var int $cacheTtl */
-        $cacheTtl = $this->get('api.cache.ttl');
-        if ($cacheTtl > 0) {
-            $this->makeResponseCachable($request, $response, $cacheTtl);
-        }
-
-        return $response;
+        return $this->makeResponseCachable($request, $response, $this->get('api.cache.ttl'));
     }
 }

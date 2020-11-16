@@ -278,6 +278,7 @@ class Application extends AbstractDateTimed implements UserInterface, AdvancedUs
 
     /**
      * @inheritDoc
+     * @return void
      */
     public function eraseCredentials()
     {
@@ -401,6 +402,10 @@ class Application extends AbstractDateTimed implements UserInterface, AdvancedUs
         $this->regenerateSecret();
     }
 
+    /**
+     * @throws \Exception
+     * @return void
+     */
     public function regenerateSecret()
     {
         $this->setSecret(hash('sha512', random_bytes(32)));

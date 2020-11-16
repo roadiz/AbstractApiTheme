@@ -6,8 +6,6 @@ namespace Themes\AbstractApiTheme\OAuth2\Repository;
 use Doctrine\ORM\EntityManagerInterface;
 use League\OAuth2\Server\Entities\AccessTokenEntityInterface;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
-use League\OAuth2\Server\Entities\ScopeEntityInterface;
-use League\OAuth2\Server\Exception\UniqueTokenIdentifierConstraintViolationException;
 use League\OAuth2\Server\Repositories\AccessTokenRepositoryInterface;
 use Themes\AbstractApiTheme\Model\AccessToken;
 
@@ -42,6 +40,7 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
 
     /**
      * @inheritDoc
+     * @return void
      */
     public function persistNewAccessToken(AccessTokenEntityInterface $accessTokenEntity)
     {
@@ -50,6 +49,7 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
 
     /**
      * @inheritDoc
+     * @return void
      */
     public function revokeAccessToken($tokenId)
     {
@@ -58,6 +58,7 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
 
     /**
      * @inheritDoc
+     * @return bool
      */
     public function isAccessTokenRevoked($tokenId)
     {

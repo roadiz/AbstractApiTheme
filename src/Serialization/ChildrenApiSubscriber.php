@@ -36,6 +36,10 @@ final class ChildrenApiSubscriber implements EventSubscriberInterface
         ]];
     }
 
+    /**
+     * @param ObjectEvent $event
+     * @return void
+     */
     public function onPostSerialize(ObjectEvent $event)
     {
         $nodeSource = $event->getObject();

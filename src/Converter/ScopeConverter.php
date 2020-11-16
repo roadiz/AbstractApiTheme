@@ -74,13 +74,13 @@ class ScopeConverter
         return null;
     }
 
-    public function toRole(Scope $scope): ?Role
+    public function toRole(ScopeEntityInterface $scope): ?Role
     {
         return $this->identifierToRole($scope->getIdentifier());
     }
 
     /**
-     * @param array<Scope> $scopes
+     * @param array<ScopeEntityInterface> $scopes
      * @return array<Role>
      */
     public function toRoles(array $scopes): array
@@ -92,7 +92,7 @@ class ScopeConverter
 
     /**
      * @param array<Role|string> $roles
-     * @return array<Scope>
+     * @return array<ScopeEntityInterface>
      */
     public function toScopes(array $roles): array
     {

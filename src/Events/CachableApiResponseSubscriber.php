@@ -31,26 +31,23 @@ final class CachableApiResponseSubscriber implements EventSubscriberInterface
         ];
     }
 
+    /**
+     * @param ResponseEvent $event
+     * @return void
+     */
     public function onKernelResponse(ResponseEvent $event)
     {
         if (!$event->isMasterRequest()) {
             return;
         }
-        if ($this->cachable === false || $this->minutes <= 0) {
-            return;
-        }
-        header_remove('Cache-Control');
+
         header_remove('Vary');
+        header_remove('vary');
         $response = $event->getResponse();
-        $response->headers->remove('cache-control');
         $response->headers->remove('vary');
-        $response->setPublic();
-        $response->setMaxAge(60 * $this->minutes);
-        $response->setSharedMaxAge(60 * $this->minutes);
-        $response->headers->addCacheControlDirective('must-revalidate', true);
         $response->headers->add([
             'Access-Control-Allow-Origin' => '*',
-            'Access-Control-Allow-Methods' => 'GET',
+            'Access-Control-Allow-Methods' => 'GET,POST',
         ]);
         $response->setVary('Accept-Encoding, X-Partial, x-requested-with, Access-Control-Allow-Origin, x-api-key, Referer');
 
@@ -59,5 +56,19 @@ final class CachableApiResponseSubscriber implements EventSubscriberInterface
                 'X-Partial' => true
             ]);
         }
+
+        /*
+         * Following directives only apply on cacheable responses.
+         */
+        if ($this->cachable === false || $this->minutes <= 0) {
+            return;
+        }
+
+        header_remove('Cache-Control');
+        $response->headers->remove('cache-control');
+        $response->setPublic();
+        $response->setMaxAge(60 * $this->minutes);
+        $response->setSharedMaxAge(60 * $this->minutes);
+        $response->headers->addCacheControlDirective('must-revalidate', true);
     }
 }

@@ -20,7 +20,7 @@ class ApplicationController extends RozierApp
      * @param Request $request
      *
      * @return Response
-     * @throws \Twig_Error_Runtime
+     * @throws \Twig\Error\RuntimeError
      */
     public function listAction(Request $request)
     {
@@ -53,7 +53,7 @@ class ApplicationController extends RozierApp
      * @param Request $request
      *
      * @return RedirectResponse|Response
-     * @throws \Twig_Error_Runtime
+     * @throws \Twig\Error\RuntimeError
      */
     public function addAction(Request $request)
     {
@@ -96,6 +96,12 @@ class ApplicationController extends RozierApp
         );
     }
 
+    /**
+     * @param Request $request
+     * @param int $id
+     * @return RedirectResponse|Response|null
+     * @throws \Twig\Error\RuntimeError
+     */
     public function editAction(Request $request, $id)
     {
         $this->denyAccessUnlessGranted('ROLE_ADMIN_API');
@@ -141,6 +147,12 @@ class ApplicationController extends RozierApp
         );
     }
 
+    /**
+     * @param Request $request
+     * @param int $id
+     * @return RedirectResponse|Response|null
+     * @throws \Twig\Error\RuntimeError
+     */
     public function deleteAction(Request $request, $id)
     {
         $this->denyAccessUnlessGranted('ROLE_ADMIN_API');

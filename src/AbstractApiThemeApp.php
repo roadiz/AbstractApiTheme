@@ -14,6 +14,7 @@ use RZ\Roadiz\CMS\Controllers\FrontendController;
 use RZ\Roadiz\Core\Bags\Settings;
 use RZ\Roadiz\Core\Kernel;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
@@ -32,6 +33,7 @@ class AbstractApiThemeApp extends FrontendController
 
     /**
      * @inheritDoc
+     * @return void
      */
     public static function addDefaultFirewallEntry(Container $container)
     {
@@ -40,6 +42,7 @@ class AbstractApiThemeApp extends FrontendController
 
     /**
      * @param array|string $scope
+     * @return void
      */
     protected function denyAccessUnlessScopeGranted($scope)
     {
@@ -68,7 +71,7 @@ class AbstractApiThemeApp extends FrontendController
      * @param Response $response
      * @param int $minutes TTL in minutes
      *
-     * @return Response
+     * @return Response|JsonResponse
      */
     public function makeResponseCachable(Request $request, Response $response, $minutes)
     {
@@ -78,15 +81,17 @@ class AbstractApiThemeApp extends FrontendController
         $requestStack = $kernel->get('requestStack');
         /** @var Settings $settings */
         $settings = $this->get('settingsBag');
+        /** @var EventDispatcherInterface $dispatcher */
+        $dispatcher = $this->get('dispatcher');
         if (!$kernel->isPreview() &&
             !$kernel->isDebug() &&
             $requestStack->getMasterRequest() === $request &&
             $request->isMethodCacheable() &&
             $minutes > 0 &&
             !$settings->get('maintenance_mode', false)) {
-            /** @var EventDispatcherInterface $dispatcher */
-            $dispatcher = $this->get('dispatcher');
             $dispatcher->addSubscriber(new CachableApiResponseSubscriber($minutes, true));
+        } else {
+            $dispatcher->addSubscriber(new CachableApiResponseSubscriber(0, false));
         }
 
         return $response;

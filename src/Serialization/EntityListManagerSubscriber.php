@@ -36,6 +36,11 @@ final class EntityListManagerSubscriber implements EventSubscriberInterface
         ]];
     }
 
+    /**
+     * @param ObjectEvent $event
+     * @throws \Exception
+     * @return void
+     */
     public function onPostSerialize(ObjectEvent $event)
     {
         $entityListManager = $event->getObject();

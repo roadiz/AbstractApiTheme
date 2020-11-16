@@ -55,6 +55,10 @@ final class OAuth2Listener
         $this->providerKey = $providerKey;
     }
 
+    /**
+     * @param RequestEvent $event
+     * @return void
+     */
     public function __invoke(RequestEvent $event)
     {
         $request = $this->httpMessageFactory->createRequest($event->getRequest());

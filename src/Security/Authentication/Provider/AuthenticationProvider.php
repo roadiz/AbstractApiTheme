@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Themes\AbstractApiTheme\Security\Authentication\Provider;
 
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authentication\Provider\AuthenticationProviderInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
@@ -86,6 +87,13 @@ class AuthenticationProvider implements AuthenticationProviderInterface
                 return $result;
             }
         }
+
+        $exception = new AuthenticationException(
+            'No authentication provider were able to authenticate token.',
+            Response::HTTP_UNAUTHORIZED
+        );
+        $exception->setToken($token);
+        throw $exception;
     }
 
     /**

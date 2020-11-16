@@ -26,6 +26,10 @@ final class TagTranslationNameSubscriber implements EventSubscriberInterface
         ]];
     }
 
+    /**
+     * @param ObjectEvent $event
+     * @return void
+     */
     public function onPostSerialize(ObjectEvent $event)
     {
         $object = $event->getObject();
