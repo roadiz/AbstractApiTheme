@@ -54,6 +54,10 @@
         <source>api.applications.enabled</source>
         <target xml:lang="en" state="translated">Enabled?</target>
       </trans-unit>
+      <trans-unit id="api.applications.enabled.help" xml:space="preserve">
+        <source>api.applications.enabled.help</source>
+        <target xml:lang="en" state="translated">Enable/Disable current application to prevent any API access using its credentials.</target>
+      </trans-unit>
       <trans-unit id="api.applications.form.add" xml:space="preserve">
         <source>api.applications.form.add</source>
         <target xml:lang="en" state="translated">Create application</target>
@@ -118,9 +122,17 @@
         <source>api.no_application</source>
         <target xml:lang="en" state="translated">No application available</target>
       </trans-unit>
+      <trans-unit id="authorization_code" xml:space="preserve">
+        <source>authorization_code</source>
+        <target xml:lang="en" state="translated">Authorization code (get a token on the behalf of a registered User)</target>
+      </trans-unit>
       <trans-unit id="back_to.applications" xml:space="preserve">
         <source>back_to.applications</source>
         <target xml:lang="en" state="translated">Back to applications list</target>
+      </trans-unit>
+      <trans-unit id="client_credentials" xml:space="preserve">
+        <source>client_credentials</source>
+        <target xml:lang="en" state="translated">Client credentials (get a token for an anomymous server)</target>
       </trans-unit>
     </body>
   </file>
