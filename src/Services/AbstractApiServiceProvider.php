@@ -140,7 +140,7 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
         $container['api.user_controller_class'] = UserApiController::class;
 
         /**
-         * @return int
+         * @return int in minutes
          */
         $container['api.cache.ttl'] = 5;
 
