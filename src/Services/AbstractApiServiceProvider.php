@@ -345,12 +345,16 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
             return new ScopeRepository($c[ScopeConverter::class]);
         };
 
+        $container['api.oauth2_private_key'] = function (Container $c) {
+            return new CryptKey($c['api.oauth2_private_key_path'], $c['api.oauth2_jwt_passphrase']);
+        };
+
         $container[AuthorizationServer::class] = function (Container $c) {
             return new AuthorizationServer(
                 $c[ClientRepositoryInterface::class],
                 $c[AccessTokenRepositoryInterface::class],
                 $c[ScopeRepositoryInterface::class],
-                new CryptKey($c['api.oauth2_private_key_path'], $c['api.oauth2_jwt_passphrase']),
+                $c['api.oauth2_private_key'],
                 Key::loadFromAsciiSafeString($c['api.oauth2_encryption_key'])
             );
         };
