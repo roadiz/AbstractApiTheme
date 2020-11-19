@@ -92,7 +92,7 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
          * @return string|null
          */
         $container['api.oauth2_encryption_key'] = function (Container $c) {
-            return getenv('DEFUSE_KEY') ?? null;
+            return $_ENV['DEFUSE_KEY'] ?? null;
         };
 
         /**
@@ -100,7 +100,7 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
          * @return string|null
          */
         $container['api.oauth2_jwt_passphrase'] = function (Container $c) {
-            return getenv('JWT_PASSPHRASE') ?? null;
+            return $_ENV['JWT_PASSPHRASE'] ?? null;
         };
 
         /**

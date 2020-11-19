@@ -10,6 +10,20 @@ Symfony ecosystem.
 
 ## Configuration
 
+### Use .env file
+
+This middleware theme uses `symfony/dotenv` to import `.env` variables to your project.
+Be sure to create one with at least this configuration:
+
+```dotenv
+JWT_PASSPHRASE=changeme
+# vendor/bin/generate-defuse-key
+DEFUSE_KEY=changeme
+```
+
+Your *Roadiz* entry points must initialize `DotEnv` object to fetch this configuration from a `.env` file
+our from your system environment (i.e. your *Docker* container environment).
+
 ### Registering API theme
 
 - Add API base services to your project `app/AppKernel.php`:
