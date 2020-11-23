@@ -110,7 +110,7 @@ class NodeTypeSingleApiController extends AbstractNodeTypeApiController
 
         $criteria = [
             'node.nodeType' => $nodeType,
-            'node.id' => $array['id'],
+            'id' => $array['id'],
             'translation' => $translation,
         ];
 
