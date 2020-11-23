@@ -10,6 +10,7 @@ use RZ\Roadiz\Core\Routing\DeferredRouteCollection;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Stopwatch\Stopwatch;
+use Themes\AbstractApiTheme\Controllers\AuthorizationController;
 use Themes\AbstractApiTheme\Controllers\NodeTypeListingApiController;
 use Themes\AbstractApiTheme\Controllers\NodeTypeSingleApiController;
 use Themes\AbstractApiTheme\Controllers\RootApiController;
@@ -159,6 +160,22 @@ class ApiRouteCollection extends DeferredRouteCollection
                 '',
                 [],
                 ['POST'],
+                ''
+            )
+        );
+
+        $this->add(
+            'api_post_authorize',
+            new Route(
+                '/authorize',
+                [
+                    '_controller' => AuthorizationController::class . '::defaultAction',
+                ],
+                [],
+                [],
+                '',
+                [],
+                ['GET'],
                 ''
             )
         );

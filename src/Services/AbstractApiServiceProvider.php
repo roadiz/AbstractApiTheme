@@ -13,7 +13,9 @@ use Defuse\Crypto\Key;
 use League\OAuth2\Server\AuthorizationServer;
 use League\OAuth2\Server\CryptKey;
 use League\OAuth2\Server\Repositories\AccessTokenRepositoryInterface;
+use League\OAuth2\Server\Repositories\AuthCodeRepositoryInterface;
 use League\OAuth2\Server\Repositories\ClientRepositoryInterface;
+use League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface;
 use League\OAuth2\Server\Repositories\ScopeRepositoryInterface;
 use League\OAuth2\Server\ResourceServer;
 use Nyholm\Psr7\Factory\Psr17Factory;
@@ -31,8 +33,11 @@ use Themes\AbstractApiTheme\Controllers\NodeTypeSingleApiController;
 use Themes\AbstractApiTheme\Controllers\RootApiController;
 use Themes\AbstractApiTheme\Controllers\UserApiController;
 use Themes\AbstractApiTheme\Converter\ScopeConverter;
+use Themes\AbstractApiTheme\Converter\UserConverter;
+use Themes\AbstractApiTheme\Converter\UserConverterInterface;
 use Themes\AbstractApiTheme\Entity\Application;
-use Themes\AbstractApiTheme\Events\CorsSubscriber;
+use Themes\AbstractApiTheme\Event\AuthorizationRequestResolveEventFactory;
+use Themes\AbstractApiTheme\Subscriber\CorsSubscriber;
 use Themes\AbstractApiTheme\Extractor\ApplicationExtractor;
 use Themes\AbstractApiTheme\OAuth2\Repository\AccessTokenRepository;
 use Themes\AbstractApiTheme\OAuth2\Repository\ClientRepository;
@@ -325,6 +330,21 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
             return new ClientRepository($c['em']);
         };
 
+        $container[AuthCodeRepositoryInterface::class] = function (Container $c) {
+            return null;
+        };
+
+        $container[RefreshTokenRepositoryInterface::class] = function (Container $c) {
+            return null;
+        };
+
+        $container[AuthorizationRequestResolveEventFactory::class] = function (Container $c) {
+            return new AuthorizationRequestResolveEventFactory(
+                $c[ScopeConverter::class],
+                $c[ClientRepositoryInterface::class]
+            );
+        };
+
         /**
          * @param Container $c
          * @return AccessTokenRepository
@@ -335,6 +355,10 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
 
         $container[ScopeConverter::class] = function (Container $c) {
             return new ScopeConverter($c['rolesBag'], $c['api.oauth2_role_prefix'], $c['api.base_role']);
+        };
+
+        $container[UserConverterInterface::class] = function () {
+            return new UserConverter();
         };
 
         /**
