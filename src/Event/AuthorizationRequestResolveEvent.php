@@ -80,7 +80,7 @@ final class AuthorizationRequestResolveEvent extends Event
 
     public function hasResponse(): bool
     {
-        return $this->response instanceof ResponseInterface;
+        return null !== $this->response && $this->response instanceof ResponseInterface;
     }
 
     public function getResponse(): ?ResponseInterface
