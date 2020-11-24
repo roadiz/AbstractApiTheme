@@ -27,7 +27,7 @@ class CorsSubscriber implements EventSubscriberInterface
     protected $options;
 
     /**
-     * Simple headers as defined in the spec should always be accepted
+     * @var array Simple headers as defined in the spec should always be accepted
      */
     protected static $simpleHeaders = [
         'accept',
@@ -37,7 +37,7 @@ class CorsSubscriber implements EventSubscriberInterface
     ];
 
     /**
-     * All keys of the bundle's semantical configuration are valid:
+     * All keys of the bundle's semantic configuration are valid:
      * - bool allow_credentials
      * - bool allow_origin
      * - bool allow_headers
@@ -131,7 +131,7 @@ class CorsSubscriber implements EventSubscriberInterface
         if ($shouldAllowOrigin) {
             $response = $event->getResponse();
             // add CORS response headers
-            $response->headers->set('Access-Control-Allow-Origin', $request->headers->get('Origin'));
+            $response->headers->set('Access-Control-Allow-Origin', $request->headers->get('Origin') ?? '');
             if ($options['allow_credentials']) {
                 $response->headers->set('Access-Control-Allow-Credentials', 'true');
             }
@@ -175,10 +175,10 @@ class CorsSubscriber implements EventSubscriberInterface
             return $response;
         }
 
-        $response->headers->set('Access-Control-Allow-Origin', $request->headers->get('Origin'));
+        $response->headers->set('Access-Control-Allow-Origin', $request->headers->get('Origin') ?? '');
 
         // check request method
-        if (!in_array(strtoupper($request->headers->get('Access-Control-Request-Method')), $options['allow_methods'], true)) {
+        if (!in_array(strtoupper($request->headers->get('Access-Control-Request-Method') ?? ''), $options['allow_methods'], true)) {
             $response->setStatusCode(405);
 
             return $response;
@@ -198,7 +198,8 @@ class CorsSubscriber implements EventSubscriberInterface
         $headers = $request->headers->get('Access-Control-Request-Headers');
         if ($headers && !$this->isWildcard($options, 'allow_headers')) {
             $headers = strtolower(trim($headers));
-            foreach (preg_split('{, *}', $headers) as $header) {
+            $headers = preg_split('{, *}', $headers) ?: [];
+            foreach ($headers as $header) {
                 if (in_array($header, self::$simpleHeaders, true)) {
                     continue;
                 }
@@ -216,7 +217,7 @@ class CorsSubscriber implements EventSubscriberInterface
     protected function checkOrigin(Request $request, array $options): bool
     {
         // check origin
-        $origin = $request->headers->get('Origin');
+        $origin = $request->headers->get('Origin') ?? '';
 
         if ($this->isWildcard($options, 'allow_origin')) {
             return true;

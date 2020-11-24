@@ -4,12 +4,17 @@ declare(strict_types=1);
 namespace Themes\AbstractApiTheme\Controllers;
 
 use RZ\Roadiz\Core\Entities\Role;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Themes\AbstractApiTheme\AbstractApiThemeApp;
 use Themes\Rozier\Forms\LoginType;
 
 class LoginController extends AbstractApiThemeApp
 {
+    /**
+     * @return Response|null
+     * @throws \Twig\Error\RuntimeError
+     */
     public function defaultAction()
     {
         if ($this->isGranted(Role::ROLE_BACKEND_USER)) {

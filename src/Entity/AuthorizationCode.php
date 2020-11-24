@@ -33,7 +33,7 @@ class AuthorizationCode extends AbstractEntity
 
     /**
      * @var string|null
-     * @ORM\Column(name="user_identifier", unique=false, nullable=false)
+     * @ORM\Column(name="user_identifier", type="string", unique=false, nullable=false)
      */
     private $userIdentifier;
 

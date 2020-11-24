@@ -33,6 +33,10 @@ class AuthorizationRequestSubscriber implements EventSubscriberInterface
         ];
     }
 
+    /**
+     * @param AuthorizationRequestResolveEvent $event
+     * @return void
+     */
     public function onAuthorizationRequest(AuthorizationRequestResolveEvent $event)
     {
         $token = $this->tokenStorage->getToken();

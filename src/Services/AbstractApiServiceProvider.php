@@ -26,15 +26,10 @@ use RZ\Roadiz\Utils\Security\FirewallEntry;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
 use Symfony\Bridge\PsrHttpMessage\HttpMessageFactoryInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\HttpFoundation\RequestMatcher;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouteCollection;
-use Symfony\Component\Security\Http\AccessMap;
-use Symfony\Component\Security\Http\AccessMapInterface;
 use Symfony\Component\Security\Http\Firewall\ExceptionListener;
-use Symfony\Component\Security\Http\Firewall\UsernamePasswordFormAuthenticationListener;
-use Symfony\Component\Security\Http\FirewallMapInterface;
-use Symfony\Component\Security\Http\Session\SessionAuthenticationStrategy;
+use Symfony\Component\Security\Http\FirewallMap;
 use Themes\AbstractApiTheme\Controllers\NodeTypeListingApiController;
 use Themes\AbstractApiTheme\Controllers\NodeTypeSingleApiController;
 use Themes\AbstractApiTheme\Controllers\RootApiController;
@@ -44,26 +39,26 @@ use Themes\AbstractApiTheme\Converter\UserConverter;
 use Themes\AbstractApiTheme\Converter\UserConverterInterface;
 use Themes\AbstractApiTheme\Entity\Application;
 use Themes\AbstractApiTheme\Event\AuthorizationRequestResolveEventFactory;
-use Themes\AbstractApiTheme\OAuth2\Repository\AuthCodeRepository;
-use Themes\AbstractApiTheme\OAuth2\Repository\RefreshTokenRepository;
-use Themes\AbstractApiTheme\Subscriber\AuthorizationRequestSubscriber;
-use Themes\AbstractApiTheme\Subscriber\CorsSubscriber;
 use Themes\AbstractApiTheme\Extractor\ApplicationExtractor;
 use Themes\AbstractApiTheme\OAuth2\Repository\AccessTokenRepository;
+use Themes\AbstractApiTheme\OAuth2\Repository\AuthCodeRepository;
 use Themes\AbstractApiTheme\OAuth2\Repository\ClientRepository;
+use Themes\AbstractApiTheme\OAuth2\Repository\RefreshTokenRepository;
 use Themes\AbstractApiTheme\OAuth2\Repository\ScopeRepository;
 use Themes\AbstractApiTheme\OptionsResolver\ApiRequestOptionsResolver;
+use Themes\AbstractApiTheme\Routing\ApiRouteCollection;
 use Themes\AbstractApiTheme\Security\Authentication\Provider\AuthenticationProvider;
 use Themes\AbstractApiTheme\Security\Authentication\Provider\OAuth2Provider;
 use Themes\AbstractApiTheme\Security\Authentication\Token\OAuth2TokenFactory;
 use Themes\AbstractApiTheme\Security\Firewall\ApplicationListener;
-use Themes\AbstractApiTheme\Routing\ApiRouteCollection;
 use Themes\AbstractApiTheme\Security\Firewall\OAuth2Listener;
 use Themes\AbstractApiTheme\Serialization\ChildrenApiSubscriber;
 use Themes\AbstractApiTheme\Serialization\EntityListManagerSubscriber;
 use Themes\AbstractApiTheme\Serialization\NodeSourceApiSubscriber;
 use Themes\AbstractApiTheme\Serialization\TagTranslationNameSubscriber;
 use Themes\AbstractApiTheme\Serialization\TokenSubscriber;
+use Themes\AbstractApiTheme\Subscriber\AuthorizationRequestSubscriber;
+use Themes\AbstractApiTheme\Subscriber\CorsSubscriber;
 
 class AbstractApiServiceProvider implements ServiceProviderInterface
 {
@@ -409,7 +404,7 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
             );
         };
 
-        $container->extend('firewallMap', function (FirewallMapInterface $firewallMap, Container $c) {
+        $container->extend('firewallMap', function (FirewallMap $firewallMap, Container $c) {
             $firewallEntry = new FirewallEntry(
                 $c,
                 '^/authorize',

@@ -64,7 +64,9 @@ final class AuthCodeRepository implements AuthCodeRepositoryInterface
     }
 
     /**
-     * @inheritDoc
+     * @param AuthCodeEntityInterface $authCodeEntity
+     * @throws UniqueTokenIdentifierConstraintViolationException
+     * @return void
      */
     public function persistNewAuthCode(AuthCodeEntityInterface $authCodeEntity)
     {
@@ -82,7 +84,8 @@ final class AuthCodeRepository implements AuthCodeRepositoryInterface
     }
 
     /**
-     * @inheritDoc
+     * @param string $codeId
+     * @return void
      */
     public function revokeAuthCode($codeId)
     {
@@ -130,7 +133,11 @@ final class AuthCodeRepository implements AuthCodeRepositoryInterface
                 ->setIdentifier($authCode->getIdentifier())
                 ->setClient($client)
                 ->setExpiry($authCode->getExpiryDateTime())
-                ->setUserIdentifier($authCode->getUserIdentifier())
+                ->setUserIdentifier(
+                    null !== $authCode->getUserIdentifier() ?
+                    (string) $authCode->getUserIdentifier() :
+                    null
+                )
                 ->setScopes($authCode->getScopes())
             ;
             $this->entityManager->persist($authorizationCode);

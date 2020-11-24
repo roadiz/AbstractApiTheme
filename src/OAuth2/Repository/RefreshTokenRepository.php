@@ -21,14 +21,16 @@ final class RefreshTokenRepository implements RefreshTokenRepositoryInterface
     }
 
     /**
-     * @inheritDoc
+     * @param RefreshTokenEntityInterface $refreshTokenEntity
+     * @return void
      */
     public function persistNewRefreshToken(RefreshTokenEntityInterface $refreshTokenEntity)
     {
     }
 
     /**
-     * @inheritDoc
+     * @param string $tokenId
+     * @return void
      */
     public function revokeRefreshToken($tokenId)
     {
