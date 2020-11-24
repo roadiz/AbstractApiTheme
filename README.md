@@ -143,17 +143,32 @@ bin/roadiz orm:schema-tool:update --dump-sql --force
 ### Enable grant types for your website
 
 If you opted for OAuth2 applications, you must enable grant-type(s) for the Authorization server before
-going further: just *extend* the `AuthorizationServer::class` Roadiz service as below:
+going further: just *extend* the `AuthorizationServer::class` Roadiz service as below.
+
+AbstractApiTheme currently supports:
+
+- `client_credentials` grant
+- `authorization_code` grant (**without** refresh token)
 
 ```php
 /*
  * Enable grant types
  */
-$container->extend(AuthorizationServer::class, function (AuthorizationServer $server) {
+$container->extend(AuthorizationServer::class, function (AuthorizationServer $server, Container $c) {
     // Enable the client credentials grant on the server
     $server->enableGrantType(
         new \League\OAuth2\Server\Grant\ClientCredentialsGrant(),
         new \DateInterval('PT1H') // access tokens will expire after 1 hour
+    );
+    // Enable the authorization grant on the server
+    $authCodeGrant = new \League\OAuth2\Server\Grant\AuthCodeGrant(
+        $c[AuthCodeRepositoryInterface::class],
+        $c[RefreshTokenRepositoryInterface::class],
+        new \DateInterval('PT10M') // authorization_codes will expire after 10 min
+    );
+    $server->enableGrantType(
+        $authCodeGrant,
+        new \DateInterval('PT3H') // access tokens will expire after 3 hours
     );
     return $server;
 });
@@ -196,6 +211,16 @@ Applications hold your API keys and control incoming requests `Referer` against 
 ### API Route listing
 
 - `/api/1.0` entry point will list all available routes
+
+### OAuth2 entry points
+
+- `GET /authorize` for *authorization code* grant flow (part one)
+- `GET /token` for *authorization code* grant flow (part two) and `client_credential` grant flow (only part)
+
+For authorization code grant you will find more detail on [ThePHPLeague OAuth2 Server documentation](https://oauth2.thephpleague.com/authorization-server/auth-code-grant/)
+
+*Authorization code* grant flow will redirect non-authenticated users to `GET /oauth2-login` with the classic
+Roadiz login form. You can call `GET /authorize/logout` to force user logout.
 
 ### User detail entry point
 

@@ -19,7 +19,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\String\UnicodeString;
-use Themes\AbstractApiTheme\Events\CachableApiResponseSubscriber;
+use Themes\AbstractApiTheme\Subscriber\CachableApiResponseSubscriber;
 
 class AbstractApiThemeApp extends FrontendController
 {
@@ -53,6 +53,7 @@ class AbstractApiThemeApp extends FrontendController
                     ->replace(' ', '_')
                     ->replace('-', '_')
                     ->replace('.', '_')
+                    ->replace(':', '_')
                     ->prepend($this->get('api.oauth2_role_prefix'))
                     ->upper()
                     ->toString();
