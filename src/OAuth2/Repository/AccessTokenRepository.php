@@ -44,7 +44,7 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
      */
     public function persistNewAccessToken(AccessTokenEntityInterface $accessTokenEntity)
     {
-        // TODO: Implement persistNewAccessToken() method.
+        // Access token persistence is not implemented
     }
 
     /**
@@ -53,7 +53,7 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
      */
     public function revokeAccessToken($tokenId)
     {
-        // TODO: Implement revokeAccessToken() method.
+        throw new \BadMethodCallException('Access token persistence is not implemented');
     }
 
     /**
@@ -62,7 +62,6 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
      */
     public function isAccessTokenRevoked($tokenId)
     {
-        // TODO: Implement isAccessTokenRevoked() method.
         return false;
     }
 }

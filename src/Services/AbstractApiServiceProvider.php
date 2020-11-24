@@ -22,12 +22,19 @@ use Nyholm\Psr7\Factory\Psr17Factory;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 use RZ\Roadiz\Core\Kernel;
+use RZ\Roadiz\Utils\Security\FirewallEntry;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
 use Symfony\Bridge\PsrHttpMessage\HttpMessageFactoryInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\RequestMatcher;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouteCollection;
+use Symfony\Component\Security\Http\AccessMap;
+use Symfony\Component\Security\Http\AccessMapInterface;
 use Symfony\Component\Security\Http\Firewall\ExceptionListener;
+use Symfony\Component\Security\Http\Firewall\UsernamePasswordFormAuthenticationListener;
+use Symfony\Component\Security\Http\FirewallMapInterface;
+use Symfony\Component\Security\Http\Session\SessionAuthenticationStrategy;
 use Themes\AbstractApiTheme\Controllers\NodeTypeListingApiController;
 use Themes\AbstractApiTheme\Controllers\NodeTypeSingleApiController;
 use Themes\AbstractApiTheme\Controllers\RootApiController;
@@ -37,6 +44,9 @@ use Themes\AbstractApiTheme\Converter\UserConverter;
 use Themes\AbstractApiTheme\Converter\UserConverterInterface;
 use Themes\AbstractApiTheme\Entity\Application;
 use Themes\AbstractApiTheme\Event\AuthorizationRequestResolveEventFactory;
+use Themes\AbstractApiTheme\OAuth2\Repository\AuthCodeRepository;
+use Themes\AbstractApiTheme\OAuth2\Repository\RefreshTokenRepository;
+use Themes\AbstractApiTheme\Subscriber\AuthorizationRequestSubscriber;
 use Themes\AbstractApiTheme\Subscriber\CorsSubscriber;
 use Themes\AbstractApiTheme\Extractor\ApplicationExtractor;
 use Themes\AbstractApiTheme\OAuth2\Repository\AccessTokenRepository;
@@ -319,6 +329,7 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
 
         $container->extend('dispatcher', function (EventDispatcherInterface $dispatcher, Container $c) {
             $dispatcher->addSubscriber(new CorsSubscriber($c['api.cors_options']));
+            $dispatcher->addSubscriber(new AuthorizationRequestSubscriber($c['securityTokenStorage']));
             return $dispatcher;
         });
 
@@ -330,16 +341,25 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
             return new ClientRepository($c['em']);
         };
 
-        $container[AuthCodeRepositoryInterface::class] = function (Container $c) {
-            return null;
-        };
-
         $container[RefreshTokenRepositoryInterface::class] = function (Container $c) {
-            return null;
+            return new RefreshTokenRepository();
         };
 
-        $container[AuthorizationRequestResolveEventFactory::class] = function (Container $c) {
-            return new AuthorizationRequestResolveEventFactory(
+        /**
+         * @param Container $c
+         * @return ScopeRepository
+         */
+        $container[ScopeRepositoryInterface::class] = function (Container $c) {
+            return new ScopeRepository($c[ScopeConverter::class]);
+        };
+
+        /**
+         * @param Container $c
+         * @return AuthCodeRepositoryInterface
+         */
+        $container[AuthCodeRepositoryInterface::class] = function (Container $c) {
+            return new AuthCodeRepository(
+                $c['em'],
                 $c[ScopeConverter::class],
                 $c[ClientRepositoryInterface::class]
             );
@@ -353,20 +373,19 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
             return new AccessTokenRepository($c['em']);
         };
 
+        $container[AuthorizationRequestResolveEventFactory::class] = function (Container $c) {
+            return new AuthorizationRequestResolveEventFactory(
+                $c[ScopeConverter::class],
+                $c[ClientRepositoryInterface::class]
+            );
+        };
+
         $container[ScopeConverter::class] = function (Container $c) {
             return new ScopeConverter($c['rolesBag'], $c['api.oauth2_role_prefix'], $c['api.base_role']);
         };
 
         $container[UserConverterInterface::class] = function () {
             return new UserConverter();
-        };
-
-        /**
-         * @param Container $c
-         * @return ScopeRepository
-         */
-        $container[ScopeRepositoryInterface::class] = function (Container $c) {
-            return new ScopeRepository($c[ScopeConverter::class]);
         };
 
         $container['api.oauth2_private_key'] = function (Container $c) {
@@ -389,5 +408,23 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
                 $c['api.oauth2_public_key_path']
             );
         };
+
+        $container->extend('firewallMap', function (FirewallMapInterface $firewallMap, Container $c) {
+            $firewallEntry = new FirewallEntry(
+                $c,
+                '^/authorize',
+                'api_get_authorize',
+                'api_get_authorize_login',
+                'api_get_authorize_logout',
+                'api_get_authorize_check',
+                'ROLE_USER'
+            );
+            $firewallMap->add(
+                $firewallEntry->getRequestMatcher(),
+                $firewallEntry->getListeners(),
+                $firewallEntry->getExceptionListener()
+            );
+            return $firewallMap;
+        });
     }
 }

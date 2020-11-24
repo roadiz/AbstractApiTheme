@@ -6,9 +6,9 @@ namespace Themes\AbstractApiTheme\Event;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\RequestTypes\AuthorizationRequest;
 use Psr\Http\Message\ResponseInterface;
+use RZ\Roadiz\Core\Entities\Role;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Contracts\EventDispatcher\Event;
-use Themes\AbstractApiTheme\Model\Scope;
 
 /**
  * @package Themes\AbstractApiTheme\Event
@@ -25,9 +25,9 @@ final class AuthorizationRequestResolveEvent extends Event
     private $authorizationRequest;
 
     /**
-     * @var Scope[]
+     * @var Role[]
      */
-    private $scopes;
+    private $roles;
 
     /**
      * @var ClientEntityInterface
@@ -51,13 +51,16 @@ final class AuthorizationRequestResolveEvent extends Event
 
     /**
      * @param AuthorizationRequest $authorizationRequest
-     * @param Scope[] $scopes
+     * @param Role[] $roles
      * @param ClientEntityInterface $client
      */
-    public function __construct(AuthorizationRequest $authorizationRequest, array $scopes, ClientEntityInterface $client)
-    {
+    public function __construct(
+        AuthorizationRequest $authorizationRequest,
+        array $roles,
+        ClientEntityInterface $client
+    ) {
         $this->authorizationRequest = $authorizationRequest;
-        $this->scopes = $scopes;
+        $this->roles = $roles;
         $this->client = $client;
     }
 
@@ -120,11 +123,11 @@ final class AuthorizationRequestResolveEvent extends Event
     }
 
     /**
-     * @return Scope[]
+     * @return Role[]
      */
-    public function getScopes(): array
+    public function getRoles(): array
     {
-        return $this->scopes;
+        return $this->roles;
     }
 
     public function isAuthorizationApproved(): bool

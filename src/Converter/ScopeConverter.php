@@ -74,6 +74,7 @@ class ScopeConverter
                 ->replace(' ', '_')
                 ->replace('-', '_')
                 ->replace('.', '_')
+                ->replace(':', '_')
                 ->prepend($this->rolePrefix)
                 ->upper()
                 ->toString();

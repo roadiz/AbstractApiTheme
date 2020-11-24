@@ -5,6 +5,7 @@ namespace Themes\AbstractApiTheme\Event;
 
 use League\OAuth2\Server\Repositories\ClientRepositoryInterface;
 use League\OAuth2\Server\RequestTypes\AuthorizationRequest;
+use RZ\Roadiz\Core\Entities\Role;
 use Themes\AbstractApiTheme\Converter\ScopeConverter;
 
 class AuthorizationRequestResolveEventFactory
@@ -27,12 +28,15 @@ class AuthorizationRequestResolveEventFactory
 
     public function fromAuthorizationRequest(AuthorizationRequest $authorizationRequest): AuthorizationRequestResolveEvent
     {
+        /** @var Role[] $roles */
         $roles = $this->scopeConverter->toRoles($authorizationRequest->getScopes());
-
         $client = $this->clientRepository->getClientEntity($authorizationRequest->getClient()->getIdentifier());
 
         if (null === $client) {
-            throw new \RuntimeException(sprintf('No client found for the given identifier \'%s\'.', $authorizationRequest->getClient()->getIdentifier()));
+            throw new \RuntimeException(sprintf(
+                'No client found for the given identifier \'%s\'.',
+                $authorizationRequest->getClient()->getIdentifier()
+            ));
         }
 
         return new AuthorizationRequestResolveEvent($authorizationRequest, $roles, $client);

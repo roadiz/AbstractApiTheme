@@ -18,7 +18,6 @@ class ScopeRepository implements ScopeRepositoryInterface
     protected $scopeConverter;
 
     /**
-     * ScopeRepository constructor.
      * @param ScopeConverter $scopeConverter
      */
     public function __construct(ScopeConverter $scopeConverter)

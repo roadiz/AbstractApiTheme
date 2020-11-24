@@ -54,6 +54,10 @@
         <source>api.applications.enabled</source>
         <target xml:lang="fr" state="translated">Disponible ?</target>
       </trans-unit>
+      <trans-unit id="api.applications.enabled.help" xml:space="preserve">
+        <source>api.applications.enabled.help</source>
+        <target xml:lang="fr" state="translated">Active/Désactive l'application actuelle pour empêcher toute connexion future à l'API avec ses identifiants.</target>
+      </trans-unit>
       <trans-unit id="api.applications.form.add" xml:space="preserve">
         <source>api.applications.form.add</source>
         <target xml:lang="fr" state="translated">Créer l’application</target>
@@ -118,9 +122,17 @@
         <source>api.no_application</source>
         <target xml:lang="fr" state="translated">Aucune application disponible</target>
       </trans-unit>
+      <trans-unit id="authorization_code" xml:space="preserve">
+        <source>authorization_code</source>
+        <target xml:lang="fr" state="translated">Authorization code (pour obtenir un jeton d'accès avec les permission d'un utilisateur du CMS)</target>
+      </trans-unit>
       <trans-unit id="back_to.applications" xml:space="preserve">
         <source>back_to.applications</source>
         <target xml:lang="fr" state="translated">Retour à la liste des applications</target>
+      </trans-unit>
+      <trans-unit id="client_credentials" xml:space="preserve">
+        <source>client_credentials</source>
+        <target xml:lang="fr" state="translated">Client credentials (pour obtenir un jeton d'accès depuis un serveur anonyme)</target>
       </trans-unit>
     </body>
   </file>

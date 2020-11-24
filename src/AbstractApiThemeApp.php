@@ -53,6 +53,7 @@ class AbstractApiThemeApp extends FrontendController
                     ->replace(' ', '_')
                     ->replace('-', '_')
                     ->replace('.', '_')
+                    ->replace(':', '_')
                     ->prepend($this->get('api.oauth2_role_prefix'))
                     ->upper()
                     ->toString();
