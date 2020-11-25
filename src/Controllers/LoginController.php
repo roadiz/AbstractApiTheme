@@ -29,6 +29,7 @@ class LoginController extends AbstractApiThemeApp
 
         $helper = $this->get('securityAuthenticationUtils');
 
+        $this->assignation['hide_website'] = true;
         $this->assignation['last_username'] = $helper->getLastUsername();
         $this->assignation['error'] = $helper->getLastAuthenticationError();
 
