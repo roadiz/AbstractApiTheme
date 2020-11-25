@@ -29,7 +29,19 @@ class UploadedBase64File extends UploadedFile
         if (null === $mimeType) {
             throw new \InvalidArgumentException('Base64 encoded data-uri does not have mime-type.');
         }
-        $extension = MimeTypes::getDefault()->getExtensions($mimeType)[0] ?? null;
+
+        /*
+         * Some missing mime-types
+         */
+        if ($mimeType === 'model/gltf-binary') {
+            $extension = 'glb';
+        } elseif ($mimeType === 'model/gltf+json') {
+            $extension = 'gltf';
+        } elseif ($mimeType === 'image/vnd.radiance') {
+            $extension = 'hdr';
+        } else {
+            $extension = MimeTypes::getDefault()->getExtensions($mimeType)[0] ?? null;
+        }
         if (null === $extension) {
             throw new \InvalidArgumentException('Base64 encoded data-uri mime-type ('.$mimeType.') is unknown.');
         }
