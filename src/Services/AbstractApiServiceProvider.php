@@ -159,7 +159,7 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
          */
         $container['api.cors_options'] = [
             'allow_credentials' => true,
-            'allow_origin' => '*',
+            'allow_origin' => ['*'],
             'allow_headers' => true,
             'origin_regex' => false,
             'allow_methods' => ['GET'],
