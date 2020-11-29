@@ -70,8 +70,6 @@ class ApiRouteCollection extends DeferredRouteCollection
     private $nodeTypeSingleControllerClass;
 
     /**
-     * ApiRouteCollection constructor.
-     *
      * @param NodeTypes $nodeTypesBag
      * @param Settings $settingsBag
      * @param Stopwatch|null $stopwatch
