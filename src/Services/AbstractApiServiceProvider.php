@@ -22,6 +22,7 @@ use Nyholm\Psr7\Factory\Psr17Factory;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 use RZ\Roadiz\Core\Kernel;
+use RZ\Roadiz\JWT\JwtConfigurationFactory;
 use RZ\Roadiz\Utils\Security\FirewallEntry;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
 use Symfony\Bridge\PsrHttpMessage\HttpMessageFactoryInterface;
@@ -40,6 +41,8 @@ use Themes\AbstractApiTheme\Converter\UserConverterInterface;
 use Themes\AbstractApiTheme\Entity\Application;
 use Themes\AbstractApiTheme\Event\AuthorizationRequestResolveEventFactory;
 use Themes\AbstractApiTheme\Extractor\ApplicationExtractor;
+use Themes\AbstractApiTheme\OAuth2\JwtRequestFactory;
+use Themes\AbstractApiTheme\OAuth2\OAuth2JwtConfigurationFactory;
 use Themes\AbstractApiTheme\OAuth2\Repository\AccessTokenRepository;
 use Themes\AbstractApiTheme\OAuth2\Repository\AuthCodeRepository;
 use Themes\AbstractApiTheme\OAuth2\Repository\ClientRepository;
@@ -111,6 +114,14 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
          */
         $container['api.oauth2_jwt_passphrase'] = function (Container $c) {
             return $_ENV['JWT_PASSPHRASE'] ?? null;
+        };
+
+        $container['api.oauth2_private_key'] = function (Container $c) {
+            return new CryptKey($c['api.oauth2_private_key_path'], $c['api.oauth2_jwt_passphrase']);
+        };
+
+        $container['api.oauth2_public_key'] = function (Container $c) {
+            return new CryptKey($c['api.oauth2_public_key_path']);
         };
 
         /**
@@ -254,6 +265,28 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
             return new PsrHttpFactory($psr17Factory, $psr17Factory, $psr17Factory, $psr17Factory);
         };
 
+        /**
+         * @param Container $c
+         * @return OAuth2JwtConfigurationFactory
+         */
+        $container['api.oauth2_configuration_factory'] = function (Container $c) {
+            /** @var CryptKey $cryptKey */
+            $cryptKey = $c['api.oauth2_private_key'];
+            /** @var CryptKey $publicKey */
+            $publicKey = $c['api.oauth2_public_key'];
+            return new OAuth2JwtConfigurationFactory(
+                $cryptKey->getKeyPath(),
+                $publicKey->getKeyPath(),
+                $cryptKey->getPassPhrase()
+            );
+        };
+
+        $container[JwtRequestFactory::class] = function (Container $c) {
+            /** @var JwtConfigurationFactory $jwtConfigurationFactory */
+            $jwtConfigurationFactory = $c['api.oauth2_configuration_factory'];
+            return new JwtRequestFactory($jwtConfigurationFactory->create());
+        };
+
         $container[OAuth2TokenFactory::class] = function (Container $c) {
             return new OAuth2TokenFactory(
                 $c['api.oauth2_role_prefix'],
@@ -381,10 +414,6 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
 
         $container[UserConverterInterface::class] = function () {
             return new UserConverter();
-        };
-
-        $container['api.oauth2_private_key'] = function (Container $c) {
-            return new CryptKey($c['api.oauth2_private_key_path'], $c['api.oauth2_jwt_passphrase']);
         };
 
         $container[AuthorizationServer::class] = function (Container $c) {
