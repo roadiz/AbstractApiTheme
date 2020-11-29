@@ -429,7 +429,7 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
         $container[ResourceServer::class] = function (Container $c) {
             return new ResourceServer(
                 $c[AccessTokenRepositoryInterface::class],
-                $c['api.oauth2_public_key_path']
+                $c['api.oauth2_public_key']
             );
         };
 
