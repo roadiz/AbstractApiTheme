@@ -17,24 +17,4 @@ final class AccessToken implements AccessTokenEntityInterface
     use AccessTokenTrait;
     use EntityTrait;
     use TokenEntityTrait;
-
-    /**
-     * Initialise the JWT Configuration.
-     * @see https://github.com/thephpleague/oauth2-server/issues/1163
-     */
-    public function initJwtConfiguration()
-    {
-        $privateKeyPassPhrase = $this->privateKey->getPassPhrase();
-
-        $verificationKey = empty($privateKeyPassPhrase) ?
-            InMemory::plainText('') :
-            InMemory::plainText($this->privateKey->getPassPhrase());
-
-        $this->jwtConfiguration = Configuration::forAsymmetricSigner(
-            new Sha256(),
-            // Need to pass passphrase too!
-            LocalFileReference::file($this->privateKey->getKeyPath(), $this->privateKey->getPassPhrase()),
-            $verificationKey
-        );
-    }
 }

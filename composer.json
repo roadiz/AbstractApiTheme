@@ -7,7 +7,7 @@
         "roadiz/roadiz": "^1.6.0 || dev-develop",
         "ramsey/uuid": "^3.8",
         "friendsofsymfony/jsrouting-bundle": "^2.5.3",
-        "league/oauth2-server": "^8.2.1",
+        "league/oauth2-server": "^8.2.2",
         "symfony/psr-http-message-bridge": "^2.0",
         "nyholm/psr7": "^1.3"
     },
