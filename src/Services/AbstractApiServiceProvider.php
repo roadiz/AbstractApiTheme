@@ -357,7 +357,11 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
 
         $container->extend('dispatcher', function (EventDispatcherInterface $dispatcher, Container $c) {
             $dispatcher->addSubscriber(new CorsSubscriber($c['api.cors_options']));
-            $dispatcher->addSubscriber(new AuthorizationRequestSubscriber($c['securityTokenStorage']));
+            $dispatcher->addSubscriber(new AuthorizationRequestSubscriber(
+                $c['securityTokenStorage'],
+                $c['requestStack'],
+                $c['twig.safe_environment']
+            ));
             return $dispatcher;
         });
 

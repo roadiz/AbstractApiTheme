@@ -10,12 +10,9 @@ use RZ\Roadiz\Core\Routing\DeferredRouteCollection;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Stopwatch\Stopwatch;
-use Themes\AbstractApiTheme\Controllers\AuthorizationController;
-use Themes\AbstractApiTheme\Controllers\LoginController;
 use Themes\AbstractApiTheme\Controllers\NodeTypeListingApiController;
 use Themes\AbstractApiTheme\Controllers\NodeTypeSingleApiController;
 use Themes\AbstractApiTheme\Controllers\RootApiController;
-use Themes\AbstractApiTheme\Controllers\TokenController;
 use Themes\AbstractApiTheme\Controllers\UserApiController;
 
 class ApiRouteCollection extends DeferredRouteCollection
@@ -143,79 +140,6 @@ class ApiRouteCollection extends DeferredRouteCollection
                 '',
                 [],
                 ['GET'],
-                ''
-            )
-        );
-
-        $this->add(
-            'api_post_token',
-            new Route(
-                '/token',
-                [
-                    '_controller' => TokenController::class . '::defaultAction',
-                ],
-                [],
-                [],
-                '',
-                [],
-                ['POST'],
-                ''
-            )
-        );
-
-        $this->add(
-            'api_get_authorize',
-            new Route(
-                '/authorize',
-                [
-                    '_controller' => AuthorizationController::class . '::defaultAction',
-                ],
-                [],
-                [],
-                '',
-                [],
-                ['GET'],
-                ''
-            )
-        );
-        $this->add(
-            'api_get_authorize_check',
-            new Route(
-                '/authorize/check',
-                [],
-                [],
-                [],
-                '',
-                [],
-                [],
-                ''
-            )
-        );
-        $this->add(
-            'api_get_authorize_login',
-            new Route(
-                '/oauth2-login',
-                [
-                    '_controller' => LoginController::class . '::defaultAction',
-                ],
-                [],
-                [],
-                '',
-                [],
-                [],
-                ''
-            )
-        );
-        $this->add(
-            'api_get_authorize_logout',
-            new Route(
-                '/authorize/logout',
-                [],
-                [],
-                [],
-                '',
-                [],
-                [],
                 ''
             )
         );

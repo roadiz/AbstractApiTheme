@@ -1,0 +1,42 @@
+{% extends "@Rozier/login/base.html.twig" %}
+
+{% block login_title %}{% trans %}oauth2.grant_permissions{% endtrans %}{% endblock %}
+
+{% block login_footer %}{% endblock %}
+
+{% block login_content %}
+    <form method="post">
+        {% if app.user %}
+            <div class="mb-3">
+                {{ 'oauth2.you_are_logged_in_as'|trans({
+                    '%user%': app.user.username
+                }) }}, <a href="{{ path('api_get_authorize_logout') }}">{% trans %}logout{% endtrans %}</a>
+            </div>
+        {% endif %}
+        <input type="hidden" name="_csrf_token"
+               value="{{ csrf_token('authenticate') }}">
+        <input type="hidden" name="email"
+               value="{{ email }}">
+        <input type="hidden" name="password"
+               value="{{ password }}">
+
+        <p>{{ 'oauth2.grant_following_permissions_to_client'|trans({
+                '%client%': client.name|escape
+            })|raw }}</p>
+        <ul class="uk-text-left-small">
+            {% for role in roles %}
+                <li>{{ role|trans }}</li>
+            {% endfor %}
+        </ul>
+
+        <button class="uk-button uk-button-primary"
+                type="submit"
+                name="action"
+                value="{{ grant }}">{% trans %}oauth2.grant{% endtrans %}</button>
+
+        <button class="uk-button"
+                type="submit"
+                name="action"
+                value="Deny">{% trans %}oauth2.deny{% endtrans %}</button>
+    </form>
+{% endblock %}

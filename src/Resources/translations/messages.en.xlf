@@ -134,6 +134,30 @@
         <source>client_credentials</source>
         <target xml:lang="en" state="translated">Client credentials (get a token for an anomymous server)</target>
       </trans-unit>
+      <trans-unit id="oauth2.deny" xml:space="preserve">
+        <source>oauth2.deny</source>
+        <target xml:lang="en" state="translated">Deny</target>
+      </trans-unit>
+      <trans-unit id="oauth2.grant" xml:space="preserve">
+        <source>oauth2.grant</source>
+        <target xml:lang="en" state="translated">Grant</target>
+      </trans-unit>
+      <trans-unit id="oauth2.grant_following_permissions" xml:space="preserve">
+        <source>oauth2.grant_following_permissions</source>
+        <target xml:lang="en" state="translated">Grant following permissions:</target>
+      </trans-unit>
+      <trans-unit id="oauth2.grant_following_permissions_to_client" xml:space="preserve">
+        <source>oauth2.grant_following_permissions_to_client</source>
+        <target xml:lang="en" state="translated"><![CDATA[<strong>%client%</strong> application requires to access following permissions on your behalf:]]></target>
+      </trans-unit>
+      <trans-unit id="oauth2.grant_permissions" xml:space="preserve">
+        <source>oauth2.grant_permissions</source>
+        <target xml:lang="en" state="translated">Grant permissions</target>
+      </trans-unit>
+      <trans-unit id="oauth2.you_are_logged_in_as" xml:space="preserve">
+        <source>oauth2.you_are_logged_in_as</source>
+        <target xml:lang="en" state="translated">You are logged in as %user%</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

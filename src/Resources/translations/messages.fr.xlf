@@ -134,6 +134,30 @@
         <source>client_credentials</source>
         <target xml:lang="fr" state="translated">Client credentials (pour obtenir un jeton d'accès depuis un serveur anonyme)</target>
       </trans-unit>
+      <trans-unit id="oauth2.deny" xml:space="preserve">
+        <source>oauth2.deny</source>
+        <target xml:lang="fr" state="translated">Refuser</target>
+      </trans-unit>
+      <trans-unit id="oauth2.grant" xml:space="preserve">
+        <source>oauth2.grant</source>
+        <target xml:lang="fr" state="translated">Autoriser</target>
+      </trans-unit>
+      <trans-unit id="oauth2.grant_following_permissions" xml:space="preserve">
+        <source>oauth2.grant_following_permissions</source>
+        <target xml:lang="fr" state="translated">Accorder les permissions suivantes :</target>
+      </trans-unit>
+      <trans-unit id="oauth2.grant_following_permissions_to_client" xml:space="preserve">
+        <source>oauth2.grant_following_permissions_to_client</source>
+        <target xml:lang="fr" state="translated"><![CDATA[L'application <strong>%client%</strong> demande l'accès aux permissions suivantes à partir de votre compte utilisateur :]]></target>
+      </trans-unit>
+      <trans-unit id="oauth2.grant_permissions" xml:space="preserve">
+        <source>oauth2.grant_permissions</source>
+        <target xml:lang="fr" state="translated">Demande d'autorisation</target>
+      </trans-unit>
+      <trans-unit id="oauth2.you_are_logged_in_as" xml:space="preserve">
+        <source>oauth2.you_are_logged_in_as</source>
+        <target xml:lang="fr" state="translated">Vous êtes connecté·e en tant que %user%</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
