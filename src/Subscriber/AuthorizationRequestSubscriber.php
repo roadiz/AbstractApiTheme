@@ -6,10 +6,12 @@ namespace Themes\AbstractApiTheme\Subscriber;
 use Nyholm\Psr7\Response;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpKernel\Controller\ControllerReference;
+use Symfony\Component\HttpKernel\Fragment\InlineFragmentRenderer;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Themes\AbstractApiTheme\Controllers\GrantPermissionController;
 use Themes\AbstractApiTheme\Event\AuthorizationRequestResolveEvent;
-use Twig\Environment;
 
 class AuthorizationRequestSubscriber implements EventSubscriberInterface
 {
@@ -26,23 +28,23 @@ class AuthorizationRequestSubscriber implements EventSubscriberInterface
     protected $requestStack;
 
     /**
-     * @var Environment|null
+     * @var InlineFragmentRenderer
      */
-    protected $twig;
+    private InlineFragmentRenderer $renderer;
 
     /**
      * @param TokenStorageInterface $tokenStorage
      * @param RequestStack $requestStack
-     * @param Environment|null $twig
+     * @param InlineFragmentRenderer $renderer
      */
     public function __construct(
         TokenStorageInterface $tokenStorage,
         RequestStack $requestStack,
-        ?Environment $twig = null
+        InlineFragmentRenderer $renderer
     ) {
         $this->tokenStorage = $tokenStorage;
         $this->requestStack = $requestStack;
-        $this->twig = $twig;
+        $this->renderer = $renderer;
     }
 
     /**
@@ -58,9 +60,6 @@ class AuthorizationRequestSubscriber implements EventSubscriberInterface
     /**
      * @param AuthorizationRequestResolveEvent $event
      * @return void
-     * @throws \Twig\Error\LoaderError
-     * @throws \Twig\Error\RuntimeError
-     * @throws \Twig\Error\SyntaxError
      */
     public function onAuthorizationRequest(AuthorizationRequestResolveEvent $event)
     {
@@ -80,25 +79,16 @@ class AuthorizationRequestSubscriber implements EventSubscriberInterface
             return;
         }
 
-        if (null === $this->twig) {
-            $event->resolveAuthorization(AuthorizationRequestResolveEvent::AUTHORIZATION_APPROVED);
-            return;
-        }
-
         if (!$request->request->has('action')) {
-            // 1. successful login, goes to grant page
-            $content = $this->twig->render('security/grant.html.twig', [
-                'roles' => $event->getRoles(),
-                'client' => $event->getClient(),
-                'grant' => static::AUTHORIZATION_GRANT,
-                // very simple way to ensure user gets to this point in the
-                // flow when granting or denying is to pre-add their credentials
-                'email' => $request->request->get('email'),
-                'password' => $request->request->get('password'),
-            ]);
-
-            $response = new Response(200, [], $content);
-            $event->setResponse($response);
+            $response = $this->renderer->render(new ControllerReference(
+                GrantPermissionController::class . '::defaultAction',
+                [
+                    'roles' => $event->getRoles(),
+                    'client' => $event->getClient(),
+                    'grant' => static::AUTHORIZATION_GRANT,
+                ]
+            ), $request);
+            $event->setResponse(new Response($response->getStatusCode(), [], $response->getContent()));
         } else {
             // 2. grant operation, either grants or denies
             if ($request->request->get('action') === static::AUTHORIZATION_GRANT) {

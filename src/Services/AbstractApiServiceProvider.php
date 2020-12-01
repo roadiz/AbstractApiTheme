@@ -27,6 +27,7 @@ use RZ\Roadiz\Utils\Security\FirewallEntry;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
 use Symfony\Bridge\PsrHttpMessage\HttpMessageFactoryInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpKernel\Fragment\InlineFragmentRenderer;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Security\Http\Firewall\ExceptionListener;
@@ -360,7 +361,7 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
             $dispatcher->addSubscriber(new AuthorizationRequestSubscriber(
                 $c['securityTokenStorage'],
                 $c['requestStack'],
-                $c['twig.safe_environment']
+                new InlineFragmentRenderer($c['kernel'], $dispatcher)
             ));
             return $dispatcher;
         });

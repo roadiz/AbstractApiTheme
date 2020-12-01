@@ -15,11 +15,6 @@
         {% endif %}
         <input type="hidden" name="_csrf_token"
                value="{{ csrf_token('authenticate') }}">
-        <input type="hidden" name="email"
-               value="{{ email }}">
-        <input type="hidden" name="password"
-               value="{{ password }}">
-
         <p>{{ 'oauth2.grant_following_permissions_to_client'|trans({
                 '%client%': client.name|escape
             })|raw }}</p>
@@ -28,12 +23,10 @@
                 <li>{{ role|trans }}</li>
             {% endfor %}
         </ul>
-
         <button class="uk-button uk-button-primary"
                 type="submit"
                 name="action"
                 value="{{ grant }}">{% trans %}oauth2.grant{% endtrans %}</button>
-
         <button class="uk-button"
                 type="submit"
                 name="action"
