@@ -5,6 +5,7 @@ namespace Themes\AbstractApiTheme\File;
 
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Mime\MimeTypes;
+use Themes\AbstractApiTheme\Exception\BadBase64EncodedDataUri;
 
 class UploadedBase64File extends UploadedFile
 {
@@ -17,7 +18,7 @@ class UploadedBase64File extends UploadedFile
         $filePath = tempnam(sys_get_temp_dir(), 'UploadedFile');
         $data = explode(';base64,', $base64Content);
         if (count($data) !== 2) {
-            throw new \InvalidArgumentException('Input string is not a valid base64 encoded data-uri.');
+            throw new BadBase64EncodedDataUri('Input string is not a valid base64 encoded data-uri.');
         }
         $type = explode('data:', $data[0]);
         $fileContent = base64_decode($data[1]);
@@ -27,7 +28,7 @@ class UploadedBase64File extends UploadedFile
             $mimeType = $type[1];
         }
         if (null === $mimeType) {
-            throw new \InvalidArgumentException('Base64 encoded data-uri does not have mime-type.');
+            throw new BadBase64EncodedDataUri('Base64 encoded data-uri does not have mime-type.');
         }
 
         /*
@@ -43,7 +44,7 @@ class UploadedBase64File extends UploadedFile
             $extension = MimeTypes::getDefault()->getExtensions($mimeType)[0] ?? null;
         }
         if (null === $extension) {
-            throw new \InvalidArgumentException('Base64 encoded data-uri mime-type ('.$mimeType.') is unknown.');
+            throw new BadBase64EncodedDataUri('Base64 encoded data-uri mime-type ('.$mimeType.') is unknown.');
         }
 
         $originalName = $filenamePrefix . '.' . $extension;
