@@ -60,6 +60,7 @@ class AuthorizationRequestSubscriber implements EventSubscriberInterface
     /**
      * @param AuthorizationRequestResolveEvent $event
      * @return void
+     * @throws \Exception
      */
     public function onAuthorizationRequest(AuthorizationRequestResolveEvent $event)
     {

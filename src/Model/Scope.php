@@ -19,4 +19,12 @@ final class Scope implements ScopeEntityInterface
     {
         $this->identifier = $identifier;
     }
+
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->getIdentifier();
+    }
 }

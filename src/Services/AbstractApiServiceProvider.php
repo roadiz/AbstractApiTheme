@@ -63,6 +63,7 @@ use Themes\AbstractApiTheme\Serialization\TagTranslationNameSubscriber;
 use Themes\AbstractApiTheme\Serialization\TokenSubscriber;
 use Themes\AbstractApiTheme\Subscriber\AuthorizationRequestSubscriber;
 use Themes\AbstractApiTheme\Subscriber\CorsSubscriber;
+use Themes\AbstractApiTheme\Subscriber\RoadizUserRoleResolveSubscriber;
 
 class AbstractApiServiceProvider implements ServiceProviderInterface
 {
@@ -358,6 +359,7 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
 
         $container->extend('dispatcher', function (EventDispatcherInterface $dispatcher, Container $c) {
             $dispatcher->addSubscriber(new CorsSubscriber($c['api.cors_options']));
+            $dispatcher->addSubscriber(new RoadizUserRoleResolveSubscriber($c['em']));
             $dispatcher->addSubscriber(new AuthorizationRequestSubscriber(
                 $c['securityTokenStorage'],
                 $c['requestStack'],
@@ -383,7 +385,10 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
          * @return ScopeRepository
          */
         $container[ScopeRepositoryInterface::class] = function (Container $c) {
-            return new ScopeRepository($c[ScopeConverter::class]);
+            return new ScopeRepository(
+                $c[ScopeConverter::class],
+                $c['dispatcher']
+            );
         };
 
         /**
@@ -408,7 +413,7 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
 
         $container[AuthorizationRequestResolveEventFactory::class] = function (Container $c) {
             return new AuthorizationRequestResolveEventFactory(
-                $c[ScopeConverter::class],
+                $c[ScopeRepositoryInterface::class],
                 $c[ClientRepositoryInterface::class]
             );
         };

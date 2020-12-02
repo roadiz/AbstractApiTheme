@@ -15,6 +15,7 @@
         {% endif %}
         <input type="hidden" name="_csrf_token"
                value="{{ csrf_token('authenticate') }}">
+
         <p>{{ 'oauth2.grant_following_permissions_to_client'|trans({
                 '%client%': client.name|escape
             })|raw }}</p>

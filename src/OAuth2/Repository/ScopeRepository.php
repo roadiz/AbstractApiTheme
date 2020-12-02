@@ -7,8 +7,10 @@ use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Repositories\ScopeRepositoryInterface;
 use RZ\Roadiz\Core\Entities\Role;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Themes\AbstractApiTheme\Converter\ScopeConverter;
 use Themes\AbstractApiTheme\Entity\Application;
+use Themes\AbstractApiTheme\Event\RoleResolveEvent;
 
 class ScopeRepository implements ScopeRepositoryInterface
 {
@@ -18,11 +20,18 @@ class ScopeRepository implements ScopeRepositoryInterface
     protected $scopeConverter;
 
     /**
-     * @param ScopeConverter $scopeConverter
+     * @var EventDispatcherInterface
      */
-    public function __construct(ScopeConverter $scopeConverter)
+    protected $dispatcher;
+
+    /**
+     * @param ScopeConverter $scopeConverter
+     * @param EventDispatcherInterface $dispatcher
+     */
+    public function __construct(ScopeConverter $scopeConverter, EventDispatcherInterface $dispatcher)
     {
         $this->scopeConverter = $scopeConverter;
+        $this->dispatcher = $dispatcher;
     }
 
     /**
@@ -40,8 +49,36 @@ class ScopeRepository implements ScopeRepositoryInterface
     public function finalizeScopes(array $scopes, $grantType, ClientEntityInterface $clientEntity, $userIdentifier = null)
     {
         if ($clientEntity instanceof Application) {
+            return $this->scopeConverter->toScopes(
+                $this->finalizeRoles($scopes, $grantType, $clientEntity, $userIdentifier)
+            );
+        }
+        return [];
+    }
+
+    /**
+     * @param array $scopes
+     * @param $grantType
+     * @param ClientEntityInterface $clientEntity
+     * @param null $userIdentifier
+     * @return array<Role|string>
+     * @throws OAuthServerException
+     */
+    public function finalizeRoles(array $scopes, $grantType, ClientEntityInterface $clientEntity, $userIdentifier = null)
+    {
+        if ($clientEntity instanceof Application) {
             $finalizedRoles = $this->setupRoles($clientEntity, $this->scopeConverter->toRoles($scopes));
-            return $this->scopeConverter->toScopes($finalizedRoles);
+
+            $event = $this->dispatcher->dispatch(
+                new RoleResolveEvent(
+                    $finalizedRoles,
+                    $grantType,
+                    $clientEntity,
+                    $userIdentifier
+                )
+            );
+
+            return $event->getRoles();
         }
         return [];
     }

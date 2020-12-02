@@ -187,7 +187,7 @@ using `OPTIONS` verb and must contain `Origin` and `Access-Control-Request-Metho
  */
 $container['api.cors_options'] = [
     'allow_credentials' => true,
-    'allow_origin' => '*',
+    'allow_origin' => ['*'],
     'allow_headers' => true,
     'origin_regex' => false,
     'allow_methods' => ['GET'],
@@ -221,6 +221,10 @@ For authorization code grant you will find more detail on [ThePHPLeague OAuth2 S
 
 *Authorization code* grant flow will redirect non-authenticated users to `GET /oauth2-login` with the classic
 Roadiz login form. You can call `GET /authorize/logout` to force user logout.
+Note that *authorization code* grant won't give each application' roles **if logged-in user does not have them before** 
+(except for `ROLE_SUPERADMIN`). User will be asked to grant permission on application role **but** 
+he won't benefit from them for security reasons (permissions escalation). Make sure your users have the right
+roles before inviting them to use your OAuth2 application.
 
 ### User detail entry point
 

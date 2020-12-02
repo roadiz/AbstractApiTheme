@@ -27,7 +27,7 @@ class CorsSubscriber implements EventSubscriberInterface
     protected $options;
 
     /**
-     * @var array Simple headers as defined in the spec should always be accepted
+     * @var array<string> Simple headers as defined in the spec should always be accepted
      */
     protected static $simpleHeaders = [
         'accept',
