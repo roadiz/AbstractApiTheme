@@ -134,6 +134,10 @@
         <source>client_credentials</source>
         <target xml:lang="en" state="translated">Client credentials (get a token for an anomymous server)</target>
       </trans-unit>
+      <trans-unit id="entity._name_._type_.has_been_created" xml:space="preserve">
+        <source>entity.%name%.%type%.has_been_created</source>
+        <target xml:lang="en" state="translated">New “%name%” (%type%) has been created.</target>
+      </trans-unit>
       <trans-unit id="oauth2.deny" xml:space="preserve">
         <source>oauth2.deny</source>
         <target xml:lang="en" state="translated">Deny</target>
