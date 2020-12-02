@@ -8,6 +8,7 @@ use JMS\Serializer\DeserializationContext;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
 use ReflectionClass;
+use RZ\Roadiz\Core\Entities\NodesSources;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -44,11 +45,32 @@ abstract class AbstractApiPostController extends AbstractApiThemeApp
                 $this->getDeserializationContext()
             );
 
+            $entity = $this->normalizeEntity($entity);
             $this->validateEntity($entity);
 
             $this->get('dispatcher')->dispatch($this->getPreCreatedEvent($entity));
             $this->get('em')->persist($entity);
             $this->get('em')->flush();
+
+            if ($entity instanceof NodesSources) {
+                $msg = $this->getTranslator()->trans(
+                    'entity.%name%.%type%.has_been_created',
+                    [
+                        '%name%' => $entity->getTitle(),
+                        '%type%' => $this->getEntityClassname(),
+                    ]
+                );
+                $this->get('logger')->info($msg, ['source' => $entity]);
+            } else {
+                $msg = $this->getTranslator()->trans(
+                    'entity.%name%.%type%.has_been_created',
+                    [
+                        '%name%' => (string) $entity,
+                        '%type%' => $this->getEntityClassname(),
+                    ]
+                );
+                $this->get('logger')->info($msg);
+            }
 
             $response = new JsonResponse(
                 $serializer->serialize(
@@ -134,5 +156,15 @@ abstract class AbstractApiPostController extends AbstractApiThemeApp
                 throw new BadRequestHttpException($violations[0]->getMessage() . ' ('.$reflectionProperty->getName().')');
             }
         }
+    }
+
+    /**
+     * @param mixed $entity
+     * @return mixed
+     */
+    protected function normalizeEntity($entity)
+    {
+        // Do nothing on this entity
+        return $entity;
     }
 }
