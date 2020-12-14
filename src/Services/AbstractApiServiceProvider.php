@@ -314,13 +314,10 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
         };
 
         $container['api.route_collection'] = function (Container $c) {
-            /** @var Kernel $kernel */
-            $kernel = $c['kernel'];
             return new ApiRouteCollection(
                 $c['nodeTypesBag'],
                 $c['settingsBag'],
                 $c['stopwatch'],
-                $kernel->isPreview(),
                 $c['api.prefix'],
                 $c['api.version'],
                 $c['api.node_type_whitelist'],

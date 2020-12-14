@@ -38,10 +38,6 @@ class ApiRouteCollection extends DeferredRouteCollection
      */
     protected $stopwatch;
     /**
-     * @var bool
-     */
-    protected $isPreview;
-    /**
      * @var Settings
      */
     protected $settingsBag;
@@ -70,7 +66,6 @@ class ApiRouteCollection extends DeferredRouteCollection
      * @param NodeTypes $nodeTypesBag
      * @param Settings $settingsBag
      * @param Stopwatch|null $stopwatch
-     * @param bool $isPreview
      * @param string $apiPrefix
      * @param string $apiVersion
      * @param array|null $nodeTypeWhitelist
@@ -83,7 +78,6 @@ class ApiRouteCollection extends DeferredRouteCollection
         NodeTypes $nodeTypesBag,
         Settings $settingsBag,
         Stopwatch $stopwatch = null,
-        $isPreview = false,
         $apiPrefix = '/api',
         $apiVersion = '1.0',
         $nodeTypeWhitelist = null,
@@ -93,7 +87,6 @@ class ApiRouteCollection extends DeferredRouteCollection
         $userControllerClass = UserApiController::class
     ) {
         $this->stopwatch = $stopwatch;
-        $this->isPreview = $isPreview;
         $this->settingsBag = $settingsBag;
         $this->nodeTypesBag = $nodeTypesBag;
         $this->apiVersion = $apiVersion;
