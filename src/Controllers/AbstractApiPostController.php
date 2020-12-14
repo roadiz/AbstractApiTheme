@@ -8,9 +8,11 @@ use JMS\Serializer\DeserializationContext;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
 use ReflectionClass;
+use RZ\Roadiz\Core\AbstractEntities\AbstractEntity;
 use RZ\Roadiz\Core\Entities\NodesSources;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintViolation;
@@ -26,20 +28,33 @@ abstract class AbstractApiPostController extends AbstractApiThemeApp
 
     abstract protected function validateAccess(): void;
 
+    /**
+     * @return class-string<AbstractEntity>
+     */
     abstract protected function getEntityClassname(): string;
 
+    /**
+     * @param AbstractEntity $entity
+     * @return Event
+     */
     abstract protected function getPreCreatedEvent($entity): Event;
 
+    /**
+     * @param Request $request
+     * @return Response
+     * @throws \ReflectionException
+     */
     public function defaultAction(Request $request)
     {
         $this->validateAccess();
 
-        if (\in_array(strtolower($request->getContentType()), ['json', 'application/json'])) {
+        if (\in_array(strtolower($request->getContentType() ?? ''), ['json', 'application/json'])) {
             $jsonContent = $request->getContent();
             /** @var SerializerInterface $serializer */
             $serializer = $this->get('serializer');
+            /** @var AbstractEntity $entity */
             $entity = $serializer->deserialize(
-                $jsonContent,
+                (string) $jsonContent,
                 $this->getEntityClassname(),
                 'json',
                 $this->getDeserializationContext()

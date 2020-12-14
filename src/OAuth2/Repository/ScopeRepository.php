@@ -58,17 +58,18 @@ class ScopeRepository implements ScopeRepositoryInterface
 
     /**
      * @param array $scopes
-     * @param $grantType
+     * @param string $grantType
      * @param ClientEntityInterface $clientEntity
-     * @param null $userIdentifier
+     * @param string|null $userIdentifier
      * @return array<Role|string>
      * @throws OAuthServerException
      */
-    public function finalizeRoles(array $scopes, $grantType, ClientEntityInterface $clientEntity, $userIdentifier = null)
+    public function finalizeRoles(array $scopes, string $grantType, ClientEntityInterface $clientEntity, $userIdentifier = null)
     {
         if ($clientEntity instanceof Application) {
             $finalizedRoles = $this->setupRoles($clientEntity, $this->scopeConverter->toRoles($scopes));
 
+            /** @var RoleResolveEvent $event */
             $event = $this->dispatcher->dispatch(
                 new RoleResolveEvent(
                     $finalizedRoles,

@@ -71,6 +71,11 @@ class AuthorizationRequestSubscriber implements EventSubscriberInterface
             $event->setUser($token->getUser());
         }
 
+        if (null === $request) {
+            $event->resolveAuthorization(AuthorizationRequestResolveEvent::AUTHORIZATION_DENIED);
+            return;
+        }
+
         // only handle post requests for logged-in users:
         // get requests will be intercepted and shown the login form
         // other verbs we will handle as an authorization denied
@@ -89,7 +94,7 @@ class AuthorizationRequestSubscriber implements EventSubscriberInterface
                     'grant' => static::AUTHORIZATION_GRANT,
                 ]
             ), $request);
-            $event->setResponse(new Response($response->getStatusCode(), [], $response->getContent()));
+            $event->setResponse(new Response($response->getStatusCode(), [], (string) $response->getContent()));
         } else {
             // 2. grant operation, either grants or denies
             if ($request->request->get('action') === static::AUTHORIZATION_GRANT) {

@@ -16,6 +16,9 @@ class UploadedBase64File extends UploadedFile
     public function __construct(string $base64Content, string $filenamePrefix)
     {
         $filePath = tempnam(sys_get_temp_dir(), 'UploadedFile');
+        if (false === $filePath) {
+            throw new \RuntimeException('Cannot create temporary file in sys_get_temp_dir.');
+        }
         $data = explode(';base64,', $base64Content);
         if (count($data) !== 2) {
             throw new BadBase64EncodedDataUri('Input string is not a valid base64 encoded data-uri.');

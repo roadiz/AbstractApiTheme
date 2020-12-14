@@ -9,7 +9,7 @@ use JMS\Serializer\EventDispatcher\ObjectEvent;
 abstract class AbstractDataUriDeserializeSubscriber implements EventSubscriberInterface
 {
     /**
-     * @inheritDoc
+     * @return string[][]
      */
     public static function getSubscribedEvents()
     {
@@ -19,5 +19,9 @@ abstract class AbstractDataUriDeserializeSubscriber implements EventSubscriberIn
         ]];
     }
 
+    /**
+     * @param ObjectEvent $event
+     * @return void
+     */
     abstract public function onPostDeserialize(ObjectEvent $event);
 }

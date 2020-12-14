@@ -7,6 +7,7 @@ use League\OAuth2\Server\Repositories\ClientRepositoryInterface;
 use League\OAuth2\Server\Repositories\ScopeRepositoryInterface;
 use League\OAuth2\Server\RequestTypes\AuthorizationRequest;
 use RZ\Roadiz\Core\Entities\Role;
+use Themes\AbstractApiTheme\OAuth2\Repository\ScopeRepository;
 
 class AuthorizationRequestResolveEventFactory
 {
@@ -28,13 +29,18 @@ class AuthorizationRequestResolveEventFactory
 
     public function fromAuthorizationRequest(AuthorizationRequest $authorizationRequest): AuthorizationRequestResolveEvent
     {
-        /** @var Role[] $roles */
-        $roles = $this->scopeRepository->finalizeRoles(
-            $authorizationRequest->getScopes(),
-            $authorizationRequest->getGrantTypeId(),
-            $authorizationRequest->getClient(),
-            $authorizationRequest->getUser() ? $authorizationRequest->getUser()->getIdentifier() : null
-        );
+        $roles = [];
+
+        if ($this->scopeRepository instanceof ScopeRepository) {
+            /** @var Role[] $roles */
+            $roles = $this->scopeRepository->finalizeRoles(
+                $authorizationRequest->getScopes(),
+                $authorizationRequest->getGrantTypeId(),
+                $authorizationRequest->getClient(),
+                null !== $authorizationRequest->getUser() ? $authorizationRequest->getUser()->getIdentifier() : null
+            );
+        }
+
         $client = $this->clientRepository->getClientEntity($authorizationRequest->getClient()->getIdentifier());
 
         if (null === $client) {

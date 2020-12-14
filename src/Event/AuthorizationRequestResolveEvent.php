@@ -85,7 +85,7 @@ final class AuthorizationRequestResolveEvent extends Event
 
     public function getResponse(): ResponseInterface
     {
-        if (!$this->hasResponse()) {
+        if (null === $this->response || !$this->hasResponse()) {
             throw new \LogicException('There is no response. You should call "hasResponse" to check if the response exists.');
         }
 

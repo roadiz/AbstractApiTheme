@@ -35,6 +35,7 @@ class RoadizUserRoleResolveSubscriber implements EventSubscriberInterface
 
     /**
      * @param RoleResolveEvent $event
+     * @return void
      */
     public function onRoleResolve(RoleResolveEvent $event)
     {
