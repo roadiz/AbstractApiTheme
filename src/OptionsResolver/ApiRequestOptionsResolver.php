@@ -74,6 +74,7 @@ class ApiRequestOptionsResolver
             'maxChildrenCount' => 30,
             'page' => 1,
             '_locale' => $this->getDefaultLocale(),
+            '_preview' => false,
             'search' => null,
             'api_key' => null,
             'order' => null,

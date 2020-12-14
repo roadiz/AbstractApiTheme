@@ -63,26 +63,18 @@ class AbstractApiThemeApp extends FrontendController
     }
 
     /**
-     * Make current response cacheable by reverse proxy and browsers.
-     *
-     * Pay attention that, some reverse proxies systems will need to remove your response
-     * cookies header to actually save your response.
-     *
-     * Do not cache, if
-     * - we are in preview mode
-     * - we are in debug mode
-     * - Request forbids cache
-     * - we are in maintenance mode
-     * - this is a sub-request
-     *
      * @param Request $request
      * @param Response $response
-     * @param int $minutes TTL in minutes
-     *
-     * @return Response|JsonResponse
+     * @param int $minutes
+     * @param bool $allowClientCache
+     * @return Response
      */
-    public function makeResponseCachable(Request $request, Response $response, $minutes)
-    {
+    public function makeResponseCachable(
+        Request $request,
+        Response $response,
+        int $minutes,
+        bool $allowClientCache = false
+    ) {
         /** @var Kernel $kernel */
         $kernel = $this->get('kernel');
         /** @var RequestStack $requestStack */
@@ -97,9 +89,13 @@ class AbstractApiThemeApp extends FrontendController
             $request->isMethodCacheable() &&
             $minutes > 0 &&
             !$settings->get('maintenance_mode', false)) {
-            $dispatcher->addSubscriber(new CachableApiResponseSubscriber($minutes, true));
+            $dispatcher->addSubscriber(
+                new CachableApiResponseSubscriber($minutes, true, $allowClientCache)
+            );
         } else {
-            $dispatcher->addSubscriber(new CachableApiResponseSubscriber(0, false));
+            $dispatcher->addSubscriber(
+                new CachableApiResponseSubscriber(0, false, false)
+            );
         }
 
         return $response;
