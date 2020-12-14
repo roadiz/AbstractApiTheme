@@ -115,6 +115,10 @@ class ApiRequestOptionsResolver
             return $this->normalizeBoolean($value);
         });
 
+        $resolver->setNormalizer('_preview', function (Options $options, $value) {
+            return $this->normalizeBoolean($value);
+        });
+
         $resolver->setNormalizer('maxChildrenCount', function (Options $options, $value) {
             return intval($value) >= 0 && intval($value) < 100 ? intval($value) : 30;
         });

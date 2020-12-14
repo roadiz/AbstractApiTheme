@@ -61,6 +61,6 @@ class UserApiController extends AbstractApiThemeApp
             true
         );
 
-        return $this->makeResponseCachable($request, $response, $this->get('api.cache.ttl'));
+        return $this->makeResponseCachable($request, $response, 0, false);
     }
 }

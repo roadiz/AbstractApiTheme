@@ -65,6 +65,7 @@ class ScopeConverter
      */
     public function identifierToRole(string $identifier): ?Role
     {
+        $identifier = strtolower(trim($identifier));
         if ($identifier === 'preview') {
             $roleName = Role::ROLE_BACKEND_USER;
         } elseif ($identifier === 'api') {
