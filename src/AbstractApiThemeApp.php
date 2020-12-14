@@ -13,6 +13,7 @@ use Pimple\Container;
 use RZ\Roadiz\CMS\Controllers\FrontendController;
 use RZ\Roadiz\Core\Bags\Settings;
 use RZ\Roadiz\Core\Kernel;
+use RZ\Roadiz\Preview\PreviewResolverInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -83,7 +84,9 @@ class AbstractApiThemeApp extends FrontendController
         $settings = $this->get('settingsBag');
         /** @var EventDispatcherInterface $dispatcher */
         $dispatcher = $this->get('dispatcher');
-        if (!$kernel->isPreview() &&
+        /** @var PreviewResolverInterface $previewResolver */
+        $previewResolver = $this->get(PreviewResolverInterface::class);
+        if (!$previewResolver->isPreview() &&
             !$kernel->isDebug() &&
             $requestStack->getMasterRequest() === $request &&
             $request->isMethodCacheable() &&
