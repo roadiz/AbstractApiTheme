@@ -49,12 +49,15 @@ abstract class AbstractApiPostController extends AbstractApiThemeApp
         $this->validateAccess();
 
         if (\in_array(strtolower($request->getContentType() ?? ''), ['json', 'application/json'])) {
-            $jsonContent = $request->getContent();
+            $jsonContent = (string) $request->getContent();
+            if (empty($jsonContent) || trim($jsonContent) === '') {
+                throw new BadRequestHttpException('Request content is empty.');
+            }
             /** @var SerializerInterface $serializer */
             $serializer = $this->get('serializer');
             /** @var AbstractEntity $entity */
             $entity = $serializer->deserialize(
-                (string) $jsonContent,
+                $jsonContent,
                 $this->getEntityClassname(),
                 'json',
                 $this->getDeserializationContext()
