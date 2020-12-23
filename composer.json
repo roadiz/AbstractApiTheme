@@ -16,7 +16,6 @@
         "phpstan/phpstan": "^0.12.54",
         "phpstan/phpstan-doctrine": "^0.12.22",
         "ambroisemaupate/intervention-request": "^3.2.0 || dev-develop",
-        "intervention/image": "^2.5 || dev-master",
         "roadiz/documents": "^1.6.0 || dev-develop",
         "roadiz/models": "^1.6.0 || dev-develop",
         "roadiz/markdown": "^1.6.0 || dev-develop"
