@@ -17,7 +17,8 @@
         "phpstan/phpstan-doctrine": "^0.12.22",
         "roadiz/documents": "^1.6.0 || dev-develop",
         "roadiz/models": "^1.6.0 || dev-develop",
-        "roadiz/markdown": "^1.6.0 || dev-develop"
+        "roadiz/markdown": "^1.6.0 || dev-develop",
+        "roadiz/entity-generator": "~1.6.0 || dev-main"
     },
     "autoload": {
         "psr-4": {
