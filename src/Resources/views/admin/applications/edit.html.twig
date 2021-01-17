@@ -1,26 +1,26 @@
 {% extends "@AbstractApiTheme/admin/applications/add.html.twig" %}
 
-{%- block content_title -%}{{ application.name|default('api.applications.edit'|trans) }}{%- endblock -%}
+{%- block content_title -%}{{ item.name|default('api.applications.edit'|trans) }}{%- endblock -%}
 
 {%- block content_body_before -%}
     <div class="content-table-cont metadata-list">
         <table class="uk-table content-table">
             <tr>
                 <td><strong>{% trans %}created.at{% endtrans %}</strong></td>
-                <td>{{- application.createdAt|format_datetime('long', locale=app.request.locale)  -}}</td>
+                <td>{{- item.createdAt|format_datetime('long', locale=app.request.locale)  -}}</td>
             </tr>
             <tr>
                 <td><strong>{% trans %}updated.at{% endtrans %}</strong></td>
-                <td>{{- application.updatedAt|format_datetime('long', locale=app.request.locale)  -}}</td>
+                <td>{{- item.updatedAt|format_datetime('long', locale=app.request.locale)  -}}</td>
             </tr>
             <tr>
                 <td><strong>{% trans %}api.applications.apiKey{% endtrans %}</strong></td>
-                <td><code>{{- application.apiKey -}}</code></td>
+                <td><code>{{- item.apiKey -}}</code></td>
             </tr>
-            {% if application.Confidential %}
+            {% if item.Confidential %}
                 <tr>
                     <td><strong>{% trans %}api.applications.secret{% endtrans %}</strong></td>
-                    <td><code>{{- application.secret -}}</code></td>
+                    <td><code>{{- item.secret -}}</code></td>
                 </tr>
             {% endif %}
         </table>

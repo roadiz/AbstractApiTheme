@@ -42,6 +42,7 @@ use Themes\AbstractApiTheme\Converter\UserConverterInterface;
 use Themes\AbstractApiTheme\Entity\Application;
 use Themes\AbstractApiTheme\Event\AuthorizationRequestResolveEventFactory;
 use Themes\AbstractApiTheme\Extractor\ApplicationExtractor;
+use Themes\AbstractApiTheme\Form\RoleNameType;
 use Themes\AbstractApiTheme\OAuth2\JwtRequestFactory;
 use Themes\AbstractApiTheme\OAuth2\OAuth2JwtConfigurationFactory;
 use Themes\AbstractApiTheme\OAuth2\Repository\AccessTokenRepository;
@@ -81,6 +82,14 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
         $container['api.base_role'] = 'ROLE_API';
 
         $container['api.oauth2_role_prefix'] = 'ROLE_OAUTH2_';
+
+        $container[RoleNameType::class] = function (Container $c) {
+            new RoleNameType(
+                $c['api.oauth2_role_prefix'],
+                $c['api.base_role'],
+                $c['em'],
+            );
+        };
 
         /**
          * @param Container $c
