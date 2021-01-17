@@ -11,6 +11,14 @@ use Themes\Rozier\Controllers\AbstractAdminController;
 
 class ApplicationController extends AbstractAdminController
 {
+    /**
+     * @return string
+     */
+    protected function getTemplateNamespace(): string
+    {
+        return 'AbstractApiTheme';
+    }
+
     protected function supports(PersistableInterface $item): bool
     {
         $className = $this->get('api.application_class');

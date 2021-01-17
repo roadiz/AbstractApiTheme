@@ -84,7 +84,7 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
         $container['api.oauth2_role_prefix'] = 'ROLE_OAUTH2_';
 
         $container[RoleNameType::class] = function (Container $c) {
-            new RoleNameType(
+            return new RoleNameType(
                 $c['api.oauth2_role_prefix'],
                 $c['api.base_role'],
                 $c['em'],

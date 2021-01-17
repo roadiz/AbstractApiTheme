@@ -4,7 +4,7 @@
 adminApiApplications:
     path:     /rz-admin/api/applications
     defaults:
-        _controller: Themes\AbstractApiTheme\Controllers\Admin\ApplicationController::listAction
+        _controller: Themes\AbstractApiTheme\Controllers\Admin\ApplicationController::defaultAction
 
 adminApiApplicationsDetails:
     path:     /rz-admin/api/applications/{id}
