@@ -93,5 +93,6 @@ class ApplicationListener
      */
     protected function onSuccess(TokenInterface $authToken)
     {
+        $authToken->setAuthenticated(true);
     }
 }
