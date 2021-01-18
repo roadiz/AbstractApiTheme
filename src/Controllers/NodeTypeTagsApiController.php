@@ -74,14 +74,21 @@ class NodeTypeTagsApiController extends AbstractNodeTypeApiController
         array &$criteria,
         array &$options
     ): Response {
+        $queryBuilder = $this->getAvailableTags(
+            $nodeType,
+            $criteria['translation'],
+            $criteria['parent'] ?? null
+        );
+        if (isset($options['order'])) {
+            foreach ($options['order'] as $field => $direction) {
+                $queryBuilder->addOrderBy(sprintf('%s.%s', 't', $field), $direction);
+            }
+        }
         $entityListManager = new TagQueryBuilderListManager(
             $request,
-            $this->getAvailableTags(
-                $nodeType,
-                $criteria['translation'],
-                $criteria['parent'] ?? null
-            ),
-            't'
+            $queryBuilder,
+            't',
+            $this->get('kernel')->isDebug()
         );
         $entityListManager->setItemPerPage($options['itemsPerPage']);
         $entityListManager->setPage($options['page']);

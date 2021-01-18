@@ -93,6 +93,9 @@ final class EntityListManagerSubscriber implements EventSubscriberInterface
             if (isset($assignation['lastPageQuery'])) {
                 $view['hydra:last'] = $request->getPathInfo() . '?' . $assignation['lastPageQuery'];
             }
+            if (isset($assignation['dql_query'])) {
+                $view['debug:dqlQuery'] = $assignation['dql_query'];
+            }
             $visitor->visitProperty(
                 new StaticPropertyMetadata('array', 'hydra:view', []),
                 $view
