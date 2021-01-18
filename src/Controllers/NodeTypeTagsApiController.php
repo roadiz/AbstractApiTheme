@@ -3,32 +3,25 @@ declare(strict_types=1);
 
 namespace Themes\AbstractApiTheme\Controllers;
 
+use Doctrine\ORM\QueryBuilder;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 use JMS\Serializer\SerializerInterface;
-use RZ\Roadiz\Core\Entities\NodesSources;
+use RZ\Roadiz\Core\Entities\Node;
 use RZ\Roadiz\Core\Entities\NodeType;
+use RZ\Roadiz\Core\Entities\Tag;
 use RZ\Roadiz\Core\Entities\Translation;
+use RZ\Roadiz\Preview\PreviewResolverInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Themes\AbstractApiTheme\OptionsResolver\ApiRequestOptionsResolver;
 
-class NodeTypeListingApiController extends AbstractNodeTypeApiController
+class NodeTypeTagsApiController extends AbstractNodeTypeApiController
 {
-    protected function getSerializationGroups(): array
-    {
-        return [
-            'nodes_sources_base',
-            'tag_base',
-            'nodes_sources_default',
-            'urls',
-            'meta',
-        ];
-    }
-
-    protected function getListingType(?NodeType $nodeType): string
-    {
-        return $nodeType ? $nodeType->getSourceEntityFullQualifiedClassName() : NodesSources::class;
-    }
+    /**
+     * @var Tag[] Pre-filled tags to alter every requests with
+     */
+    protected $implicitTags;
 
     /**
      * @param Request $request
@@ -85,7 +78,7 @@ class NodeTypeListingApiController extends AbstractNodeTypeApiController
         array &$options
     ): Response {
         $entityListManager = $this->createEntityListManager(
-            $this->getListingType($nodeType),
+            Tag::class,
             $criteria,
             null !== $options['order'] ? $options['order'] : []
         );
@@ -110,12 +103,88 @@ class NodeTypeListingApiController extends AbstractNodeTypeApiController
     }
 
     /**
-     * @param NodeType $nodeType
-     * @return void
+     * @param NodeType|null $nodeType
+     * @param array $ordering
+     * @param Translation $translation
+     * @param Tag|null $parentTag
+     *
+     * @return Paginator
      */
+    protected function getAvailableTags(
+        ?NodeType $nodeType,
+        array $ordering,
+        Translation $translation,
+        Tag $parentTag = null
+    ): Paginator {
+        /**
+         * @var QueryBuilder $qb
+         */
+        $qb = $this->get('em')
+            ->getRepository(Tag::class)
+            ->createQueryBuilder('t');
+
+        $qb->select('t, tt')
+            ->leftJoin('t.translatedTags', 'tt')
+            ->innerJoin('t.nodes', 'n')
+            ->andWhere($qb->expr()->eq('t.visible', true))
+            ->andWhere($qb->expr()->eq('tt.translation', ':translation'))
+            ->setParameter(':translation', $translation);
+
+        if (null !== $nodeType) {
+            $qb->andWhere($qb->expr()->eq('n.nodeType', ':nodeType'))
+                ->setParameter(':nodeType', $nodeType);
+        }
+
+        if (null !== $this->getImplicitTags() && count($this->getImplicitTags())) {
+            $qb->innerJoin('n.tags', 'implicitTags')
+                ->andWhere($qb->expr()->in('implicitTags.id', ':implicitTags'))
+                ->setParameter(':implicitTags', $this->getImplicitTags());
+        }
+
+        if (null !== $parentTag) {
+            $parentTagId = $parentTag->getId();
+            $qb->innerJoin('t.parent', 'pt')
+                ->andWhere('pt.id = :parent')
+                ->setParameter('parent', $parentTagId);
+        }
+
+        foreach ($ordering as $field => $direction) {
+            $qb->addOrderBy($field, $direction);
+        }
+        /*
+         * Enforce tags nodes status not to display Tags which are linked to draft posts.
+         */
+        /** @var PreviewResolverInterface $previewResolver */
+        $previewResolver = $this->get(PreviewResolverInterface::class);
+        if ($previewResolver->isPreview()) {
+            $qb->andWhere($qb->expr()->lte('n.status', Node::PUBLISHED));
+        } else {
+            $qb->andWhere($qb->expr()->eq('n.status', Node::PUBLISHED));
+        }
+
+        return new Paginator($qb);
+    }
+
+    /**
+     * @return Tag[]|null
+     */
+    protected function getImplicitTags(): ?array
+    {
+        return $this->implicitTags;
+    }
+
+    protected function getSerializationGroups(): array
+    {
+        return [
+            'tag',
+            'urls',
+            'meta',
+        ];
+    }
+
     protected function denyAccessUnlessNodeTypeGranted(NodeType $nodeType): void
     {
         // TODO: implement your own access-control logic for each node-type.
-        // $this->denyAccessUnlessScopeGranted([strtolower($nodeType->getName())]);
+        // $this->denyAccessUnlessScopeGranted(['tags']);
     }
 }

@@ -34,6 +34,7 @@ use Symfony\Component\Security\Http\Firewall\ExceptionListener;
 use Symfony\Component\Security\Http\FirewallMap;
 use Themes\AbstractApiTheme\Controllers\NodeTypeListingApiController;
 use Themes\AbstractApiTheme\Controllers\NodeTypeSingleApiController;
+use Themes\AbstractApiTheme\Controllers\NodeTypeTagsApiController;
 use Themes\AbstractApiTheme\Controllers\RootApiController;
 use Themes\AbstractApiTheme\Controllers\UserApiController;
 use Themes\AbstractApiTheme\Converter\ScopeConverter;
@@ -166,6 +167,10 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
          * @return string
          */
         $container['api.node_type_listing_controller_class'] = NodeTypeListingApiController::class;
+        /**
+         * @return string
+         */
+        $container['api.node_type_tags_controller_class'] = NodeTypeTagsApiController::class;
         /**
          * @return string
          */
@@ -333,7 +338,8 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
                 $c['api.root_controller_class'],
                 $c['api.node_type_listing_controller_class'],
                 $c['api.node_type_single_controller_class'],
-                $c['api.user_controller_class']
+                $c['api.user_controller_class'],
+                $c['api.node_type_tags_controller_class']
             );
         };
 

@@ -12,6 +12,7 @@ use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Stopwatch\Stopwatch;
 use Themes\AbstractApiTheme\Controllers\NodeTypeListingApiController;
 use Themes\AbstractApiTheme\Controllers\NodeTypeSingleApiController;
+use Themes\AbstractApiTheme\Controllers\NodeTypeTagsApiController;
 use Themes\AbstractApiTheme\Controllers\RootApiController;
 use Themes\AbstractApiTheme\Controllers\UserApiController;
 
@@ -61,6 +62,10 @@ class ApiRouteCollection extends DeferredRouteCollection
      * @var string
      */
     private $nodeTypeSingleControllerClass;
+    /**
+     * @var string
+     */
+    private $nodeTypeTagsControllerClass;
 
     /**
      * @param NodeTypes $nodeTypesBag
@@ -73,6 +78,7 @@ class ApiRouteCollection extends DeferredRouteCollection
      * @param string $nodeTypeListingControllerClass
      * @param string $nodeTypeSingleControllerClass
      * @param string $userControllerClass
+     * @param string $nodeTypeTagsControllerClass
      */
     final public function __construct(
         NodeTypes $nodeTypesBag,
@@ -84,7 +90,8 @@ class ApiRouteCollection extends DeferredRouteCollection
         $rootControllerClass = RootApiController::class,
         $nodeTypeListingControllerClass = NodeTypeListingApiController::class,
         $nodeTypeSingleControllerClass = NodeTypeSingleApiController::class,
-        $userControllerClass = UserApiController::class
+        $userControllerClass = UserApiController::class,
+        $nodeTypeTagsControllerClass = NodeTypeTagsApiController::class
     ) {
         $this->stopwatch = $stopwatch;
         $this->settingsBag = $settingsBag;
@@ -98,6 +105,7 @@ class ApiRouteCollection extends DeferredRouteCollection
         $this->userControllerClass = $userControllerClass;
         $this->nodeTypeListingControllerClass = $nodeTypeListingControllerClass;
         $this->nodeTypeSingleControllerClass = $nodeTypeSingleControllerClass;
+        $this->nodeTypeTagsControllerClass = $nodeTypeTagsControllerClass;
     }
 
     public function parseResources(): void
@@ -173,6 +181,22 @@ class ApiRouteCollection extends DeferredRouteCollection
                 $this->routePrefix . '/' . mb_strtolower($nodeType->getName()),
                 [
                     '_controller' => $this->nodeTypeListingControllerClass . '::defaultAction',
+                    'nodeTypeId' => $nodeType->getId()
+                ],
+                [],
+                [],
+                '',
+                [],
+                ['GET'],
+                ''
+            )
+        );
+        $collection->add(
+            'get_tags_'.mb_strtolower($nodeType->getName()),
+            new Route(
+                $this->routePrefix . '/' . mb_strtolower($nodeType->getName()),
+                [
+                    '_controller' => $this->nodeTypeTagsControllerClass . '::defaultAction',
                     'nodeTypeId' => $nodeType->getId()
                 ],
                 [],
