@@ -236,6 +236,56 @@ If you created a `Event` node-type, API content will be available at `/api/1.0/e
 
 Note: In listing context, only node-type-fields from *default* group will be exposed.
 
+#### Filters
+
+- itemsPerPage: `int`
+- page: `int`
+- _locale: `string`
+- search: `string`
+- order: `array` Example `order[publishedAt]: DESC` with values:
+  - `ASC`
+  - `DESC`
+- archive: `string` Example `archive: 2019-02` or `archive: 2019`. This parameter only works on `publishedAt` field
+
+On `NodesSources` content:
+
+- title: `string`
+- publishedAt: `DateTime` or `array` with :
+  - `after`
+  - `before`
+  - `strictly_after`
+  - `strictly_before`
+- tags: `array<string>`
+- tagExclusive: `bool`
+- node.parent: `int` or `string` (node-name)
+- node.visible: `bool`
+- node.nodeType.reachable: `bool`
+
+Plus **any** date, datetime and boolean node-type fields which are **indexed**.
+
+### Listing nodes-sources' tags
+
+If you created a `Event` node-type, you may want to list any `Tags` attached to *events*, API will be available at 
+`/api/1.0/event/tags` endpoint.
+
+#### Filters
+
+- itemsPerPage: `int`
+- page: `int`
+- _locale: `string`
+- search: `string`: This will search on `tagName` and translation `name`
+- order: `array` Example `order[position]: ASC` with values:
+  - `ASC`
+  - `DESC`
+
+On `Tag` content:
+
+- tagName: `string`
+- parent: `int` or `string` (tag-name)
+- visible: `bool`
+
+Plus **any** date, datetime and boolean node-type fields which are **indexed**.
+
 ### Getting node-source details
 
 For each node-source, API will expose detailed content on `/api/1.0/event/{id}` and `/api/1.0/event/by-slug/{slug}` endpoints.
@@ -264,30 +314,3 @@ $visitor->visitProperty(
     $blockWalker->getChildren()
 );
 ```
-
-### Filters
-
-- itemsPerPage: `int`
-- page: `int`
-- _locale: `string`
-- search: `string`
-- order: `array` Example `order[publishedAt]: DESC` with values:
-    - `ASC`
-    - `DESC`
-- archive: `string` Example `archive: 2019-02` or `archive: 2019`. This parameter only works on `publishedAt` field
-
-On `NodesSources` content: 
-
-- title: `string`
-- publishedAt: `DateTime` or `array` with :
-    - `after`
-    - `before`
-    - `strictly_after`
-    - `strictly_before`
-- tags: `array<string>`
-- tagExclusive: `bool`
-- node.parent: `int` or `string` (node-name)
-- node.visible: `bool`
-- node.nodeType.reachable: `bool`
-
-Plus **any** date, datetime and boolean node-type fields which are **indexed**.

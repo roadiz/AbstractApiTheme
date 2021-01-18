@@ -98,9 +98,9 @@ class ScopeConverter
      */
     public function toRoles(array $scopes): array
     {
-        return array_map(function (Scope $scope) {
+        return array_filter(array_map(function (Scope $scope) {
             return $this->toRole($scope);
-        }, $scopes);
+        }, $scopes));
     }
 
     /**

@@ -39,12 +39,7 @@ class NodeTypeListingApiController extends AbstractNodeTypeApiController
      */
     public function defaultAction(Request $request, int $nodeTypeId): Response
     {
-        /** @var NodeType|null $nodeType */
-        $nodeType = $this->get('em')->find(NodeType::class, $nodeTypeId);
-        if (null === $nodeType) {
-            throw $this->createNotFoundException();
-        }
-        $this->denyAccessUnlessNodeTypeGranted($nodeType);
+        $nodeType = $this->getNodeTypeOrDeny($nodeTypeId);
 
         /** @var ApiRequestOptionsResolver $apiOptionsResolver */
         $apiOptionsResolver = $this->get(ApiRequestOptionsResolver::class);

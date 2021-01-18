@@ -1,10 +1,4 @@
 <?php
-/**
- * AbstractApiTheme - AbstractApiServiceProvider.php
- *
- * Initial version by: ambroisemaupate
- * Initial version created on: 2019-01-03
- */
 declare(strict_types=1);
 
 namespace Themes\AbstractApiTheme\Services;
@@ -34,6 +28,7 @@ use Symfony\Component\Security\Http\Firewall\ExceptionListener;
 use Symfony\Component\Security\Http\FirewallMap;
 use Themes\AbstractApiTheme\Controllers\NodeTypeListingApiController;
 use Themes\AbstractApiTheme\Controllers\NodeTypeSingleApiController;
+use Themes\AbstractApiTheme\Controllers\NodeTypeTagsApiController;
 use Themes\AbstractApiTheme\Controllers\RootApiController;
 use Themes\AbstractApiTheme\Controllers\UserApiController;
 use Themes\AbstractApiTheme\Converter\ScopeConverter;
@@ -51,6 +46,7 @@ use Themes\AbstractApiTheme\OAuth2\Repository\ClientRepository;
 use Themes\AbstractApiTheme\OAuth2\Repository\RefreshTokenRepository;
 use Themes\AbstractApiTheme\OAuth2\Repository\ScopeRepository;
 use Themes\AbstractApiTheme\OptionsResolver\ApiRequestOptionsResolver;
+use Themes\AbstractApiTheme\OptionsResolver\TagApiRequestOptionsResolver;
 use Themes\AbstractApiTheme\Routing\ApiRouteCollection;
 use Themes\AbstractApiTheme\Security\Authentication\Provider\AuthenticationProvider;
 use Themes\AbstractApiTheme\Security\Authentication\Provider\OAuth2Provider;
@@ -166,6 +162,10 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
          * @return string
          */
         $container['api.node_type_listing_controller_class'] = NodeTypeListingApiController::class;
+        /**
+         * @return string
+         */
+        $container['api.node_type_tags_controller_class'] = NodeTypeTagsApiController::class;
         /**
          * @return string
          */
@@ -313,6 +313,14 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
             );
         });
 
+        $container[TagApiRequestOptionsResolver::class] = $container->factory(function ($c) {
+            return new TagApiRequestOptionsResolver(
+                $c['defaultTranslation']->getLocale(),
+                $c['tagApi'],
+                $c['nodeApi']
+            );
+        });
+
         $container['api.application_factory'] = $container->factory(function ($c) {
             $className = $c['api.application_class'];
             return new $className($c['api.base_role'], $c['config']["appNamespace"]);
@@ -333,7 +341,8 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
                 $c['api.root_controller_class'],
                 $c['api.node_type_listing_controller_class'],
                 $c['api.node_type_single_controller_class'],
-                $c['api.user_controller_class']
+                $c['api.user_controller_class'],
+                $c['api.node_type_tags_controller_class']
             );
         };
 
@@ -465,6 +474,25 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
                 $firewallEntry->getExceptionListener()
             );
             return $firewallMap;
+        });
+
+        $container->extend('backoffice.entries', function (array $entries, Container $c) {
+            $entries['api'] = [
+                'name' => 'api.menu',
+                'path' => null,
+                'icon' => 'uk-icon-gears',
+                'roles' => ['ROLE_ADMIN_API'],
+                'subentries' => [
+                    'applications' => [
+                        'name' => 'api.menu.applications',
+                        'path' => $c['urlGenerator']->generate('adminApiApplications'),
+                        'icon' => 'uk-icon-gears',
+                        'roles' => ['ROLE_ADMIN_API'],
+                    ],
+                ]
+            ];
+
+            return $entries;
         });
     }
 }
