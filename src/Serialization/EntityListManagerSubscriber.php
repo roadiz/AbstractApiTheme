@@ -8,7 +8,7 @@ use JMS\Serializer\EventDispatcher\EventSubscriberInterface;
 use JMS\Serializer\EventDispatcher\ObjectEvent;
 use JMS\Serializer\Metadata\StaticPropertyMetadata;
 use JMS\Serializer\Visitor\SerializationVisitorInterface;
-use RZ\Roadiz\Core\ListManagers\EntityListManager;
+use RZ\Roadiz\Core\ListManagers\EntityListManagerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 final class EntityListManagerSubscriber implements EventSubscriberInterface
@@ -19,8 +19,6 @@ final class EntityListManagerSubscriber implements EventSubscriberInterface
     protected $requestStack;
 
     /**
-     * EntityListManagerSubscriber constructor.
-     *
      * @param RequestStack $requestStack
      */
     public function __construct(RequestStack $requestStack)
@@ -47,7 +45,7 @@ final class EntityListManagerSubscriber implements EventSubscriberInterface
         $visitor = $event->getVisitor();
 
         if ($visitor instanceof SerializationVisitorInterface &&
-                $entityListManager instanceof EntityListManager) {
+                $entityListManager instanceof EntityListManagerInterface) {
             $entities = $entityListManager->getEntities();
             $request = $this->requestStack->getCurrentRequest();
             if (null === $request) {
