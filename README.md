@@ -263,7 +263,7 @@ On `NodesSources` content:
 
 Plus **any** date, datetime and boolean node-type fields which are **indexed**.
 
-### Listing nodes-sources' tags
+### Listing tags per node-types
 
 If you created a `Event` node-type, you may want to list any `Tags` attached to *events*, API will be available at 
 `/api/1.0/event/tags` endpoint.
@@ -283,8 +283,6 @@ On `Tag` content:
 - tagName: `string`
 - parent: `int` or `string` (tag-name)
 - visible: `bool`
-
-Plus **any** date, datetime and boolean node-type fields which are **indexed**.
 
 ### Getting node-source details
 
