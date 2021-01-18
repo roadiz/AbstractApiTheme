@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace Themes\AbstractApiTheme\Controllers;
 
 use Doctrine\ORM\QueryBuilder;
-use Doctrine\ORM\Tools\Pagination\Paginator;
 use JMS\Serializer\SerializerInterface;
 use RZ\Roadiz\Core\Entities\Node;
 use RZ\Roadiz\Core\Entities\NodeType;
@@ -14,7 +13,8 @@ use RZ\Roadiz\Preview\PreviewResolverInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Themes\AbstractApiTheme\OptionsResolver\ApiRequestOptionsResolver;
+use Themes\AbstractApiTheme\ListManagers\TagQueryBuilderListManager;
+use Themes\AbstractApiTheme\OptionsResolver\TagApiRequestOptionsResolver;
 
 class NodeTypeTagsApiController extends AbstractNodeTypeApiController
 {
@@ -34,9 +34,9 @@ class NodeTypeTagsApiController extends AbstractNodeTypeApiController
     {
         $nodeType = $this->getNodeTypeOrDeny($nodeTypeId);
 
-        /** @var ApiRequestOptionsResolver $apiOptionsResolver */
-        $apiOptionsResolver = $this->get(ApiRequestOptionsResolver::class);
-        $options = $apiOptionsResolver->resolve($request->query->all(), $nodeType);
+        /** @var TagApiRequestOptionsResolver $apiOptionsResolver */
+        $apiOptionsResolver = $this->get(TagApiRequestOptionsResolver::class);
+        $options = $apiOptionsResolver->resolve($request->query->all());
 
         /** @var Translation|null $translation */
         $translation = $this->get('em')->getRepository(Translation::class)->findOneByLocale($options['_locale']);
@@ -47,9 +47,6 @@ class NodeTypeTagsApiController extends AbstractNodeTypeApiController
         $defaultCriteria = [
             'translation' => $translation,
         ];
-        if ($nodeType->isPublishable()) {
-            $defaultCriteria['publishedAt'] = ['<=', new \DateTime()];
-        }
 
         $criteria = array_merge(
             $defaultCriteria,
@@ -77,10 +74,14 @@ class NodeTypeTagsApiController extends AbstractNodeTypeApiController
         array &$criteria,
         array &$options
     ): Response {
-        $entityListManager = $this->createEntityListManager(
-            Tag::class,
-            $criteria,
-            null !== $options['order'] ? $options['order'] : []
+        $entityListManager = new TagQueryBuilderListManager(
+            $request,
+            $this->getAvailableTags(
+                $nodeType,
+                $criteria['translation'],
+                $criteria['parent']
+            ),
+            't'
         );
         $entityListManager->setItemPerPage($options['itemsPerPage']);
         $entityListManager->setPage($options['page']);
@@ -104,18 +105,16 @@ class NodeTypeTagsApiController extends AbstractNodeTypeApiController
 
     /**
      * @param NodeType|null $nodeType
-     * @param array $ordering
      * @param Translation $translation
      * @param Tag|null $parentTag
      *
-     * @return Paginator
+     * @return QueryBuilder
      */
     protected function getAvailableTags(
         ?NodeType $nodeType,
-        array $ordering,
         Translation $translation,
         Tag $parentTag = null
-    ): Paginator {
+    ): QueryBuilder {
         /**
          * @var QueryBuilder $qb
          */
@@ -133,6 +132,13 @@ class NodeTypeTagsApiController extends AbstractNodeTypeApiController
         if (null !== $nodeType) {
             $qb->andWhere($qb->expr()->eq('n.nodeType', ':nodeType'))
                 ->setParameter(':nodeType', $nodeType);
+
+            if ($nodeType->isPublishable()) {
+                $qb->innerJoin('n.nodeSources', 'ns')
+                    ->andWhere($qb->expr()->lte('ns.translation', ':translation'))
+                    ->andWhere($qb->expr()->lte('ns.publishedAt', ':now'))
+                    ->setParameter('now', new \DateTime());
+            }
         }
 
         if (null !== $this->getImplicitTags() && count($this->getImplicitTags())) {
@@ -147,10 +153,6 @@ class NodeTypeTagsApiController extends AbstractNodeTypeApiController
                 ->andWhere('pt.id = :parent')
                 ->setParameter('parent', $parentTagId);
         }
-
-        foreach ($ordering as $field => $direction) {
-            $qb->addOrderBy($field, $direction);
-        }
         /*
          * Enforce tags nodes status not to display Tags which are linked to draft posts.
          */
@@ -162,7 +164,7 @@ class NodeTypeTagsApiController extends AbstractNodeTypeApiController
             $qb->andWhere($qb->expr()->eq('n.status', Node::PUBLISHED));
         }
 
-        return new Paginator($qb);
+        return $qb;
     }
 
     /**

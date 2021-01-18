@@ -194,7 +194,7 @@ class ApiRouteCollection extends DeferredRouteCollection
         $collection->add(
             'get_tags_'.mb_strtolower($nodeType->getName()),
             new Route(
-                $this->routePrefix . '/' . mb_strtolower($nodeType->getName()),
+                $this->routePrefix . '/' . mb_strtolower($nodeType->getName()) . '/tags',
                 [
                     '_controller' => $this->nodeTypeTagsControllerClass . '::defaultAction',
                     'nodeTypeId' => $nodeType->getId()

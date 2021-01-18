@@ -1,10 +1,4 @@
 <?php
-/**
- * AbstractApiTheme - AbstractApiServiceProvider.php
- *
- * Initial version by: ambroisemaupate
- * Initial version created on: 2019-01-03
- */
 declare(strict_types=1);
 
 namespace Themes\AbstractApiTheme\Services;
@@ -52,6 +46,7 @@ use Themes\AbstractApiTheme\OAuth2\Repository\ClientRepository;
 use Themes\AbstractApiTheme\OAuth2\Repository\RefreshTokenRepository;
 use Themes\AbstractApiTheme\OAuth2\Repository\ScopeRepository;
 use Themes\AbstractApiTheme\OptionsResolver\ApiRequestOptionsResolver;
+use Themes\AbstractApiTheme\OptionsResolver\TagApiRequestOptionsResolver;
 use Themes\AbstractApiTheme\Routing\ApiRouteCollection;
 use Themes\AbstractApiTheme\Security\Authentication\Provider\AuthenticationProvider;
 use Themes\AbstractApiTheme\Security\Authentication\Provider\OAuth2Provider;
@@ -312,6 +307,14 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
 
         $container[ApiRequestOptionsResolver::class] = $container->factory(function ($c) {
             return new ApiRequestOptionsResolver(
+                $c['defaultTranslation']->getLocale(),
+                $c['tagApi'],
+                $c['nodeApi']
+            );
+        });
+
+        $container[TagApiRequestOptionsResolver::class] = $container->factory(function ($c) {
+            return new TagApiRequestOptionsResolver(
                 $c['defaultTranslation']->getLocale(),
                 $c['tagApi'],
                 $c['nodeApi']
