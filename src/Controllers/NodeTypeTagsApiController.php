@@ -79,7 +79,7 @@ class NodeTypeTagsApiController extends AbstractNodeTypeApiController
             $this->getAvailableTags(
                 $nodeType,
                 $criteria['translation'],
-                $criteria['parent']
+                $criteria['parent'] ?? null
             ),
             't'
         );

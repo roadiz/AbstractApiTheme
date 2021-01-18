@@ -22,7 +22,7 @@ final class TagTranslationNameSubscriber implements EventSubscriberInterface
             'event' => 'serializer.post_serialize',
             'method' => 'onPostSerialize',
             'class' => Tag::class,
-            'priority' => -10,
+            'priority' => 1000,
         ]];
     }
 
@@ -42,20 +42,17 @@ final class TagTranslationNameSubscriber implements EventSubscriberInterface
             if (null !== $translation && $translation instanceof Translation) {
                 /** @var TagTranslation|false $tagTranslation */
                 $tagTranslation = $object->getTranslatedTagsByTranslation($translation)->first();
-            } else {
-                /** @var TagTranslation|false $tagTranslation */
-                $tagTranslation = $object->getTranslatedTags()->first();
-            }
-
-            if (false !== $tagTranslation) {
                 $visitor->visitProperty(
                     new StaticPropertyMetadata('string', 'name', []),
                     $tagTranslation->getName()
                 );
-            } else {
                 $visitor->visitProperty(
-                    new StaticPropertyMetadata('string', 'name', []),
-                    $object->getTagName()
+                    new StaticPropertyMetadata('string', 'description', []),
+                    $tagTranslation->getDescription()
+                );
+                $visitor->visitProperty(
+                    new StaticPropertyMetadata('string', 'documents', []),
+                    $tagTranslation->getDocuments()
                 );
             }
         }

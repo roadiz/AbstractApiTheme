@@ -54,8 +54,10 @@ use Themes\AbstractApiTheme\Security\Authentication\Token\OAuth2TokenFactory;
 use Themes\AbstractApiTheme\Security\Firewall\ApplicationListener;
 use Themes\AbstractApiTheme\Security\Firewall\OAuth2Listener;
 use Themes\AbstractApiTheme\Serialization\ChildrenApiSubscriber;
+use Themes\AbstractApiTheme\Serialization\DocumentApiSubscriber;
 use Themes\AbstractApiTheme\Serialization\EntityListManagerSubscriber;
 use Themes\AbstractApiTheme\Serialization\NodeSourceApiSubscriber;
+use Themes\AbstractApiTheme\Serialization\TagApiSubscriber;
 use Themes\AbstractApiTheme\Serialization\TagTranslationNameSubscriber;
 use Themes\AbstractApiTheme\Serialization\TokenSubscriber;
 use Themes\AbstractApiTheme\Subscriber\AuthorizationRequestSubscriber;
@@ -366,6 +368,8 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
         $container->extend('serializer.subscribers', function (array $subscribers, $c) {
             $subscribers[] = new EntityListManagerSubscriber($c['requestStack']);
             $subscribers[] = new NodeSourceApiSubscriber($c['router'], $c['api.reference_type']);
+            $subscribers[] = new TagApiSubscriber();
+            $subscribers[] = new DocumentApiSubscriber();
             $subscribers[] = new ChildrenApiSubscriber($c['em']);
             $subscribers[] = new TagTranslationNameSubscriber();
             $subscribers[] = new TokenSubscriber();

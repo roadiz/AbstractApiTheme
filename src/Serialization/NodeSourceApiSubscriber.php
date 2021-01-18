@@ -23,8 +23,6 @@ final class NodeSourceApiSubscriber implements EventSubscriberInterface
     private $referenceType;
 
     /**
-     * NodeSourceApiSubscriber constructor.
-     *
      * @param UrlGeneratorInterface $urlGenerator
      * @param int $referenceType
      */
