@@ -10,6 +10,7 @@ use RZ\Roadiz\Core\Routing\DeferredRouteCollection;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Stopwatch\Stopwatch;
+use Themes\AbstractApiTheme\Controllers\NodesSourcesListingApiController;
 use Themes\AbstractApiTheme\Controllers\NodeTypeListingApiController;
 use Themes\AbstractApiTheme\Controllers\NodeTypeSingleApiController;
 use Themes\AbstractApiTheme\Controllers\NodeTypeTagsApiController;
@@ -135,6 +136,24 @@ class ApiRouteCollection extends DeferredRouteCollection
                 $this->routePrefix . '/me',
                 [
                     '_controller' => $this->userControllerClass . '::getUserAction',
+                ],
+                [],
+                [],
+                '',
+                [],
+                ['GET'],
+                ''
+            )
+        );
+
+        $this->add(
+            'get_listing_nodes_sources',
+            new Route(
+                $this->routePrefix . '/nodes-sources',
+                [
+                    // TODO: Variabilize NS listing controller
+                    '_controller' => NodesSourcesListingApiController::class . '::defaultAction',
+                    'nodeTypeId' => null
                 ],
                 [],
                 [],
