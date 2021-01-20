@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Themes\AbstractApiTheme\OptionsResolver;
 
+use RZ\Roadiz\Core\Entities\NodesSources;
 use RZ\Roadiz\Core\Entities\NodeType;
 use RZ\Roadiz\Core\Entities\NodeTypeField;
 use Symfony\Component\OptionsResolver\Exception\InvalidOptionsException;
@@ -52,6 +53,7 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
     {
         $resolver = new OptionsResolver();
         $resolver->setDefaults(array_merge($this->getMetaOptions(), [
+            'id' => null,
             'title' => null,
             'publishedAt' => null,
             'tags' => null,
@@ -59,6 +61,7 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
             'node.parent' => false,
             'node.visible' => null,
             'node.nodeType.reachable' => null,
+            'path' => null
         ]));
         $resolver->setAllowedTypes('search', ['string', 'null']);
         $resolver->setAllowedTypes('title', ['string', 'null']);
@@ -69,6 +72,8 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
         $resolver->setAllowedTypes('tagExclusive', ['boolean', 'string', 'int']);
         $resolver->setAllowedTypes('node.nodeType.reachable', ['boolean', 'string', 'int', 'null']);
         $resolver->setAllowedTypes('node.visible', ['boolean', 'string', 'int', 'null']);
+        $resolver->setAllowedTypes('path', ['string', 'null']);
+        $resolver->setAllowedTypes('id', ['int', NodesSources::class, 'null']);
 
         $resolver->setNormalizer('tagExclusive', function (Options $options, $value) {
             return $this->normalizeBoolean($value);
@@ -234,6 +239,11 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
         return $this->normalizeDateTimeFilter($value);
     }
 
+    protected function normalizeNodesSourcesPath(string $path): ?NodesSources
+    {
+        return null;
+    }
+
     /**
      * @param array $options
      *
@@ -242,15 +252,23 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
     protected function normalizeQueryParams(array $options): array
     {
         foreach ($options as $key => $value) {
-            if ($key === 'node_parent') {
-                $options['node.parent'] = $this->normalizeNodeFilter($value);
-                unset($options['node_parent']);
-            } elseif ($key === 'node_visible') {
-                $options['node.visible'] = $this->normalizeBoolean($value);
-                unset($options['node_visible']);
-            } elseif ($key === 'node_nodeType_reachable') {
-                $options['node.nodeType.reachable'] = $this->normalizeBoolean($value);
-                unset($options['node_nodeType_reachable']);
+            switch ($key) {
+                case 'node_parent':
+                    $options['node.parent'] = $this->normalizeNodeFilter($value);
+                    unset($options['node_parent']);
+                    break;
+                case 'node_visible':
+                    $options['node.visible'] = $this->normalizeBoolean($value);
+                    unset($options['node_visible']);
+                    break;
+                case 'node_nodeType_reachable':
+                    $options['node.nodeType.reachable'] = $this->normalizeBoolean($value);
+                    unset($options['node_nodeType_reachable']);
+                    break;
+                case 'path':
+                    $options['id'] = $this->normalizeNodesSourcesPath($value);
+                    unset($options['path']);
+                    break;
             }
         }
         return $options;
