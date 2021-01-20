@@ -225,6 +225,33 @@ roles before inviting them to use your OAuth2 application.
 ### Listing nodes-sources
 
 If you created a `Event` node-type, API content will be available at `/api/1.0/event` endpoint.
+Serialization context will automatically add `@id`, `@type`, `slug` and `url` fields in your API resource:
+
+```json
+{
+    "hydra:member": [
+        {
+            "slug": "home",
+            "@type": "Page",
+            "node": {
+                "nodeName": "accueil",
+                "tags": []
+            },
+            "title": "Accueil",
+            "publishedAt": "2021-01-18T23:32:39+01:00",
+            "@id": "http://example.test/dev.php/api/1.0/page/2",
+            "url": "/dev.php/home"
+        }
+    ],
+    "hydra:totalItems": 1,
+    "@id": "/api/1.0/page",
+    "@type": "hydra:Collection",
+    "hydra:view": {
+        "@id": "/api/1.0/page",
+        "@type": "hydra:PartialCollectionView"
+    }
+}
+```
 
 Note: In listing context, only node-type-fields from *default* group will be exposed.
 
@@ -241,6 +268,8 @@ Note: In listing context, only node-type-fields from *default* group will be exp
 
 On `NodesSources` content:
 
+- path: `string` Filters nodes-sources against a valid path (based on node' name or alias), example: `/home`
+- id: `id` Nodes-sources ID
 - title: `string`
 - publishedAt: `DateTime` or `array` with :
   - `after`

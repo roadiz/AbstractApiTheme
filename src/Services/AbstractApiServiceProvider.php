@@ -16,6 +16,7 @@ use Nyholm\Psr7\Factory\Psr17Factory;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 use RZ\Roadiz\Core\Kernel;
+use RZ\Roadiz\Core\Routing\NodesSourcesPathResolver;
 use RZ\Roadiz\JWT\JwtConfigurationFactory;
 use RZ\Roadiz\Utils\Security\FirewallEntry;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
@@ -315,7 +316,8 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
             return new ApiRequestOptionsResolver(
                 $c['defaultTranslation']->getLocale(),
                 $c['tagApi'],
-                $c['nodeApi']
+                $c['nodeApi'],
+                $c[NodesSourcesPathResolver::class]
             );
         });
 

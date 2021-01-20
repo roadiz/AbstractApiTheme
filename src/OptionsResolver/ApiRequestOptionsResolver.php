@@ -3,15 +3,39 @@ declare(strict_types=1);
 
 namespace Themes\AbstractApiTheme\OptionsResolver;
 
+use RZ\Roadiz\CMS\Utils\NodeApi;
+use RZ\Roadiz\CMS\Utils\TagApi;
 use RZ\Roadiz\Core\Entities\NodesSources;
 use RZ\Roadiz\Core\Entities\NodeType;
 use RZ\Roadiz\Core\Entities\NodeTypeField;
+use RZ\Roadiz\Core\Routing\PathResolverInterface;
 use Symfony\Component\OptionsResolver\Exception\InvalidOptionsException;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
 {
+    /**
+     * @var PathResolverInterface
+     */
+    private PathResolverInterface $pathResolver;
+
+    /**
+     * @param string|null $defaultLocale
+     * @param TagApi $tagApi
+     * @param NodeApi $nodeApi
+     * @param PathResolverInterface $pathResolver
+     */
+    public function __construct(
+        ?string $defaultLocale,
+        TagApi $tagApi,
+        NodeApi $nodeApi,
+        PathResolverInterface $pathResolver
+    ) {
+        parent::__construct($defaultLocale, $tagApi, $nodeApi);
+        $this->pathResolver = $pathResolver;
+    }
+
     /**
      * @param array         $params
      * @param NodeType|null $nodeType
@@ -239,9 +263,19 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
         return $this->normalizeDateTimeFilter($value);
     }
 
-    protected function normalizeNodesSourcesPath(string $path): ?NodesSources
+    /**
+     * @param string $path
+     * @return int Returns nodes-sources ID or 0 if no NS found for path to filter all results.
+     */
+    protected function normalizeNodesSourcesPath(string $path): int
     {
-        return null;
+        $resourceInfo = $this->pathResolver->resolvePath($path, ['html', 'json']);
+        $resource = $resourceInfo->getResource();
+        if (null !== $resource && $resource instanceof NodesSources) {
+            return $resource->getId();
+        }
+        // TODO: normalize against Redirections too!
+        return 0;
     }
 
     /**
