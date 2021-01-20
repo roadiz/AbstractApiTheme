@@ -20,12 +20,15 @@ use RZ\Roadiz\JWT\JwtConfigurationFactory;
 use RZ\Roadiz\Utils\Security\FirewallEntry;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
 use Symfony\Bridge\PsrHttpMessage\HttpMessageFactoryInterface;
+use Symfony\Component\Config\FileLocator;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpKernel\Fragment\InlineFragmentRenderer;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Routing\Loader\YamlFileLoader;
 use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Security\Http\Firewall\ExceptionListener;
 use Symfony\Component\Security\Http\FirewallMap;
+use Symfony\Component\Translation\Translator;
 use Themes\AbstractApiTheme\Controllers\NodeTypeListingApiController;
 use Themes\AbstractApiTheme\Controllers\NodeTypeSingleApiController;
 use Themes\AbstractApiTheme\Controllers\NodeTypeTagsApiController;
@@ -63,6 +66,7 @@ use Themes\AbstractApiTheme\Serialization\TokenSubscriber;
 use Themes\AbstractApiTheme\Subscriber\AuthorizationRequestSubscriber;
 use Themes\AbstractApiTheme\Subscriber\CorsSubscriber;
 use Themes\AbstractApiTheme\Subscriber\RoadizUserRoleResolveSubscriber;
+use Twig\Loader\FilesystemLoader;
 
 class AbstractApiServiceProvider implements ServiceProviderInterface
 {
@@ -359,9 +363,20 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
             ])));
         });
 
+        $container['api.file_locator'] = function (Container $c) {
+            $resourcesFolder = dirname(__DIR__) . '/Resources';
+            return new FileLocator([
+                $resourcesFolder,
+                $resourcesFolder . '/routing',
+                $resourcesFolder . '/config',
+            ]);
+        };
+
         $container->extend('routeCollection', function (RouteCollection $routeCollection, Container $c) {
             $c['api.route_collection']->parseResources();
+            $loader = new YamlFileLoader($c['api.file_locator']);
             $routeCollection->addCollection($c['api.route_collection']);
+            $routeCollection->addCollection($loader->load('routes.yml'));
             return $routeCollection;
         });
 
@@ -497,6 +512,43 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
             ];
 
             return $entries;
+        });
+
+        /*
+         * Register Twig namespace
+         * not to register AbstractApiTheme into config.themes
+         */
+        $container->extend('twig.loaderFileSystem', function (FilesystemLoader $loader) {
+            $themeDir = dirname(__DIR__) . '/Resources/views';
+            /*
+            * Enable theme templates in main namespace and in its own theme namespace.
+            */
+            $loader->prependPath($themeDir);
+            // Add path into a namespaced loader to enable using same template name
+            // over different static themes.
+            $loader->prependPath($themeDir, 'AbstractApiTheme');
+
+            return $loader;
+        });
+
+        /*
+         * Register translations messages
+         * not to register AbstractApiTheme into config.themes
+         */
+        $container->extend('translator', function (Translator $translator) {
+            $translator->addResource(
+                'xlf',
+                dirname(__DIR__) . '/Resources/translations/messages.en.xlf',
+                'en',
+                'messages'
+            );
+            $translator->addResource(
+                'xlf',
+                dirname(__DIR__) . '/Resources/translations/messages.fr.xlf',
+                'fr',
+                'messages'
+            );
+            return $translator;
         });
     }
 }

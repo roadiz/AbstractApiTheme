@@ -51,15 +51,7 @@ additionalServiceProviders:
     - \Themes\AbstractApiTheme\Services\AbstractApiServiceProvider
 ```
 
-- Register this abstract theme to enable its routes
-
-```yaml
-themes:
-    - classname: \Themes\AbstractApiTheme\AbstractApiThemeApp
-      hostname: '*'
-      routePrefix: ''
-```
-
+- *You do not need to register this abstract theme* to enable its routes or translations
 - Create a new theme with your API logic by extending `AbstractApiThemeApp`
 - **or** use `AbstractApiThemeTrait` in your custom theme app if you already inherits from
 an other middleware theme,
