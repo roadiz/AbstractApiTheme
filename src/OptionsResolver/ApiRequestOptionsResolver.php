@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Themes\AbstractApiTheme\OptionsResolver;
 
+use Doctrine\ORM\EntityManagerInterface;
 use RZ\Roadiz\CMS\Utils\NodeApi;
 use RZ\Roadiz\CMS\Utils\TagApi;
 use RZ\Roadiz\Core\Entities\NodesSources;
@@ -20,20 +21,25 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
      */
     private PathResolverInterface $pathResolver;
 
+    private EntityManagerInterface $entityManager;
+
     /**
      * @param string|null $defaultLocale
      * @param TagApi $tagApi
      * @param NodeApi $nodeApi
      * @param PathResolverInterface $pathResolver
+     * @param EntityManagerInterface $entityManager
      */
     public function __construct(
         ?string $defaultLocale,
         TagApi $tagApi,
         NodeApi $nodeApi,
-        PathResolverInterface $pathResolver
+        PathResolverInterface $pathResolver,
+        EntityManagerInterface $entityManager
     ) {
         parent::__construct($defaultLocale, $tagApi, $nodeApi);
         $this->pathResolver = $pathResolver;
+        $this->entityManager = $entityManager;
     }
 
     /**
@@ -85,6 +91,7 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
             'node.parent' => false,
             'node.visible' => null,
             'node.nodeType.reachable' => null,
+            'node.nodeType' => null,
             'path' => null
         ]));
         $resolver->setAllowedTypes('search', ['string', 'null']);
@@ -95,6 +102,7 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
         $resolver->setAllowedTypes('tags', ['array', 'string', 'null']);
         $resolver->setAllowedTypes('tagExclusive', ['boolean', 'string', 'int']);
         $resolver->setAllowedTypes('node.nodeType.reachable', ['boolean', 'string', 'int', 'null']);
+        $resolver->setAllowedTypes('node.nodeType', ['array', NodeType::class, 'string', 'int', 'null']);
         $resolver->setAllowedTypes('node.visible', ['boolean', 'string', 'int', 'null']);
         $resolver->setAllowedTypes('path', ['string', 'null']);
         $resolver->setAllowedTypes('id', ['int', NodesSources::class, 'null']);
@@ -279,6 +287,35 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
     }
 
     /**
+     * @param int|string|array<int|string> $nodeTypes
+     * @return NodeType|array<NodeType>
+     */
+    protected function normalizeNodeTypes($nodeTypes)
+    {
+        if (is_array($nodeTypes)) {
+            return array_filter(array_map([$this, 'normalizeSingleNodeType'], $nodeTypes));
+        } else {
+            return $this->normalizeSingleNodeType($nodeTypes);
+        }
+    }
+
+    /**
+     * @param int|string $nodeType
+     * @return NodeType|null
+     */
+    protected function normalizeSingleNodeType($nodeType)
+    {
+        if (is_integer($nodeType)) {
+            return $this->entityManager->find(NodeType::class, (int) $nodeType);
+        } elseif (is_string($nodeType)) {
+            return $this->entityManager
+                ->getRepository(NodeType::class)
+                ->findOneByName($nodeType);
+        }
+        return null;
+    }
+
+    /**
      * @param array $options
      *
      * @return array
@@ -298,6 +335,10 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
                 case 'node_nodeType_reachable':
                     $options['node.nodeType.reachable'] = $this->normalizeBoolean($value);
                     unset($options['node_nodeType_reachable']);
+                    break;
+                case 'node_nodeType':
+                    $options['node.nodeType'] = $this->normalizeNodeTypes($value);
+                    unset($options['node_nodeType']);
                     break;
                 case 'path':
                     $options['id'] = $this->normalizeNodesSourcesPath($value);

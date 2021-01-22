@@ -280,6 +280,7 @@ On `NodesSources` content:
 - tagExclusive: `bool`
 - node.parent: `int` or `string` (node-name)
 - node.visible: `bool`
+- node.nodeType: `array|string` Filter nodes-sources by their type
 - node.nodeType.reachable: `bool`
 
 Plus **any** date, datetime and boolean node-type fields which are **indexed**.

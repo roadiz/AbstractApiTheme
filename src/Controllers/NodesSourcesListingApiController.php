@@ -27,7 +27,14 @@ class NodesSourcesListingApiController extends AbstractNodeTypeApiController
 
     protected function getListingType(array $options): string
     {
-        // TODO: extract single type if defined in query options
+        if ($options['node.nodeType'] instanceof NodeType) {
+            return $options['node.nodeType']->getSourceEntityFullQualifiedClassName();
+        }
+        if (is_array($options['node.nodeType']) &&
+            count($options['node.nodeType']) === 1 &&
+            $options['node.nodeType'][0] instanceof NodeType) {
+            return $options['node.nodeType'][0]->getSourceEntityFullQualifiedClassName();
+        }
         return NodesSources::class;
     }
 

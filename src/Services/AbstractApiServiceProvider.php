@@ -317,7 +317,8 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
                 $c['defaultTranslation']->getLocale(),
                 $c['tagApi'],
                 $c['nodeApi'],
-                $c[NodesSourcesPathResolver::class]
+                $c[NodesSourcesPathResolver::class],
+                $c['em']
             );
         });
 
