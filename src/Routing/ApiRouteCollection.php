@@ -11,6 +11,7 @@ use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Stopwatch\Stopwatch;
 use Themes\AbstractApiTheme\Controllers\NodesSourcesListingApiController;
+use Themes\AbstractApiTheme\Controllers\NodesSourcesSearchApiController;
 use Themes\AbstractApiTheme\Controllers\NodeTypeListingApiController;
 use Themes\AbstractApiTheme\Controllers\NodeTypeSingleApiController;
 use Themes\AbstractApiTheme\Controllers\NodeTypeTagsApiController;
@@ -71,6 +72,10 @@ class ApiRouteCollection extends DeferredRouteCollection
      * @var class-string
      */
     private string $nodesSourcesListingApiControllerClass;
+    /**
+     * @var class-string
+     */
+    private string $nodesSourcesSearchApiControllerClass;
 
     /**
      * @param NodeTypes $nodeTypesBag
@@ -98,7 +103,8 @@ class ApiRouteCollection extends DeferredRouteCollection
         $nodeTypeSingleControllerClass = NodeTypeSingleApiController::class,
         $userControllerClass = UserApiController::class,
         $nodeTypeTagsControllerClass = NodeTypeTagsApiController::class,
-        $nodesSourcesListingApiControllerClass = NodesSourcesListingApiController::class
+        $nodesSourcesListingApiControllerClass = NodesSourcesListingApiController::class,
+        $nodesSourcesSearchApiControllerClass = NodesSourcesSearchApiController::class
     ) {
         $this->stopwatch = $stopwatch;
         $this->settingsBag = $settingsBag;
@@ -114,6 +120,7 @@ class ApiRouteCollection extends DeferredRouteCollection
         $this->nodeTypeSingleControllerClass = $nodeTypeSingleControllerClass;
         $this->nodeTypeTagsControllerClass = $nodeTypeTagsControllerClass;
         $this->nodesSourcesListingApiControllerClass = $nodesSourcesListingApiControllerClass;
+        $this->nodesSourcesSearchApiControllerClass = $nodesSourcesSearchApiControllerClass;
     }
 
     public function parseResources(): void
@@ -159,6 +166,23 @@ class ApiRouteCollection extends DeferredRouteCollection
                 $this->routePrefix . '/nodes-sources',
                 [
                     '_controller' => $this->nodesSourcesListingApiControllerClass . '::defaultAction',
+                    'nodeTypeId' => null
+                ],
+                [],
+                [],
+                '',
+                [],
+                ['GET'],
+                ''
+            )
+        );
+
+        $this->add(
+            'get_search_nodes_sources',
+            new Route(
+                $this->routePrefix . '/nodes-sources/search',
+                [
+                    '_controller' => $this->nodesSourcesSearchApiControllerClass . '::defaultAction',
                     'nodeTypeId' => null
                 ],
                 [],

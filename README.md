@@ -8,6 +8,28 @@
 which implemented [thephpleague/oauth2-server](https://github.com/thephpleague/oauth2-server) to 
 Symfony ecosystem.
 
+- [Configuration](#configuration)
+    * [Use .env file](#use-env-file)
+    * [Registering API theme](#registering-api-theme)
+    * [Choose between simple *API-Key* or full *OAuth2* authentication schemes](#choose-between-simple-api-key-or-full-oauth2-authentication-schemes)
+    * [Enable grant types for your website](#enable-grant-types-for-your-website)
+    * [Customize CORS](#customize-cors)
+- [Create a new application](#create-a-new-application)
+    * [Confidential applications: *OAuth2*](#confidential-applications-oauth2)
+        + [Reserved roles / scope](#reserved-roles-scope)
+- [Generic Roadiz API](#generic-roadiz-api)
+    * [API Route listing](#api-route-listing)
+    * [OAuth2 entry points](#oauth2-entry-points)
+    * [User detail entry point](#user-detail-entry-point)
+    * [Listing nodes-sources](#listing-nodes-sources)
+        + [Filters](#filters)
+    * [Search nodes-sources](#search-nodes-sources)
+        + [Filters](#filters-1)
+    * [Listing tags per node-types](#listing-tags-per-node-types)
+        + [Filters](#filters-2)
+    * [Getting node-source details](#getting-node-source-details)
+    * [Listing node-source children](#listing-node-source-children)
+
 ## Configuration
 
 ### Use .env file
@@ -224,6 +246,9 @@ roles before inviting them to use your OAuth2 application.
 
 ### Listing nodes-sources
 
+- `/api/1.0/nodes-sources`: list all nodes-sources no matter type they are.
+- `/api/1.0/{node-type-name}`: list nodes-sources by type
+
 If you created a `Event` node-type, API content will be available at `/api/1.0/event` endpoint.
 Serialization context will automatically add `@id`, `@type`, `slug` and `url` fields in your API resource:
 
@@ -285,7 +310,24 @@ On `NodesSources` content:
 
 Plus **any** date, datetime and boolean node-type fields which are **indexed**.
 
+### Search nodes-sources
+
+- `/api/1.0/nodes-sources/search`: Search all nodes-sources against a `search` param using *Apache Solr* engine
+
+#### Filters
+
+- itemsPerPage: `int`
+- page: `int`
+- _locale: `string`
+- search: `string`
+- tags: `array<string>`
+- node.parent: `int` or `string` (node-name)
+- node.visible: `bool`
+- node.nodeType: `array|string` Filter nodes-sources search by their type
+
 ### Listing tags per node-types
+
+- `/api/1.0/{node-type-name}/tags`: Fetch all tags used in nodes-sources from a given type.
 
 If you created a `Event` node-type, you may want to list any `Tags` attached to *events*, API will be available at 
 `/api/1.0/event/tags` endpoint.
@@ -307,6 +349,9 @@ On `Tag` content:
 - visible: `bool`
 
 ### Getting node-source details
+
+- `/api/1.0/{node-type-name}/{id}`: fetch a node-source with its ID
+- `/api/1.0/{node-type-name}/by-slug/{slug}`: fetch a node-source with its slug (`nodeName` or `urlAlias`)
 
 For each node-source, API will expose detailed content on `/api/1.0/event/{id}` and `/api/1.0/event/by-slug/{slug}` endpoints.
 
