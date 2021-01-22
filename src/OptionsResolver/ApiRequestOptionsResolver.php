@@ -280,7 +280,7 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
         $resourceInfo = $this->pathResolver->resolvePath($path, ['html', 'json']);
         $resource = $resourceInfo->getResource();
         if (null !== $resource && $resource instanceof NodesSources) {
-            return $resource->getId();
+            return $resource->getId() ?? 0;
         }
         // TODO: normalize against Redirections too!
         return 0;
@@ -288,7 +288,7 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
 
     /**
      * @param int|string|array<int|string> $nodeTypes
-     * @return NodeType|array<NodeType>
+     * @return NodeType|array<NodeType>|null
      */
     protected function normalizeNodeTypes($nodeTypes)
     {

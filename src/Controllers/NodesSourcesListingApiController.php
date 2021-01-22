@@ -40,7 +40,6 @@ class NodesSourcesListingApiController extends AbstractNodeTypeApiController
 
     /**
      * @param Request $request
-     * @param int     $nodeTypeId
      *
      * @return Response|JsonResponse
      * @throws \Exception

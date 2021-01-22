@@ -42,18 +42,20 @@ final class TagTranslationNameSubscriber implements EventSubscriberInterface
             if (null !== $translation && $translation instanceof Translation) {
                 /** @var TagTranslation|false $tagTranslation */
                 $tagTranslation = $object->getTranslatedTagsByTranslation($translation)->first();
-                $visitor->visitProperty(
-                    new StaticPropertyMetadata('string', 'name', []),
-                    $tagTranslation->getName()
-                );
-                $visitor->visitProperty(
-                    new StaticPropertyMetadata('string', 'description', []),
-                    $tagTranslation->getDescription()
-                );
-                $visitor->visitProperty(
-                    new StaticPropertyMetadata('string', 'documents', []),
-                    $tagTranslation->getDocuments()
-                );
+                if (false !== $tagTranslation) {
+                    $visitor->visitProperty(
+                        new StaticPropertyMetadata('string', 'name', []),
+                        $tagTranslation->getName()
+                    );
+                    $visitor->visitProperty(
+                        new StaticPropertyMetadata('string', 'description', []),
+                        $tagTranslation->getDescription()
+                    );
+                    $visitor->visitProperty(
+                        new StaticPropertyMetadata('string', 'documents', []),
+                        $tagTranslation->getDocuments()
+                    );
+                }
             }
         }
     }
