@@ -314,6 +314,21 @@ Plus **any** date, datetime and boolean node-type fields which are **indexed**.
 
 - `/api/1.0/nodes-sources/search`: Search all nodes-sources against a `search` param using *Apache Solr* engine
 
+If your search parameter is longer than 3 characters, each API result item will be composed with:
+
+```json
+{
+    "nodeSource": {
+        ...
+    },
+    "highlighting": {
+        "collection_txt": [
+            "In aliquam at dignissimos quasi in. Velit et vero non ut quidem. Sunt est <span class=\"solr-highlight\">tempora</span> sed. Rem nam asperiores modi in quidem quia voluptatum. Aliquid ut doloribus sit et ea eum natus. Eius commodi porro"
+        ]
+    }
+}
+```
+
 #### Filters
 
 - itemsPerPage: `int`

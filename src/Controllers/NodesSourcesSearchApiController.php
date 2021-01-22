@@ -29,6 +29,11 @@ class NodesSourcesSearchApiController extends AbstractNodeTypeApiController
         ];
     }
 
+    protected function denyAccessUnlessNodeTypeGranted(NodeType $nodeType): void
+    {
+        // Override denyAccessUnlessNodeTypeGranted() in your custom controller.
+    }
+
     /**
      * @param Request $request
      *
@@ -43,6 +48,18 @@ class NodesSourcesSearchApiController extends AbstractNodeTypeApiController
 
         if (empty($options['search'])) {
             throw new BadRequestHttpException('Search parameter is not valid.');
+        }
+
+        /** @var NodeType $nodeType */
+        if (null !== $options['node.nodeType']) {
+            if (is_array($options['node.nodeType'])) {
+                foreach ($options['node.nodeType'] as $nodeType) {
+                    // Checks if node-type is granted for current request.
+                    $this->denyAccessUnlessNodeTypeGranted($nodeType);
+                }
+            } else {
+                $this->denyAccessUnlessNodeTypeGranted($options['node.nodeType']);
+            }
         }
 
         /** @var Translation|null $translation */
@@ -128,6 +145,6 @@ class NodesSourcesSearchApiController extends AbstractNodeTypeApiController
      */
     protected function getHighlightingFragmentSize(): int
     {
-        return 300;
+        return 200;
     }
 }
