@@ -22,51 +22,55 @@ class ApiRouteCollection extends DeferredRouteCollection
     /**
      * @var NodeTypes
      */
-    protected $nodeTypesBag;
+    protected NodeTypes $nodeTypesBag;
     /**
      * @var string
      */
-    protected $apiVersion;
+    protected string $apiVersion;
     /**
      * @var string
      */
-    protected $apiPrefix;
+    protected string $apiPrefix;
     /**
      * @var string
      */
-    protected $routePrefix;
+    protected string $routePrefix;
     /**
      * @var Stopwatch|null
      */
-    protected $stopwatch;
+    protected ?Stopwatch $stopwatch;
     /**
      * @var Settings
      */
-    protected $settingsBag;
+    protected Settings $settingsBag;
     /**
      * @var array|null
      */
-    protected $nodeTypeWhitelist;
+    protected ?array $nodeTypeWhitelist;
     /**
-     * @var string
+     * @var class-string
      */
-    private $rootControllerClass;
+    private string $rootControllerClass;
     /**
-     * @var string
+     * @var class-string
      */
-    private $userControllerClass;
+    private string $userControllerClass;
     /**
-     * @var string
+     * @var class-string
      */
-    private $nodeTypeListingControllerClass;
+    private string $nodeTypeListingControllerClass;
     /**
-     * @var string
+     * @var class-string
      */
-    private $nodeTypeSingleControllerClass;
+    private string $nodeTypeSingleControllerClass;
     /**
-     * @var string
+     * @var class-string
      */
-    private $nodeTypeTagsControllerClass;
+    private string $nodeTypeTagsControllerClass;
+    /**
+     * @var class-string
+     */
+    private string $nodesSourcesListingApiControllerClass;
 
     /**
      * @param NodeTypes $nodeTypesBag
@@ -75,11 +79,12 @@ class ApiRouteCollection extends DeferredRouteCollection
      * @param string $apiPrefix
      * @param string $apiVersion
      * @param array|null $nodeTypeWhitelist
-     * @param string $rootControllerClass
-     * @param string $nodeTypeListingControllerClass
-     * @param string $nodeTypeSingleControllerClass
-     * @param string $userControllerClass
-     * @param string $nodeTypeTagsControllerClass
+     * @param class-string $rootControllerClass
+     * @param class-string $nodeTypeListingControllerClass
+     * @param class-string $nodeTypeSingleControllerClass
+     * @param class-string $userControllerClass
+     * @param class-string $nodeTypeTagsControllerClass
+     * @param class-string $nodesSourcesListingApiControllerClass
      */
     final public function __construct(
         NodeTypes $nodeTypesBag,
@@ -92,7 +97,8 @@ class ApiRouteCollection extends DeferredRouteCollection
         $nodeTypeListingControllerClass = NodeTypeListingApiController::class,
         $nodeTypeSingleControllerClass = NodeTypeSingleApiController::class,
         $userControllerClass = UserApiController::class,
-        $nodeTypeTagsControllerClass = NodeTypeTagsApiController::class
+        $nodeTypeTagsControllerClass = NodeTypeTagsApiController::class,
+        $nodesSourcesListingApiControllerClass = NodesSourcesListingApiController::class
     ) {
         $this->stopwatch = $stopwatch;
         $this->settingsBag = $settingsBag;
@@ -107,6 +113,7 @@ class ApiRouteCollection extends DeferredRouteCollection
         $this->nodeTypeListingControllerClass = $nodeTypeListingControllerClass;
         $this->nodeTypeSingleControllerClass = $nodeTypeSingleControllerClass;
         $this->nodeTypeTagsControllerClass = $nodeTypeTagsControllerClass;
+        $this->nodesSourcesListingApiControllerClass = $nodesSourcesListingApiControllerClass;
     }
 
     public function parseResources(): void
@@ -151,8 +158,7 @@ class ApiRouteCollection extends DeferredRouteCollection
             new Route(
                 $this->routePrefix . '/nodes-sources',
                 [
-                    // TODO: Variabilize NS listing controller
-                    '_controller' => NodesSourcesListingApiController::class . '::defaultAction',
+                    '_controller' => $this->nodesSourcesListingApiControllerClass . '::defaultAction',
                     'nodeTypeId' => null
                 ],
                 [],

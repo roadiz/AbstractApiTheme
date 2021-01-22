@@ -30,6 +30,7 @@ use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Security\Http\Firewall\ExceptionListener;
 use Symfony\Component\Security\Http\FirewallMap;
 use Symfony\Component\Translation\Translator;
+use Themes\AbstractApiTheme\Controllers\NodesSourcesListingApiController;
 use Themes\AbstractApiTheme\Controllers\NodeTypeListingApiController;
 use Themes\AbstractApiTheme\Controllers\NodeTypeSingleApiController;
 use Themes\AbstractApiTheme\Controllers\NodeTypeTagsApiController;
@@ -157,24 +158,27 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
         $container['api.node_type_whitelist'] = null;
 
         /**
-         * @return string
+         * @return class-string
          */
         $container['api.root_controller_class'] = RootApiController::class;
-
         /**
-         * @return string
+         * @return class-string
          */
         $container['api.node_type_single_controller_class'] = NodeTypeSingleApiController::class;
         /**
-         * @return string
+         * @return class-string
          */
         $container['api.node_type_listing_controller_class'] = NodeTypeListingApiController::class;
         /**
-         * @return string
+         * @return class-string
          */
         $container['api.node_type_tags_controller_class'] = NodeTypeTagsApiController::class;
         /**
-         * @return string
+         * @return class-string
+         */
+        $container['api.nodes_sources_listing_controller_class'] = NodesSourcesListingApiController::class;
+        /**
+         * @return class-string
          */
         $container['api.user_controller_class'] = UserApiController::class;
 
@@ -351,7 +355,8 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
                 $c['api.node_type_listing_controller_class'],
                 $c['api.node_type_single_controller_class'],
                 $c['api.user_controller_class'],
-                $c['api.node_type_tags_controller_class']
+                $c['api.node_type_tags_controller_class'],
+                $c['api.nodes_sources_listing_controller_class']
             );
         };
 
