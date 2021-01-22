@@ -293,7 +293,7 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
     protected function normalizeNodeTypes($nodeTypes)
     {
         if (is_array($nodeTypes)) {
-            return array_filter(array_map([$this, 'normalizeSingleNodeType'], $nodeTypes));
+            return array_values(array_filter(array_map([$this, 'normalizeSingleNodeType'], $nodeTypes)));
         } else {
             return $this->normalizeSingleNodeType($nodeTypes);
         }

@@ -59,7 +59,6 @@ final class CachableApiResponseSubscriber implements EventSubscriberInterface
             'Accept-Encoding',
             'Accept',
             'Authorization',
-            'X-Partial',
             'x-requested-with',
             'Access-Control-Allow-Origin',
             'x-api-key',
@@ -87,8 +86,6 @@ final class CachableApiResponseSubscriber implements EventSubscriberInterface
         $response->headers->addCacheControlDirective('must-revalidate', true);
         if ($this->allowClientCache) {
             $response->setMaxAge(60 * $this->minutes);
-        } else {
-            $response->headers->addCacheControlDirective('no-store', true);
         }
     }
 }
