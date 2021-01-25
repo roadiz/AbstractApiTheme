@@ -6,6 +6,7 @@ namespace Themes\AbstractApiTheme\Controllers;
 use JMS\Serializer\SerializationContext;
 use RZ\Roadiz\Core\Entities\NodeType;
 use Themes\AbstractApiTheme\AbstractApiThemeApp;
+use Themes\AbstractApiTheme\Cache\CacheTagsCollection;
 
 abstract class AbstractNodeTypeApiController extends AbstractApiThemeApp
 {
@@ -39,6 +40,8 @@ abstract class AbstractNodeTypeApiController extends AbstractApiThemeApp
         if (count($this->getSerializationGroups()) > 0) {
             $context->setGroups($this->getSerializationGroups());
         }
+
+        $context->setAttribute('cache-tags', new CacheTagsCollection());
 
         return $context;
     }

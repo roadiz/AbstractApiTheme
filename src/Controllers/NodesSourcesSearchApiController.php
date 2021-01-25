@@ -13,6 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Themes\AbstractApiTheme\Cache\CacheTagsCollection;
 use Themes\AbstractApiTheme\ListManagers\SolrSearchListManager;
 use Themes\AbstractApiTheme\OptionsResolver\ApiRequestOptionsResolver;
 
@@ -110,16 +111,28 @@ class NodesSourcesSearchApiController extends AbstractNodeTypeApiController
 
         /** @var SerializerInterface $serializer */
         $serializer = $this->get('serializer');
+        $context = $this->getSerializationContext();
         $response = new JsonResponse(
             $serializer->serialize(
                 $entityListManager,
                 'json',
-                $this->getSerializationContext()
+                $context
             ),
             JsonResponse::HTTP_OK,
             [],
             true
         );
+
+        if ($context->hasAttribute('cache-tags') &&
+            $context->getAttribute('cache-tags') instanceof CacheTagsCollection) {
+            /** @var CacheTagsCollection $cacheTags */
+            $cacheTags = $context->getAttribute('cache-tags');
+            if ($cacheTags->count() > 0) {
+                $response->headers->add([
+                    'X-Cache-Tags' => implode(', ', $cacheTags->toArray())
+                ]);
+            }
+        }
 
         return $this->makeResponseCachable($request, $response, $this->get('api.cache.ttl'));
     }

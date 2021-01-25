@@ -11,6 +11,7 @@ use RZ\Roadiz\Core\Entities\Translation;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Themes\AbstractApiTheme\Cache\CacheTagsCollection;
 use Themes\AbstractApiTheme\OptionsResolver\ApiRequestOptionsResolver;
 
 class NodeTypeSingleApiController extends AbstractNodeTypeApiController
@@ -31,17 +32,25 @@ class NodeTypeSingleApiController extends AbstractNodeTypeApiController
      * @param Request $request
      * @param int     $nodeTypeId
      * @param int     $id
+     * @param string|null $_locale
      *
      * @return Response|JsonResponse
      * @throws \Exception
      */
-    public function defaultAction(Request $request, int $nodeTypeId, int $id): Response
+    public function defaultAction(Request $request, int $nodeTypeId, int $id, ?string $_locale = null): Response
     {
         $nodeType = $this->getNodeTypeOrDeny($nodeTypeId);
 
         /** @var ApiRequestOptionsResolver $apiOptionsResolver */
         $apiOptionsResolver = $this->get(ApiRequestOptionsResolver::class);
-        $options = $apiOptionsResolver->resolve($request->query->all(), $nodeType);
+        if (null !== $_locale) {
+            $queryAll = array_merge($request->query->all(), [
+                '_locale' => $_locale
+            ]);
+        } else {
+            $queryAll = $request->query->all();
+        }
+        $options = $apiOptionsResolver->resolve($queryAll, $nodeType);
 
         /** @var Translation|null $translation */
         $translation = $this->get('em')->getRepository(Translation::class)->findOneByLocale($options['_locale']);
@@ -131,16 +140,28 @@ class NodeTypeSingleApiController extends AbstractNodeTypeApiController
 
         /** @var SerializerInterface $serializer */
         $serializer = $this->get('serializer');
+        $context = $this->getSerializationContext();
         $response = new JsonResponse(
             $serializer->serialize(
                 $nodeSource,
                 'json',
-                $this->getSerializationContext()
+                $context
             ),
             JsonResponse::HTTP_OK,
             [],
             true
         );
+
+        if ($context->hasAttribute('cache-tags') &&
+            $context->getAttribute('cache-tags') instanceof CacheTagsCollection) {
+            /** @var CacheTagsCollection $cacheTags */
+            $cacheTags = $context->getAttribute('cache-tags');
+            if ($cacheTags->count() > 0) {
+                $response->headers->add([
+                    'X-Cache-Tags' => implode(', ', $cacheTags->toArray())
+                ]);
+            }
+        }
 
         return $this->makeResponseCachable(
             $request,

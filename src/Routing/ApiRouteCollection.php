@@ -282,6 +282,26 @@ class ApiRouteCollection extends DeferredRouteCollection
             )
         );
         $collection->add(
+            'get_localized_single_'.mb_strtolower($nodeType->getName()),
+            new Route(
+                $this->routePrefix . '/' . mb_strtolower($nodeType->getName()) . '/{id}/{_locale}',
+                [
+                    '_controller' => $this->nodeTypeSingleControllerClass . '::defaultAction',
+                    '_format' => 'json',
+                    'nodeTypeId' => $nodeType->getId()
+                ],
+                [
+                    'id' => '[0-9]+',
+                    '_locale' => '[a-z]{2,3}'
+                ],
+                [],
+                '',
+                [],
+                ['GET'],
+                ''
+            )
+        );
+        $collection->add(
             'get_single_slug_'.mb_strtolower($nodeType->getName()),
             new Route(
                 $this->routePrefix . '/' . mb_strtolower($nodeType->getName()) . '/by-slug/{slug}',

@@ -264,7 +264,7 @@ Serialization context will automatically add `@id`, `@type`, `slug` and `url` fi
             },
             "title": "Accueil",
             "publishedAt": "2021-01-18T23:32:39+01:00",
-            "@id": "http://example.test/dev.php/api/1.0/page/2",
+            "@id": "http://example.test/dev.php/api/1.0/page/2/fr",
             "url": "/dev.php/home"
         }
     ],
@@ -309,6 +309,22 @@ On `NodesSources` content:
 - node.nodeType.reachable: `bool`
 
 Plus **any** date, datetime and boolean node-type fields which are **indexed**.
+
+#### Locale filter
+
+`_locale` filter **set Roadiz main translation** for all database lookups, make sure to always set it to
+the right locale or you won't get any result with `search` or `path` filters against French queries.
+
+#### Path filter
+
+`path` filter **uses Roadiz internal router** to search only one result to match against your query. You can use:
+
+- node-source canonical path, i.e: `/about-us`
+- node-source nodeName path: i.e: `/en/about-us`
+- a redirected path, i.e: `/old-about-us`
+
+If you get one result, you'll find canonical path in `hydra:member > 0 > url` field to create a redirection in
+your frontend framework and advertise node-source new URL.
 
 ### Search nodes-sources
 
@@ -365,7 +381,8 @@ On `Tag` content:
 
 ### Getting node-source details
 
-- `/api/1.0/{node-type-name}/{id}`: fetch a node-source with its ID
+- `/api/1.0/{node-type-name}/{id}/{_locale}`: fetch a node-source with its node' ID and translation `locale`. This is the default route used to generate your content JSON-LD `@id` field.
+- `/api/1.0/{node-type-name}/{id}`: fetch a node-source with its node' ID and system **default** locale (or query string one)
 - `/api/1.0/{node-type-name}/by-slug/{slug}`: fetch a node-source with its slug (`nodeName` or `urlAlias`)
 
 For each node-source, API will expose detailed content on `/api/1.0/event/{id}` and `/api/1.0/event/by-slug/{slug}` endpoints.

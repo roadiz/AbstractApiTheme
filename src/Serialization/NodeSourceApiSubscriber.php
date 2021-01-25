@@ -10,6 +10,7 @@ use JMS\Serializer\Visitor\SerializationVisitorInterface;
 use RZ\Roadiz\Core\Entities\NodesSources;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Themes\AbstractApiTheme\Cache\CacheTagsCollection;
 
 final class NodeSourceApiSubscriber implements EventSubscriberInterface
 {
@@ -56,6 +57,21 @@ final class NodeSourceApiSubscriber implements EventSubscriberInterface
             $nodeSource instanceof NodesSources &&
             null !== $nodeSource->getNode()) {
             $className = get_class($nodeSource);
+            /*
+             * Add cache-tags to serialization context.
+             */
+            if ($event->getContext()->hasAttribute('cache-tags') &&
+                $event->getContext()->getAttribute('cache-tags') instanceof CacheTagsCollection) {
+                /** @var CacheTagsCollection $cacheTags */
+                $cacheTags = $event->getContext()->getAttribute('cache-tags');
+                $tag = 'node_'.$nodeSource->getNode()->getId();
+                if (!$cacheTags->contains($tag)) {
+                    $cacheTags->add($tag);
+                }
+            }
+            /*
+             * Add @type annotation
+             */
             $visitor->visitProperty(
                 new StaticPropertyMetadata('string', '@type', []),
                 str_replace(
@@ -72,9 +88,10 @@ final class NodeSourceApiSubscriber implements EventSubscriberInterface
                 $visitor->visitProperty(
                     new StaticPropertyMetadata('string', '@id', []),
                     $this->urlGenerator->generate(
-                        'get_single_'.mb_strtolower($nodeSource->getNodeTypeName()),
+                        'get_localized_single_'.mb_strtolower($nodeSource->getNodeTypeName()),
                         [
-                            'id' => $nodeSource->getNode()->getId()
+                            'id' => $nodeSource->getNode()->getId(),
+                            '_locale' => $nodeSource->getTranslation()->getPreferredLocale()
                         ],
                         $this->referenceType
                     )
