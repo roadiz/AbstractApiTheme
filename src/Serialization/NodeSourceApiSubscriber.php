@@ -64,10 +64,7 @@ final class NodeSourceApiSubscriber implements EventSubscriberInterface
                 $event->getContext()->getAttribute('cache-tags') instanceof CacheTagsCollection) {
                 /** @var CacheTagsCollection $cacheTags */
                 $cacheTags = $event->getContext()->getAttribute('cache-tags');
-                $tag = 'node_'.$nodeSource->getNode()->getId();
-                if (!$cacheTags->contains($tag)) {
-                    $cacheTags->add($tag);
-                }
+                $cacheTags->addNode($nodeSource->getNode());
             }
             /*
              * Add @type annotation

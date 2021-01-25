@@ -19,6 +19,7 @@ use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\EventDispatcher\Event;
 use Themes\AbstractApiTheme\AbstractApiThemeApp;
+use Themes\AbstractApiTheme\Serialization\SerializationContextFactoryInterface;
 
 abstract class AbstractApiPostController extends AbstractApiThemeApp
 {
@@ -113,8 +114,7 @@ abstract class AbstractApiPostController extends AbstractApiThemeApp
 
     protected function getSerializationContext(): SerializationContext
     {
-        $context = SerializationContext::create()
-            ->enableMaxDepthChecks();
+        $context = $this->get(SerializationContextFactoryInterface::class)->create();
         if (count($this->getSerializationGroups()) > 0) {
             $context->setGroups($this->getSerializationGroups());
         }

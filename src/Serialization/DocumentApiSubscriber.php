@@ -39,10 +39,7 @@ final class DocumentApiSubscriber implements EventSubscriberInterface
                 $event->getContext()->getAttribute('cache-tags') instanceof CacheTagsCollection) {
                 /** @var CacheTagsCollection $cacheTags */
                 $cacheTags = $event->getContext()->getAttribute('cache-tags');
-                $tag = 'document_'.$document->getId();
-                if (!$cacheTags->contains($tag)) {
-                    $cacheTags->add($tag);
-                }
+                $cacheTags->addDocument($document);
             }
             $visitor->visitProperty(
                 new StaticPropertyMetadata('string', '@type', []),

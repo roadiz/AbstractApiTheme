@@ -32,6 +32,10 @@ final class SolrSearchListManager extends AbstractEntityListManager
      */
     public function handle($disabled = false)
     {
+        if ($this->request === null) {
+            throw new \InvalidArgumentException('Cannot handle a NULL request.');
+        }
+
         $query = trim($this->request->query->get('search'));
 
         if ($this->request->query->has('page') &&

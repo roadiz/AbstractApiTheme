@@ -90,6 +90,7 @@ class ApiRouteCollection extends DeferredRouteCollection
      * @param class-string $userControllerClass
      * @param class-string $nodeTypeTagsControllerClass
      * @param class-string $nodesSourcesListingApiControllerClass
+     * @param class-string $nodesSourcesSearchApiControllerClass
      */
     final public function __construct(
         NodeTypes $nodeTypesBag,

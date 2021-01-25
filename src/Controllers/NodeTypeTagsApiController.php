@@ -22,7 +22,7 @@ class NodeTypeTagsApiController extends AbstractNodeTypeApiController
     /**
      * @var Tag[] Pre-filled tags to alter every requests with
      */
-    protected $implicitTags;
+    protected array $implicitTags = [];
 
     /**
      * @param Request $request

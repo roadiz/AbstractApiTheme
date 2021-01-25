@@ -63,6 +63,8 @@ use Themes\AbstractApiTheme\Serialization\ChildrenApiSubscriber;
 use Themes\AbstractApiTheme\Serialization\DocumentApiSubscriber;
 use Themes\AbstractApiTheme\Serialization\EntityListManagerSubscriber;
 use Themes\AbstractApiTheme\Serialization\NodeSourceApiSubscriber;
+use Themes\AbstractApiTheme\Serialization\SerializationContextFactory;
+use Themes\AbstractApiTheme\Serialization\SerializationContextFactoryInterface;
 use Themes\AbstractApiTheme\Serialization\TagApiSubscriber;
 use Themes\AbstractApiTheme\Serialization\TagTranslationNameSubscriber;
 use Themes\AbstractApiTheme\Serialization\TokenSubscriber;
@@ -158,6 +160,11 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
          * @return null|array
          */
         $container['api.node_type_whitelist'] = null;
+
+        /**
+         * @return bool
+         */
+        $container['api.use_cache_tags'] = true;
 
         /**
          * @return class-string
@@ -339,6 +346,10 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
                 $c['nodeApi']
             );
         });
+
+        $container[SerializationContextFactoryInterface::class] = function (Container $c) {
+            return new SerializationContextFactory($c['api.use_cache_tags']);
+        };
 
         $container['api.application_factory'] = $container->factory(function ($c) {
             $className = $c['api.application_class'];

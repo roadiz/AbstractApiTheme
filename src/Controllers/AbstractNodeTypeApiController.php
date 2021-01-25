@@ -7,6 +7,7 @@ use JMS\Serializer\SerializationContext;
 use RZ\Roadiz\Core\Entities\NodeType;
 use Themes\AbstractApiTheme\AbstractApiThemeApp;
 use Themes\AbstractApiTheme\Cache\CacheTagsCollection;
+use Themes\AbstractApiTheme\Serialization\SerializationContextFactoryInterface;
 
 abstract class AbstractNodeTypeApiController extends AbstractApiThemeApp
 {
@@ -34,14 +35,11 @@ abstract class AbstractNodeTypeApiController extends AbstractApiThemeApp
      */
     protected function getSerializationContext(): SerializationContext
     {
-        $context = SerializationContext::create()
-            ->setAttribute('translation', $this->getTranslation())
-            ->enableMaxDepthChecks();
+        $context = $this->get(SerializationContextFactoryInterface::class)->create()
+            ->setAttribute('translation', $this->getTranslation());
         if (count($this->getSerializationGroups()) > 0) {
             $context->setGroups($this->getSerializationGroups());
         }
-
-        $context->setAttribute('cache-tags', new CacheTagsCollection());
 
         return $context;
     }

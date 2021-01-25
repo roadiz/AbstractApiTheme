@@ -7,7 +7,6 @@ use JMS\Serializer\SerializerInterface;
 use RZ\Roadiz\Core\Entities\NodeType;
 use RZ\Roadiz\Core\Entities\Translation;
 use RZ\Roadiz\Core\SearchEngine\AbstractSearchHandler;
-use RZ\Roadiz\Core\SearchEngine\NodeSourceSearchHandler;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -51,7 +50,6 @@ class NodesSourcesSearchApiController extends AbstractNodeTypeApiController
             throw new BadRequestHttpException('Search parameter is not valid.');
         }
 
-        /** @var NodeType $nodeType */
         if (null !== $options['node.nodeType']) {
             if (is_array($options['node.nodeType'])) {
                 foreach ($options['node.nodeType'] as $nodeType) {

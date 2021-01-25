@@ -210,6 +210,25 @@ $container['api.cors_options'] = [
 ];
 ```
 
+### Use cache-tags
+
+Serialization context can gather every *nodes* ID, *documents* ID and *tags* ID they find during requests,
+as known as *cache tags*.
+
+```php
+// In your application/theme service provider
+$container['api.use_cache_tags'] = true;
+```
+
+Cache tags will be appended to response `X-Cache-Tags` header and will allow you to clear your reverse-proxy caches
+more selectively. Here are cache tags syntax:
+
+- `n{node.id}` (i.e: `n98`) for a node
+- `t{tag.id}` (i.e: `t32`) for a tag
+- `d{document.id}` (i.e: `d291`) for a document
+
+Cache-tags syntax is the shortest possible to avoid hitting *maximum header size* limit in your Nginx configuration.
+
 ## Create a new application
 
 Applications hold your API keys and control incoming requests `Referer` against a *regex* pattern.
