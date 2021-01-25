@@ -134,6 +134,7 @@ class ApiRouteCollection extends DeferredRouteCollection
                 $this->routePrefix,
                 [
                     '_controller' => $this->rootControllerClass . '::getRootAction',
+                    '_format' => 'json'
                 ],
                 [],
                 [],
@@ -150,6 +151,7 @@ class ApiRouteCollection extends DeferredRouteCollection
                 $this->routePrefix . '/me',
                 [
                     '_controller' => $this->userControllerClass . '::getUserAction',
+                    '_format' => 'json'
                 ],
                 [],
                 [],
@@ -166,6 +168,7 @@ class ApiRouteCollection extends DeferredRouteCollection
                 $this->routePrefix . '/nodes-sources',
                 [
                     '_controller' => $this->nodesSourcesListingApiControllerClass . '::defaultAction',
+                    '_format' => 'json',
                     'nodeTypeId' => null
                 ],
                 [],
@@ -183,6 +186,7 @@ class ApiRouteCollection extends DeferredRouteCollection
                 $this->routePrefix . '/nodes-sources/search',
                 [
                     '_controller' => $this->nodesSourcesSearchApiControllerClass . '::defaultAction',
+                    '_format' => 'json',
                     'nodeTypeId' => null
                 ],
                 [],
@@ -230,6 +234,7 @@ class ApiRouteCollection extends DeferredRouteCollection
                 $this->routePrefix . '/' . mb_strtolower($nodeType->getName()),
                 [
                     '_controller' => $this->nodeTypeListingControllerClass . '::defaultAction',
+                    '_format' => 'json',
                     'nodeTypeId' => $nodeType->getId()
                 ],
                 [],
@@ -246,6 +251,7 @@ class ApiRouteCollection extends DeferredRouteCollection
                 $this->routePrefix . '/' . mb_strtolower($nodeType->getName()) . '/tags',
                 [
                     '_controller' => $this->nodeTypeTagsControllerClass . '::defaultAction',
+                    '_format' => 'json',
                     'nodeTypeId' => $nodeType->getId()
                 ],
                 [],
@@ -262,6 +268,7 @@ class ApiRouteCollection extends DeferredRouteCollection
                 $this->routePrefix . '/' . mb_strtolower($nodeType->getName()) . '/{id}',
                 [
                     '_controller' => $this->nodeTypeSingleControllerClass . '::defaultAction',
+                    '_format' => 'json',
                     'nodeTypeId' => $nodeType->getId()
                 ],
                 [
@@ -280,6 +287,7 @@ class ApiRouteCollection extends DeferredRouteCollection
                 $this->routePrefix . '/' . mb_strtolower($nodeType->getName()) . '/by-slug/{slug}',
                 [
                     '_controller' => $this->nodeTypeSingleControllerClass . '::bySlugAction',
+                    '_format' => 'json',
                     'nodeTypeId' => $nodeType->getId()
                 ],
                 [

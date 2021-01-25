@@ -394,3 +394,22 @@ $visitor->visitProperty(
     $blockWalker->getChildren()
 );
 ```
+
+### Errors
+
+If you want to get detailed errors in JSON, do not forget to add header: `Accept: application/json` to
+every requests you make. You'll get message such as:
+
+```json
+{
+    "error": "general_error",
+    "error_message": "Search engine does not respond.",
+    "message": "Search engine does not respond.",
+    "exception": "Symfony\\Component\\HttpKernel\\Exception\\HttpException",
+    "humanMessage": "A problem occurred on our website. We are working on this to be back soon.",
+    "status": "danger"
+}
+```
+
+with the right *status code* (40x or 50x). Make sure to catch and read your response data from your frontend
+framework when your request fails to know more about errors.
