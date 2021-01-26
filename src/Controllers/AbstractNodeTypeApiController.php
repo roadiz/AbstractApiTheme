@@ -5,6 +5,7 @@ namespace Themes\AbstractApiTheme\Controllers;
 
 use JMS\Serializer\SerializationContext;
 use RZ\Roadiz\Core\Entities\NodeType;
+use RZ\Roadiz\Core\Entities\Translation;
 use Themes\AbstractApiTheme\AbstractApiThemeApp;
 use Themes\AbstractApiTheme\Cache\CacheTagsCollection;
 use Themes\AbstractApiTheme\Serialization\SerializationContextFactoryInterface;
@@ -28,6 +29,19 @@ abstract class AbstractNodeTypeApiController extends AbstractApiThemeApp
         }
         $this->denyAccessUnlessNodeTypeGranted($nodeType);
         return $nodeType;
+    }
+
+    /**
+     * @param string $locale
+     * @return Translation
+     */
+    protected function getTranslationOrNotFound(string $locale): Translation
+    {
+        $this->translation = $this->get('em')->getRepository(Translation::class)->findOneByLocale($locale);
+        if (null === $this->translation) {
+            throw $this->createNotFoundException();
+        }
+        return $this->translation;
     }
 
     /**

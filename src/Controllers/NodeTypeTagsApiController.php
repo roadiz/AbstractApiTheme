@@ -39,14 +39,10 @@ class NodeTypeTagsApiController extends AbstractNodeTypeApiController
         $apiOptionsResolver = $this->get(TagApiRequestOptionsResolver::class);
         $options = $apiOptionsResolver->resolve($request->query->all());
 
-        /** @var Translation|null $translation */
-        $translation = $this->get('em')->getRepository(Translation::class)->findOneByLocale($options['_locale']);
-        if (null === $translation) {
-            throw $this->createNotFoundException();
-        }
+        $this->getTranslationOrNotFound($options['_locale']);
 
         $defaultCriteria = [
-            'translation' => $translation,
+            'translation' => $this->getTranslation(),
         ];
 
         $criteria = array_merge(
@@ -77,7 +73,7 @@ class NodeTypeTagsApiController extends AbstractNodeTypeApiController
     ): Response {
         $queryBuilder = $this->getAvailableTags(
             $nodeType,
-            $criteria['translation'],
+            $this->getTranslation(),
             $criteria['parent'] ?? null
         );
         if (isset($options['order'])) {

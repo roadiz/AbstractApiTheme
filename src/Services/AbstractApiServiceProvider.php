@@ -410,7 +410,7 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
             $subscribers[] = new EntityListManagerSubscriber($c['requestStack']);
             $subscribers[] = new NodeSourceApiSubscriber($c['router'], $c['api.reference_type']);
             $subscribers[] = new TagApiSubscriber();
-            $subscribers[] = new DocumentApiSubscriber();
+            $subscribers[] = new DocumentApiSubscriber($c['assetPackages']);
             $subscribers[] = new ChildrenApiSubscriber($c['em']);
             $subscribers[] = new TagTranslationNameSubscriber();
             $subscribers[] = new TokenSubscriber();

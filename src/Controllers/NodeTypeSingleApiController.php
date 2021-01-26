@@ -22,6 +22,8 @@ class NodeTypeSingleApiController extends AbstractNodeTypeApiController
             'walker', // rezozero tree-walker
             'children', // rezozero tree-walker
             'nodes_sources',
+            'document_display',
+            'url_alias',
             'tag_base',
             'urls',
             'meta',
@@ -52,16 +54,12 @@ class NodeTypeSingleApiController extends AbstractNodeTypeApiController
         }
         $options = $apiOptionsResolver->resolve($queryAll, $nodeType);
 
-        /** @var Translation|null $translation */
-        $translation = $this->get('em')->getRepository(Translation::class)->findOneByLocale($options['_locale']);
-        if (null === $translation) {
-            throw $this->createNotFoundException();
-        }
+        $this->getTranslationOrNotFound($options['_locale']);
 
         $criteria = [
             'node.nodeType' => $nodeType,
             'node.id' => $id,
-            'translation' => $translation,
+            'translation' => $this->getTranslation(),
         ];
 
         if ($nodeType->isPublishable()) {
@@ -91,11 +89,7 @@ class NodeTypeSingleApiController extends AbstractNodeTypeApiController
         }
         $this->denyAccessUnlessNodeTypeGranted($nodeType);
 
-        /** @var Translation|null $translation */
-        $translation = $this->get('em')->getRepository(Translation::class)->findOneByLocale($options['_locale']);
-        if (null === $translation) {
-            $translation = $this->get('defaultTranslation');
-        }
+        $this->getTranslationOrNotFound($options['_locale']);
 
         /*
          * Get a routing resource array
@@ -103,7 +97,7 @@ class NodeTypeSingleApiController extends AbstractNodeTypeApiController
         $array = $this->get('em')->getRepository(Node::class)
             ->findNodeTypeNameAndSourceIdByIdentifier(
                 $slug,
-                $translation,
+                $this->getTranslation(),
                 true // only find available translations
             );
 
@@ -114,7 +108,7 @@ class NodeTypeSingleApiController extends AbstractNodeTypeApiController
         $criteria = [
             'node.nodeType' => $nodeType,
             'id' => $array['id'],
-            'translation' => $translation,
+            'translation' => $this->getTranslation(),
         ];
 
         if ($nodeType->isPublishable()) {

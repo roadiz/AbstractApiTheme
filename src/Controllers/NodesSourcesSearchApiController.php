@@ -22,6 +22,7 @@ class NodesSourcesSearchApiController extends AbstractNodeTypeApiController
     {
         return [
             'nodes_sources_base',
+            'document_display',
             'tag_base',
             'nodes_sources_default',
             'urls',
@@ -61,14 +62,10 @@ class NodesSourcesSearchApiController extends AbstractNodeTypeApiController
             }
         }
 
-        /** @var Translation|null $translation */
-        $translation = $this->get('em')->getRepository(Translation::class)->findOneByLocale($options['_locale']);
-        if (null === $translation) {
-            throw $this->createNotFoundException();
-        }
+        $this->getTranslationOrNotFound($options['_locale']);
 
         $defaultCriteria = [
-            'translation' => $translation,
+            'translation' => $this->getTranslation(),
         ];
 
         $criteria = array_merge(

@@ -8,10 +8,23 @@ use JMS\Serializer\EventDispatcher\ObjectEvent;
 use JMS\Serializer\Metadata\StaticPropertyMetadata;
 use JMS\Serializer\Visitor\SerializationVisitorInterface;
 use RZ\Roadiz\Core\Entities\Document;
+use RZ\Roadiz\Core\Models\DocumentInterface;
+use RZ\Roadiz\Core\Models\HasThumbnailInterface;
+use Symfony\Component\Asset\Packages;
 use Themes\AbstractApiTheme\Cache\CacheTagsCollection;
 
 final class DocumentApiSubscriber implements EventSubscriberInterface
 {
+    private Packages $packages;
+
+    /**
+     * @param Packages $packages
+     */
+    public function __construct(Packages $packages)
+    {
+        $this->packages = $packages;
+    }
+
     public static function getSubscribedEvents()
     {
         return [[
@@ -28,7 +41,7 @@ final class DocumentApiSubscriber implements EventSubscriberInterface
      */
     public function onPostSerialize(ObjectEvent $event)
     {
-        /** @var Document $document */
+        /** @var DocumentInterface $document */
         $document = $event->getObject();
         $visitor = $event->getVisitor();
         if ($visitor instanceof SerializationVisitorInterface) {
@@ -45,6 +58,25 @@ final class DocumentApiSubscriber implements EventSubscriberInterface
                 new StaticPropertyMetadata('string', '@type', []),
                 'Document'
             );
+
+
+            if (in_array('urls', $event->getContext()->getAttribute('groups'))) {
+                $visitor->visitProperty(
+                    new StaticPropertyMetadata('string', 'url', []),
+                    $this->packages->getUrl(
+                        $document->getRelativePath() ?? '',
+                        \RZ\Roadiz\Utils\Asset\Packages::DOCUMENTS
+                    )
+                );
+            }
+
+            if (in_array('thumbnail', $event->getContext()->getAttribute('groups')) &&
+                $document instanceof HasThumbnailInterface) {
+                $visitor->visitProperty(
+                    new StaticPropertyMetadata(Document::class, 'thumbnail', []),
+                    $document->getThumbnails()->first() ?: null
+                );
+            }
         }
     }
 }

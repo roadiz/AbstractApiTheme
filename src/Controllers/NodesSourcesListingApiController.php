@@ -19,6 +19,7 @@ class NodesSourcesListingApiController extends AbstractNodeTypeApiController
     {
         return [
             'nodes_sources_base',
+            'document_display',
             'tag_base',
             'nodes_sources_default',
             'urls',
@@ -51,14 +52,10 @@ class NodesSourcesListingApiController extends AbstractNodeTypeApiController
         $apiOptionsResolver = $this->get(ApiRequestOptionsResolver::class);
         $options = $apiOptionsResolver->resolve($request->query->all(), null);
 
-        /** @var Translation|null $translation */
-        $translation = $this->get('em')->getRepository(Translation::class)->findOneByLocale($options['_locale']);
-        if (null === $translation) {
-            throw $this->createNotFoundException();
-        }
+        $this->getTranslationOrNotFound($options['_locale']);
 
         $defaultCriteria = [
-            'translation' => $translation,
+            'translation' => $this->getTranslation(),
         ];
 
         $criteria = array_merge(
