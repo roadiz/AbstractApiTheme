@@ -559,6 +559,17 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
         });
 
         /*
+         * Register custom migrations
+         */
+        $container->extend('doctrine.migrations_paths', function (array $paths) {
+            $migrationPath = \dirname(__DIR__) . '/Migrations';
+            if (\file_exists($migrationPath)) {
+                $paths['Themes\AbstractApiTheme\Migrations'] = $migrationPath;
+            }
+            return $paths;
+        });
+
+        /*
          * Register translations messages
          * not to register AbstractApiTheme into config.themes
          */
