@@ -5,8 +5,8 @@ namespace Themes\AbstractApiTheme\Controllers;
 
 use JMS\Serializer\SerializerInterface;
 use RZ\Roadiz\Core\Entities\NodeType;
-use RZ\Roadiz\Core\Entities\Translation;
-use RZ\Roadiz\Core\SearchEngine\AbstractSearchHandler;
+use RZ\Roadiz\Core\SearchEngine\NodeSourceSearchHandlerInterface;
+use RZ\Roadiz\Core\SearchEngine\SearchHandlerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -133,11 +133,12 @@ class NodesSourcesSearchApiController extends AbstractNodeTypeApiController
     }
 
     /**
-     * @return AbstractSearchHandler
+     * @return SearchHandlerInterface
      */
-    protected function getSearchHandler(): AbstractSearchHandler
+    protected function getSearchHandler(): SearchHandlerInterface
     {
-        $searchHandler = $this->get('solr.search.nodeSource');
+        /** @var NodeSourceSearchHandlerInterface $searchHandler */
+        $searchHandler = $this->get(NodeSourceSearchHandlerInterface::class);
         if (null === $searchHandler) {
             throw new HttpException(Response::HTTP_SERVICE_UNAVAILABLE, 'Search engine does not respond.');
         }

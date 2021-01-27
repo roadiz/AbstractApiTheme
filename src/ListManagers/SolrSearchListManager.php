@@ -4,20 +4,20 @@ declare(strict_types=1);
 namespace Themes\AbstractApiTheme\ListManagers;
 
 use RZ\Roadiz\Core\ListManagers\AbstractEntityListManager;
-use RZ\Roadiz\Core\SearchEngine\AbstractSearchHandler;
-use RZ\Roadiz\Core\SearchEngine\SolrSearchResults;
+use RZ\Roadiz\Core\SearchEngine\SearchHandlerInterface;
+use RZ\Roadiz\Core\SearchEngine\SearchResultsInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 final class SolrSearchListManager extends AbstractEntityListManager
 {
-    protected AbstractSearchHandler $searchHandler;
-    protected ?SolrSearchResults $searchResults;
+    protected SearchHandlerInterface $searchHandler;
+    protected ?SearchResultsInterface $searchResults;
     private array $criteria;
     private bool $searchInTags;
 
     public function __construct(
         ?Request $request,
-        AbstractSearchHandler $searchHandler,
+        SearchHandlerInterface $searchHandler,
         array $criteria = [],
         bool $searchInTags = true
     ) {
