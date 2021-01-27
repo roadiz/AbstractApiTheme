@@ -6,7 +6,6 @@ namespace Themes\AbstractApiTheme\OptionsResolver;
 use RZ\Roadiz\CMS\Utils\NodeApi;
 use RZ\Roadiz\CMS\Utils\TagApi;
 use RZ\Roadiz\Core\Entities\Node;
-use RZ\Roadiz\Core\Entities\NodeType;
 use RZ\Roadiz\Core\Entities\Tag;
 
 abstract class AbstractApiRequestOptionsResolver

@@ -12,6 +12,7 @@ use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Stopwatch\Stopwatch;
 use Themes\AbstractApiTheme\Controllers\NodesSourcesListingApiController;
 use Themes\AbstractApiTheme\Controllers\NodesSourcesSearchApiController;
+use Themes\AbstractApiTheme\Controllers\NodeTypeArchivesApiController;
 use Themes\AbstractApiTheme\Controllers\NodeTypeListingApiController;
 use Themes\AbstractApiTheme\Controllers\NodeTypeSingleApiController;
 use Themes\AbstractApiTheme\Controllers\NodeTypeTagsApiController;
@@ -76,6 +77,10 @@ class ApiRouteCollection extends DeferredRouteCollection
      * @var class-string
      */
     private string $nodesSourcesSearchApiControllerClass;
+    /**
+     * @var class-string
+     */
+    private string $nodeTypeArchivesControllerClass;
 
     /**
      * @param NodeTypes $nodeTypesBag
@@ -91,6 +96,7 @@ class ApiRouteCollection extends DeferredRouteCollection
      * @param class-string $nodeTypeTagsControllerClass
      * @param class-string $nodesSourcesListingApiControllerClass
      * @param class-string $nodesSourcesSearchApiControllerClass
+     * @param class-string $nodeTypeArchivesControllerClass
      */
     final public function __construct(
         NodeTypes $nodeTypesBag,
@@ -105,7 +111,8 @@ class ApiRouteCollection extends DeferredRouteCollection
         $userControllerClass = UserApiController::class,
         $nodeTypeTagsControllerClass = NodeTypeTagsApiController::class,
         $nodesSourcesListingApiControllerClass = NodesSourcesListingApiController::class,
-        $nodesSourcesSearchApiControllerClass = NodesSourcesSearchApiController::class
+        $nodesSourcesSearchApiControllerClass = NodesSourcesSearchApiController::class,
+        $nodeTypeArchivesControllerClass = NodeTypeArchivesApiController::class
     ) {
         $this->stopwatch = $stopwatch;
         $this->settingsBag = $settingsBag;
@@ -122,6 +129,7 @@ class ApiRouteCollection extends DeferredRouteCollection
         $this->nodeTypeTagsControllerClass = $nodeTypeTagsControllerClass;
         $this->nodesSourcesListingApiControllerClass = $nodesSourcesListingApiControllerClass;
         $this->nodesSourcesSearchApiControllerClass = $nodesSourcesSearchApiControllerClass;
+        $this->nodeTypeArchivesControllerClass = $nodeTypeArchivesControllerClass;
     }
 
     public function parseResources(): void
@@ -252,6 +260,23 @@ class ApiRouteCollection extends DeferredRouteCollection
                 $this->routePrefix . '/' . mb_strtolower($nodeType->getName()) . '/tags',
                 [
                     '_controller' => $this->nodeTypeTagsControllerClass . '::defaultAction',
+                    '_format' => 'json',
+                    'nodeTypeId' => $nodeType->getId()
+                ],
+                [],
+                [],
+                '',
+                [],
+                ['GET'],
+                ''
+            )
+        );
+        $collection->add(
+            'get_archives_'.mb_strtolower($nodeType->getName()),
+            new Route(
+                $this->routePrefix . '/' . mb_strtolower($nodeType->getName()) . '/archives',
+                [
+                    '_controller' => $this->nodeTypeArchivesControllerClass . '::defaultAction',
                     '_format' => 'json',
                     'nodeTypeId' => $nodeType->getId()
                 ],

@@ -32,6 +32,7 @@ use Symfony\Component\Security\Http\FirewallMap;
 use Symfony\Component\Translation\Translator;
 use Themes\AbstractApiTheme\Controllers\NodesSourcesListingApiController;
 use Themes\AbstractApiTheme\Controllers\NodesSourcesSearchApiController;
+use Themes\AbstractApiTheme\Controllers\NodeTypeArchivesApiController;
 use Themes\AbstractApiTheme\Controllers\NodeTypeListingApiController;
 use Themes\AbstractApiTheme\Controllers\NodeTypeSingleApiController;
 use Themes\AbstractApiTheme\Controllers\NodeTypeTagsApiController;
@@ -178,6 +179,10 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
          * @return class-string
          */
         $container['api.node_type_listing_controller_class'] = NodeTypeListingApiController::class;
+        /**
+         * @return class-string
+         */
+        $container['api.node_type_archives_controller_class'] = NodeTypeArchivesApiController::class;
         /**
          * @return class-string
          */
@@ -374,7 +379,8 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
                 $c['api.user_controller_class'],
                 $c['api.node_type_tags_controller_class'],
                 $c['api.nodes_sources_listing_controller_class'],
-                $c['api.nodes_sources_search_controller_class']
+                $c['api.nodes_sources_search_controller_class'],
+                $c['api.node_type_archives_controller_class']
             );
         };
 
