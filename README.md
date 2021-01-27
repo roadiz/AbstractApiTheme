@@ -398,6 +398,22 @@ On `Tag` content:
 - parent: `int` or `string` (tag-name)
 - visible: `bool`
 
+### Listing archives per node-types
+
+- `/api/1.0/{node-type-name}/archives`: Fetch all publication months used in nodes-sources from a given type.
+
+If you created a `Event` node-type, you may want to list any archives from *events*, API will be available at 
+`/api/1.0/event/archives` endpoint.
+
+#### Filters
+
+- itemsPerPage: `int`
+- page: `int`
+- _locale: `string`
+- tags: `array<string>`
+- tagExclusive: `bool`
+- node.parent: `int` or `string` (node-name)
+
 ### Getting node-source details
 
 - `/api/1.0/{node-type-name}/{id}/{_locale}`: fetch a node-source with its node' ID and translation `locale`. This is the default route used to generate your content JSON-LD `@id` field.
