@@ -142,12 +142,12 @@ class NodeTypeArchivesApiController extends AbstractNodeTypeApiController
             $qb->andWhere($qb->expr()->eq('n.status', Node::PUBLISHED));
         }
 
-        if (null !== $criteria['node.parent']) {
+        if (array_key_exists('node.parent', $criteria) && null !== $criteria['node.parent']) {
             $qb->andWhere($qb->expr()->eq('n.parent', ':parentNode'))
                 ->setParameter(':parentNode', $criteria['node.parent']);
         }
-        if (null !== $criteria['tags']) {
-            if ($criteria['tagExclusive'] === true) {
+        if (array_key_exists('tags', $criteria) && null !== $criteria['tags']) {
+            if (array_key_exists('tagExclusive', $criteria) && $criteria['tagExclusive'] === true) {
                 /**
                  * @var int $index
                  * @var Tag|null $tag Tag can be null if not found
