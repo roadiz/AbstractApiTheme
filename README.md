@@ -428,8 +428,6 @@ If you created a `Event` node-type, you may want to list any archives from *even
 
 #### Filters
 
-- itemsPerPage: `int`
-- page: `int`
 - _locale: `string`
 - tags: `array<string>`
 - tagExclusive: `bool`
