@@ -15,6 +15,7 @@ use RZ\Roadiz\Preview\PreviewResolverInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Themes\AbstractApiTheme\ListManagers\ArchiveQueryBuilderListManager;
 use Themes\AbstractApiTheme\OptionsResolver\ApiRequestOptionsResolver;
 
 class NodeTypeArchivesApiController extends AbstractNodeTypeApiController
@@ -71,9 +72,10 @@ class NodeTypeArchivesApiController extends AbstractNodeTypeApiController
             $this->getTranslation(),
             $criteria
         );
-        $entityListManager = new QueryBuilderListManager(
+        $entityListManager = new ArchiveQueryBuilderListManager(
             $request,
             $queryBuilder,
+            $this->getPublicationField(),
             'p',
             $this->get('kernel')->isDebug()
         );

@@ -403,7 +403,28 @@ On `Tag` content:
 - `/api/1.0/{node-type-name}/archives`: Fetch all publication months used in nodes-sources from a given type.
 
 If you created a `Event` node-type, you may want to list any archives from *events*, API will be available at 
-`/api/1.0/event/archives` endpoint.
+`/api/1.0/event/archives` endpoint. Here is a response example which list all archives grouped by year:
+
+```json
+{
+    "hydra:member": {
+        "2021": {
+            "2021-01": "2021-01-01T00:00:00+01:00"
+        },
+        "2020": {
+            "2020-12": "2020-12-01T00:00:00+01:00",
+            "2020-10": "2020-10-01T00:00:00+02:00",
+            "2020-07": "2020-07-01T00:00:00+02:00"
+        }
+    },
+    "@id": "/api/1.0/event/archives",
+    "@type": "hydra:Collection",
+    "hydra:view": {
+        "@id": "/api/1.0/event/archives",
+        "@type": "hydra:PartialCollectionView"
+    }
+}
+```
 
 #### Filters
 
