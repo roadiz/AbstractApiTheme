@@ -34,10 +34,14 @@ final class ArchiveQueryBuilderListManager extends QueryBuilderListManager
         if (null === $this->paginator) {
             $this->paginator = new Paginator($this->queryBuilder, false);
             $this->paginator->setUseOutputWalkers(false);
+            /*
+             * disable pagination to get all archives
+             */
+            $this->paginator->getQuery()->setMaxResults(null);
+            $this->paginator->getQuery()->setFirstResult(null);
+            $this->setItemPerPage(9999999);
 
-            $datetimes = $this->paginator->getIterator()->getArrayCopy();
-
-            foreach ($datetimes as $datetime) {
+            foreach ($this->paginator as $datetime) {
                 $year = $datetime[$this->dateField]->format('Y');
                 $month = $datetime[$this->dateField]->format('Y-m');
 
