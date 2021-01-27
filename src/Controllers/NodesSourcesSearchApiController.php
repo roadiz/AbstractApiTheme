@@ -137,7 +137,7 @@ class NodesSourcesSearchApiController extends AbstractNodeTypeApiController
      */
     protected function getSearchHandler(): SearchHandlerInterface
     {
-        /** @var NodeSourceSearchHandlerInterface $searchHandler */
+        /** @var NodeSourceSearchHandlerInterface|null $searchHandler */
         $searchHandler = $this->get(NodeSourceSearchHandlerInterface::class);
         if (null === $searchHandler) {
             throw new HttpException(Response::HTTP_SERVICE_UNAVAILABLE, 'Search engine does not respond.');

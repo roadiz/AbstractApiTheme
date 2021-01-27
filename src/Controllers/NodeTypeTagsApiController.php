@@ -128,7 +128,7 @@ class NodeTypeTagsApiController extends AbstractNodeTypeApiController
      */
     protected function getAvailableTags(
         ?NodeType $nodeType,
-        Translation $translation,
+        ?Translation $translation,
         Tag $parentTag = null
     ): QueryBuilder {
         /**
@@ -141,9 +141,12 @@ class NodeTypeTagsApiController extends AbstractNodeTypeApiController
         $qb->select('t, tt')
             ->leftJoin('t.translatedTags', 'tt')
             ->innerJoin('t.nodes', 'n')
-            ->andWhere($qb->expr()->eq('t.visible', true))
-            ->andWhere($qb->expr()->eq('tt.translation', ':translation'))
-            ->setParameter(':translation', $translation);
+            ->andWhere($qb->expr()->eq('t.visible', true));
+
+        if (null !== $translation) {
+            $qb->andWhere($qb->expr()->eq('tt.translation', ':translation'))
+                ->setParameter(':translation', $translation);
+        }
 
         if (null !== $nodeType) {
             $qb->andWhere($qb->expr()->eq('n.nodeType', ':nodeType'))

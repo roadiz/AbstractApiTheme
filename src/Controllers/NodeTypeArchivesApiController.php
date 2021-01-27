@@ -6,6 +6,7 @@ namespace Themes\AbstractApiTheme\Controllers;
 use Doctrine\ORM\QueryBuilder;
 use JMS\Serializer\SerializerInterface;
 use RZ\Roadiz\Core\Entities\Node;
+use RZ\Roadiz\Core\Entities\NodesSources;
 use RZ\Roadiz\Core\Entities\NodeType;
 use RZ\Roadiz\Core\Entities\Tag;
 use RZ\Roadiz\Core\Entities\Translation;
@@ -99,32 +100,37 @@ class NodeTypeArchivesApiController extends AbstractNodeTypeApiController
 
     /**
      * @param NodeType|null $nodeType
-     * @param Translation $translation
+     * @param Translation|null $translation
      * @param array $criteria
      * @return QueryBuilder
      */
     protected function getAvailableArchives(
         ?NodeType $nodeType,
-        Translation $translation,
+        ?Translation $translation,
         array &$criteria
     ): QueryBuilder {
-        $qb = $this->get('em')
-            ->getRepository($nodeType->getSourceEntityFullQualifiedClassName())
-            ->createQueryBuilder('p');
+        if (null !== $nodeType) {
+            $qb = $this->get('em')
+                ->getRepository($nodeType->getSourceEntityFullQualifiedClassName())
+                ->createQueryBuilder('p');
+        } else {
+            $qb = $this->get('em')
+                ->getRepository(NodesSources::class)
+                ->createQueryBuilder('p');
+        }
         $publicationField = 'p.' . $this->getPublicationField();
 
         $qb->select($publicationField)
             ->innerJoin('p.node', 'n')
-            ->andWhere($qb->expr()->eq('p.translation', ':translation'))
             ->andWhere($qb->expr()->lte($publicationField, ':datetime'))
             ->addGroupBy($publicationField)
             ->orderBy($publicationField, 'DESC')
-            ->setParameters(
-                [
-                    'translation' => $translation,
-                    'datetime' => new \Datetime('now'),
-                ]
-            );
+            ->setParameter(':datetime', new \Datetime('now'));
+
+        if (null !== $translation) {
+            $qb->andWhere($qb->expr()->eq('p.translation', ':translation'))
+                ->setParameter(':translation', $translation);
+        }
         /*
          * Enforce post nodes status not to display Archives which are linked to draft posts.
          */
@@ -180,7 +186,7 @@ class NodeTypeArchivesApiController extends AbstractNodeTypeApiController
         // $this->denyAccessUnlessScopeGranted(['tags']);
     }
 
-    protected function getPublicationField()
+    protected function getPublicationField(): string
     {
         return 'publishedAt';
     }
