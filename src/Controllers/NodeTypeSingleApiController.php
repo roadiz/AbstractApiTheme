@@ -4,10 +4,10 @@ declare(strict_types=1);
 namespace Themes\AbstractApiTheme\Controllers;
 
 use JMS\Serializer\SerializerInterface;
+use RZ\Roadiz\Contracts\NodeType\NodeTypeInterface;
 use RZ\Roadiz\Core\Entities\Node;
 use RZ\Roadiz\Core\Entities\NodesSources;
 use RZ\Roadiz\Core\Entities\NodeType;
-use RZ\Roadiz\Core\Entities\Translation;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -78,7 +78,7 @@ class NodeTypeSingleApiController extends AbstractNodeTypeApiController
      */
     public function bySlugAction(Request $request, int $nodeTypeId, string $slug): Response
     {
-        /** @var NodeType|null $nodeType */
+        /** @var NodeTypeInterface|null $nodeType */
         $nodeType = $this->get('em')->find(NodeType::class, $nodeTypeId);
         /** @var ApiRequestOptionsResolver $apiOptionsResolver */
         $apiOptionsResolver = $this->get(ApiRequestOptionsResolver::class);
@@ -88,7 +88,6 @@ class NodeTypeSingleApiController extends AbstractNodeTypeApiController
             throw $this->createNotFoundException();
         }
         $this->denyAccessUnlessNodeTypeGranted($nodeType);
-
         $this->getTranslationOrNotFound($options['_locale']);
 
         /*
@@ -165,10 +164,10 @@ class NodeTypeSingleApiController extends AbstractNodeTypeApiController
     }
 
     /**
-     * @param NodeType $nodeType
+     * @param NodeTypeInterface $nodeType
      * @return void
      */
-    protected function denyAccessUnlessNodeTypeGranted(NodeType $nodeType): void
+    protected function denyAccessUnlessNodeTypeGranted(NodeTypeInterface $nodeType): void
     {
         // TODO: implement your own access-control logic for each node-type.
         // $this->denyAccessUnlessScopeGranted([strtolower($nodeType->getName())]);

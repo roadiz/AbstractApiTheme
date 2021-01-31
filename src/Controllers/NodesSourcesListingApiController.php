@@ -4,8 +4,8 @@ declare(strict_types=1);
 namespace Themes\AbstractApiTheme\Controllers;
 
 use JMS\Serializer\SerializerInterface;
+use RZ\Roadiz\Contracts\NodeType\NodeTypeInterface;
 use RZ\Roadiz\Core\Entities\NodesSources;
-use RZ\Roadiz\Core\Entities\NodeType;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -28,12 +28,12 @@ class NodesSourcesListingApiController extends AbstractNodeTypeApiController
 
     protected function getListingType(array $options): string
     {
-        if ($options['node.nodeType'] instanceof NodeType) {
+        if ($options['node.nodeType'] instanceof NodeTypeInterface) {
             return $options['node.nodeType']->getSourceEntityFullQualifiedClassName();
         }
         if (is_array($options['node.nodeType']) &&
             count($options['node.nodeType']) === 1 &&
-            $options['node.nodeType'][0] instanceof NodeType) {
+            $options['node.nodeType'][0] instanceof NodeTypeInterface) {
             return $options['node.nodeType'][0]->getSourceEntityFullQualifiedClassName();
         }
         return NodesSources::class;
@@ -72,14 +72,14 @@ class NodesSourcesListingApiController extends AbstractNodeTypeApiController
 
     /**
      * @param Request $request
-     * @param NodeType|null $nodeType
+     * @param NodeTypeInterface|null $nodeType
      * @param array $criteria
      * @param array $options
      * @return Response
      */
     protected function getEntityListManagerResponse(
         Request $request,
-        ?NodeType $nodeType,
+        ?NodeTypeInterface $nodeType,
         array &$criteria,
         array &$options
     ): Response {
@@ -121,10 +121,10 @@ class NodesSourcesListingApiController extends AbstractNodeTypeApiController
     }
 
     /**
-     * @param NodeType $nodeType
+     * @param NodeTypeInterface $nodeType
      * @return void
      */
-    protected function denyAccessUnlessNodeTypeGranted(NodeType $nodeType): void
+    protected function denyAccessUnlessNodeTypeGranted(NodeTypeInterface $nodeType): void
     {
         // TODO: implement your own access-control logic for each node-type.
         // $this->denyAccessUnlessScopeGranted([strtolower($nodeType->getName())]);

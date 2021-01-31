@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace Themes\AbstractApiTheme\Controllers;
 
 use JMS\Serializer\SerializerInterface;
-use RZ\Roadiz\Core\Entities\NodeType;
+use RZ\Roadiz\Contracts\NodeType\NodeTypeInterface;
 use RZ\Roadiz\Core\SearchEngine\NodeSourceSearchHandlerInterface;
 use RZ\Roadiz\Core\SearchEngine\SearchHandlerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -30,7 +30,7 @@ class NodesSourcesSearchApiController extends AbstractNodeTypeApiController
         ];
     }
 
-    protected function denyAccessUnlessNodeTypeGranted(NodeType $nodeType): void
+    protected function denyAccessUnlessNodeTypeGranted(NodeTypeInterface $nodeType): void
     {
         // Override denyAccessUnlessNodeTypeGranted() in your custom controller.
     }
@@ -83,18 +83,17 @@ class NodesSourcesSearchApiController extends AbstractNodeTypeApiController
 
     /**
      * @param Request $request
-     * @param NodeType|null $nodeType
+     * @param NodeTypeInterface|null $nodeType
      * @param array $criteria
      * @param array $options
      * @return Response
      */
     protected function getEntityListManagerResponse(
         Request $request,
-        ?NodeType $nodeType,
+        ?NodeTypeInterface $nodeType,
         array &$criteria,
         array &$options
     ): Response {
-
         $entityListManager = new SolrSearchListManager(
             $request,
             $this->getSearchHandler(),

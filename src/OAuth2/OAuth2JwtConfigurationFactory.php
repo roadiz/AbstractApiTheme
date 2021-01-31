@@ -8,7 +8,7 @@ use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Signer\Key\LocalFileReference;
 use Lcobucci\JWT\Signer\Rsa\Sha256;
 use Lcobucci\JWT\Validation\Constraint;
-use Lcobucci\JWT\Validation\Constraint\ValidAt;
+use Lcobucci\JWT\Validation\Constraint\LooseValidAt;
 use RZ\Roadiz\JWT\JwtConfigurationFactory;
 
 final class OAuth2JwtConfigurationFactory implements JwtConfigurationFactory
@@ -47,7 +47,7 @@ final class OAuth2JwtConfigurationFactory implements JwtConfigurationFactory
         );
 
         $configuration->setValidationConstraints(...[
-            new ValidAt(SystemClock::fromSystemTimezone()),
+            new LooseValidAt(SystemClock::fromSystemTimezone()),
             new Constraint\SignedWith($configuration->signer(), $configuration->signingKey())
         ]);
         return $configuration;

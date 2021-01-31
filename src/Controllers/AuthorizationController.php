@@ -32,12 +32,10 @@ class AuthorizationController extends AbstractApiThemeApp
         $psrFactory = $this->get(HttpMessageFactoryInterface::class);
         $httpFoundationFactory = new HttpFoundationFactory();
 
-        $response = $httpFoundationFactory->createResponse($this->psrDefaultAction(
+        return $httpFoundationFactory->createResponse($this->psrDefaultAction(
             $psrFactory->createRequest($request),
             $psrFactory->createResponse(new Response())
         ));
-
-        return $this->makeResponseCachable($request, $response, $this->get('api.cache.ttl'));
     }
 
     /**

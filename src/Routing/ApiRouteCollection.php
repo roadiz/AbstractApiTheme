@@ -3,9 +3,9 @@ declare(strict_types=1);
 
 namespace Themes\AbstractApiTheme\Routing;
 
+use RZ\Roadiz\Contracts\NodeType\NodeTypeInterface;
 use RZ\Roadiz\Core\Bags\NodeTypes;
 use RZ\Roadiz\Core\Bags\Settings;
-use RZ\Roadiz\Core\Entities\NodeType;
 use RZ\Roadiz\Core\Routing\DeferredRouteCollection;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
@@ -209,14 +209,14 @@ class ApiRouteCollection extends DeferredRouteCollection
 
         try {
             if (null === $this->nodeTypeWhitelist) {
-                /** @var NodeType[] $nodeTypes */
+                /** @var NodeTypeInterface[] $nodeTypes */
                 $nodeTypes = $this->nodeTypesBag->all();
                 foreach ($nodeTypes as $nodeType) {
                     $this->addCollection($this->getCollectionForNodeType($nodeType));
                 }
             } else {
                 foreach ($this->nodeTypeWhitelist as $nodeTypeName) {
-                    /** @var NodeType|null $nodeType */
+                    /** @var NodeTypeInterface|null $nodeType */
                     $nodeType = $this->nodeTypesBag->get($nodeTypeName);
                     if (null !== $nodeType) {
                         $this->addCollection($this->getCollectionForNodeType($nodeType));
@@ -234,8 +234,11 @@ class ApiRouteCollection extends DeferredRouteCollection
         }
     }
 
-    private function getCollectionForNodeType(NodeType $nodeType): RouteCollection
+    private function getCollectionForNodeType(NodeTypeInterface $nodeType): RouteCollection
     {
+        if (!method_exists($nodeType, 'getId')) {
+            throw new \InvalidArgumentException('Node-type must implement getId method.');
+        }
         $collection = new RouteCollection();
         $collection->add(
             'get_listing_'.mb_strtolower($nodeType->getName()),

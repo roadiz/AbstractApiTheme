@@ -33,8 +33,6 @@ class ApplicationExtractor implements ApplicationExtractorInterface, Application
     protected $applicationClass;
 
     /**
-     * ApplicationExtractor constructor.
-     *
      * @param Container $container
      * @param string    $applicationClass
      */

@@ -4,25 +4,25 @@ declare(strict_types=1);
 namespace Themes\AbstractApiTheme\Controllers;
 
 use JMS\Serializer\SerializationContext;
+use RZ\Roadiz\Contracts\NodeType\NodeTypeInterface;
 use RZ\Roadiz\Core\Entities\NodeType;
 use RZ\Roadiz\Core\Entities\Translation;
 use Themes\AbstractApiTheme\AbstractApiThemeApp;
-use Themes\AbstractApiTheme\Cache\CacheTagsCollection;
 use Themes\AbstractApiTheme\Serialization\SerializationContextFactoryInterface;
 
 abstract class AbstractNodeTypeApiController extends AbstractApiThemeApp
 {
     abstract protected function getSerializationGroups(): array;
 
-    abstract protected function denyAccessUnlessNodeTypeGranted(NodeType $nodeType): void;
+    abstract protected function denyAccessUnlessNodeTypeGranted(NodeTypeInterface $nodeType): void;
 
     /**
      * @param int $nodeTypeId
-     * @return NodeType
+     * @return NodeTypeInterface
      */
-    protected function getNodeTypeOrDeny(int $nodeTypeId): NodeType
+    protected function getNodeTypeOrDeny(int $nodeTypeId): NodeTypeInterface
     {
-        /** @var NodeType|null $nodeType */
+        /** @var NodeTypeInterface|null $nodeType */
         $nodeType = $this->get('em')->find(NodeType::class, $nodeTypeId);
         if (null === $nodeType) {
             throw $this->createNotFoundException();

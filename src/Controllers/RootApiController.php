@@ -19,7 +19,13 @@ class RootApiController extends AbstractApiThemeApp
      */
     public function getRootAction(Request $request)
     {
-        $response = new RoutesResponse($request->getBaseUrl(), $this->get('api.route_collection'), '', $request->getHost(), $request->getScheme());
+        $response = new RoutesResponse(
+            $request->getBaseUrl(),
+            $this->get('api.route_collection'),
+            '',
+            $request->getHost(),
+            $request->getScheme()
+        );
 
         $finalResponse = [];
         $finalRoutes = [];

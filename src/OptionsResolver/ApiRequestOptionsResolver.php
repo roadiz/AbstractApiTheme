@@ -6,6 +6,7 @@ namespace Themes\AbstractApiTheme\OptionsResolver;
 use Doctrine\ORM\EntityManagerInterface;
 use RZ\Roadiz\CMS\Utils\NodeApi;
 use RZ\Roadiz\CMS\Utils\TagApi;
+use RZ\Roadiz\Contracts\NodeType\NodeTypeInterface;
 use RZ\Roadiz\Core\Entities\NodesSources;
 use RZ\Roadiz\Core\Entities\NodeType;
 use RZ\Roadiz\Core\Entities\NodeTypeField;
@@ -43,13 +44,13 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
     }
 
     /**
-     * @param array         $params
-     * @param NodeType|null $nodeType
+     * @param array $params
+     * @param NodeTypeInterface|null $nodeType
      *
      * @return array
      * @throws \Exception
      */
-    public function resolve(array $params, ?NodeType $nodeType): array
+    public function resolve(array $params, ?NodeTypeInterface $nodeType): array
     {
         return $this->resolveOptions($this->normalizeQueryParams($params), $nodeType);
     }
@@ -74,12 +75,12 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
 
     /**
      * @param array         $options
-     * @param NodeType|null $nodeType
+     * @param NodeTypeInterface|null $nodeType
      *
      * @return array
      * @throws \Exception
      */
-    protected function resolveOptions(array $options, ?NodeType $nodeType): array
+    protected function resolveOptions(array $options, ?NodeTypeInterface $nodeType): array
     {
         $resolver = new OptionsResolver();
         $resolver->setDefaults(array_merge($this->getMetaOptions(), [
@@ -288,7 +289,7 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
 
     /**
      * @param int|string|array<int|string> $nodeTypes
-     * @return NodeType|array<NodeType>|null
+     * @return NodeTypeInterface|array<NodeTypeInterface>|null
      */
     protected function normalizeNodeTypes($nodeTypes)
     {
@@ -301,9 +302,9 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
 
     /**
      * @param int|string $nodeType
-     * @return NodeType|null
+     * @return NodeTypeInterface|null
      */
-    protected function normalizeSingleNodeType($nodeType)
+    protected function normalizeSingleNodeType($nodeType): ?NodeTypeInterface
     {
         if (is_integer($nodeType)) {
             return $this->entityManager->find(NodeType::class, (int) $nodeType);
