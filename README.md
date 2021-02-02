@@ -297,7 +297,9 @@ Serialization context will automatically add `@id`, `@type`, `slug` and `url` fi
 }
 ```
 
-Note: In listing context, only node-type-fields from *default* group will be exposed.
+**Note:** In listing context, only node-type-fields from *default* group will be exposed. If you want 
+to prevent some node-type fields to be serialized during listing you can give them a *Group name*. This
+can be helpful for avoiding *document* or *node reference* fields to bloat your JSON responses.
 
 #### Filters
 
@@ -324,6 +326,7 @@ On `NodesSources` content:
 - tagExclusive: `bool`
 - node.parent: `int` or `string` (node-name)
 - node.visible: `bool`
+- node.home: `bool`
 - node.nodeType: `array|string` Filter nodes-sources by their type
 - node.nodeType.reachable: `bool`
 

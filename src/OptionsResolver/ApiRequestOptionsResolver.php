@@ -93,6 +93,7 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
             'node.visible' => null,
             'node.nodeType.reachable' => null,
             'node.nodeType' => null,
+            'node.home' => null,
             'path' => null
         ]));
         $resolver->setAllowedTypes('search', ['string', 'null']);
@@ -105,6 +106,7 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
         $resolver->setAllowedTypes('node.nodeType.reachable', ['boolean', 'string', 'int', 'null']);
         $resolver->setAllowedTypes('node.nodeType', ['array', NodeType::class, 'string', 'int', 'null']);
         $resolver->setAllowedTypes('node.visible', ['boolean', 'string', 'int', 'null']);
+        $resolver->setAllowedTypes('node.home', ['boolean', 'string', 'int', 'null']);
         $resolver->setAllowedTypes('path', ['string', 'null']);
         $resolver->setAllowedTypes('id', ['int', NodesSources::class, 'null']);
 
@@ -132,6 +134,13 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
         });
 
         $resolver->setNormalizer('node.visible', function (Options $options, $value) {
+            if (null !== $value) {
+                return $this->normalizeBoolean($value);
+            }
+            return null;
+        });
+
+        $resolver->setNormalizer('node.home', function (Options $options, $value) {
             if (null !== $value) {
                 return $this->normalizeBoolean($value);
             }
@@ -332,6 +341,10 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
                 case 'node_visible':
                     $options['node.visible'] = $this->normalizeBoolean($value);
                     unset($options['node_visible']);
+                    break;
+                case 'node_home':
+                    $options['node.home'] = $this->normalizeBoolean($value);
+                    unset($options['node_home']);
                     break;
                 case 'node_nodeType_reachable':
                     $options['node.nodeType.reachable'] = $this->normalizeBoolean($value);
