@@ -7,6 +7,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use RZ\Roadiz\CMS\Utils\NodeApi;
 use RZ\Roadiz\CMS\Utils\TagApi;
 use RZ\Roadiz\Contracts\NodeType\NodeTypeInterface;
+use RZ\Roadiz\Core\Entities\Node;
 use RZ\Roadiz\Core\Entities\NodesSources;
 use RZ\Roadiz\Core\Entities\NodeType;
 use RZ\Roadiz\Core\Entities\NodeTypeField;
@@ -90,6 +91,10 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
             'tags' => null,
             'tagExclusive' => false,
             'node.parent' => false,
+            'node.bNodes.nodeB' => false,
+            'node.aNodes.nodeA' => false,
+            'node.bNodes.field.name' => null,
+            'node.aNodes.field.name' => null,
             'node.visible' => null,
             'node.nodeType.reachable' => null,
             'node.nodeType' => null,
@@ -106,6 +111,11 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
         $resolver->setAllowedTypes('node.nodeType.reachable', ['boolean', 'string', 'int', 'null']);
         $resolver->setAllowedTypes('node.nodeType', ['array', NodeType::class, 'string', 'int', 'null']);
         $resolver->setAllowedTypes('node.visible', ['boolean', 'string', 'int', 'null']);
+        $resolver->setAllowedTypes('node.parent', ['boolean', 'string', Node::class, 'null']);
+        $resolver->setAllowedTypes('node.bNodes.nodeB', ['boolean', 'string', Node::class, 'null']);
+        $resolver->setAllowedTypes('node.aNodes.nodeA', ['boolean', 'string', Node::class, 'null']);
+        $resolver->setAllowedTypes('node.bNodes.field.name', ['string', 'null']);
+        $resolver->setAllowedTypes('node.aNodes.field.name', ['string', 'null']);
         $resolver->setAllowedTypes('node.home', ['boolean', 'string', 'int', 'null']);
         $resolver->setAllowedTypes('path', ['string', 'null']);
         $resolver->setAllowedTypes('id', ['int', NodesSources::class, 'null']);
@@ -165,6 +175,14 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
         });
 
         $resolver->setNormalizer('node.parent', function (Options $options, $value) {
+            return $this->normalizeNodeFilter($value);
+        });
+
+        $resolver->setNormalizer('node.bNodes.nodeB', function (Options $options, $value) {
+            return $this->normalizeNodeFilter($value);
+        });
+
+        $resolver->setNormalizer('node.aNodes.nodeA', function (Options $options, $value) {
             return $this->normalizeNodeFilter($value);
         });
 
@@ -337,6 +355,22 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
                 case 'node_parent':
                     $options['node.parent'] = $this->normalizeNodeFilter($value);
                     unset($options['node_parent']);
+                    break;
+                case 'node_bNodes_nodeB':
+                    $options['node.bNodes.nodeB'] = $this->normalizeNodeFilter($value);
+                    unset($options['node_bNodes_nodeB']);
+                    break;
+                case 'node_aNodes_nodeA':
+                    $options['node.aNodes.nodeA'] = $this->normalizeNodeFilter($value);
+                    unset($options['node_aNodes_nodeA']);
+                    break;
+                case 'node_bNodes_field_name':
+                    $options['node.bNodes.field.name'] = $value;
+                    unset($options['node_bNodes_field_name']);
+                    break;
+                case 'node_aNodes_field_name':
+                    $options['node.aNodes.field.name'] = $value;
+                    unset($options['node_aNodes_field_name']);
                     break;
                 case 'node_visible':
                     $options['node.visible'] = $this->normalizeBoolean($value);
