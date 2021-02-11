@@ -156,6 +156,8 @@ class NodeTypeSingleApiController extends AbstractNodeTypeApiController
             }
         }
 
+        $this->injectAlternateHrefLangLinks($request, $nodeSource);
+
         return $this->makeResponseCachable(
             $request,
             $response,

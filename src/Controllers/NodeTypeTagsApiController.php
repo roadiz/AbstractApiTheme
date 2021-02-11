@@ -116,6 +116,8 @@ class NodeTypeTagsApiController extends AbstractNodeTypeApiController
             }
         }
 
+        $this->injectAlternateHrefLangLinks($request, $nodeType);
+
         return $this->makeResponseCachable($request, $response, $this->get('api.cache.ttl'));
     }
 

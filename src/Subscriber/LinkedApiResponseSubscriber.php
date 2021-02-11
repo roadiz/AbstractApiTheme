@@ -9,6 +9,8 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 final class LinkedApiResponseSubscriber implements EventSubscriberInterface
 {
+    const LINKED_RESOURCES_ATTRIBUTE = 'linked_resources';
+
     /**
      * @inheritDoc
      */
@@ -29,10 +31,21 @@ final class LinkedApiResponseSubscriber implements EventSubscriberInterface
             return;
         }
 
-        // <http://headless.test/docs.jsonld>; rel="http://www.w3.org/ns/hydra/core#apiDocumentation"
-        $event->getResponse()->headers->set(
-            'Link',
-            'rel="http://www.w3.org/ns/hydra/core#apiDocumentation'
-        );
+        $links = [
+//            'rel="http://www.w3.org/ns/hydra/core#apiDocumentation"'
+        ];
+        if ($event->getRequest()->attributes->has(static::LINKED_RESOURCES_ATTRIBUTE)) {
+            $links = array_merge($links, $event->getRequest()->attributes->get(static::LINKED_RESOURCES_ATTRIBUTE));
+        }
+
+        $event->getRequest()->attributes->remove(static::LINKED_RESOURCES_ATTRIBUTE);
+
+        if (count($links) > 0) {
+            // <http://headless.test/docs.jsonld>; rel="http://www.w3.org/ns/hydra/core#apiDocumentation"
+            $event->getResponse()->headers->set(
+                'Link',
+                implode(', ', $links)
+            );
+        }
     }
 }
