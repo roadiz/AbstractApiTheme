@@ -79,9 +79,11 @@ abstract class AbstractNodeTypeApiController extends AbstractApiThemeApp
                             $request->attributes->get('_route'),
                             array_merge(
                                 $request->query->all(),
-                                $request->attributes->get('_route_params'), [
+                                $request->attributes->get('_route_params'),
+                                [
                                 '_locale' => $availableLocale
-                            ]),
+                                ]
+                            ),
                             UrlGeneratorInterface::ABSOLUTE_URL
                         )),
                         'rel="alternate"',

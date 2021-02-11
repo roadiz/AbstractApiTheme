@@ -185,7 +185,10 @@ class NodeTypeSingleApiController extends AbstractNodeTypeApiController
     {
         parent::injectAlternateHrefLangLinks($request, $resource);
 
-        if ($resource instanceof NodesSources && $resource->getNode()->getNodeType()->isReachable()) {
+        if ($resource instanceof NodesSources &&
+            null !== $resource->getNode() &&
+            null !== $resource->getNode()->getNodeType() &&
+            $resource->getNode()->getNodeType()->isReachable()) {
             $node = $resource->getNode();
             $this->get('em')->refresh($node);
             /** @var array<string> $links */
