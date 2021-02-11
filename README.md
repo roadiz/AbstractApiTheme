@@ -448,6 +448,22 @@ If you created a `Event` node-type, you may want to list any archives from *even
 
 For each node-source, API will expose detailed content on `/api/1.0/event/{id}` and `/api/1.0/event/by-slug/{slug}` endpoints.
 
+#### Alternate resources URLs
+
+Any node-source detail response will have a `Link` header carrying URLs for all alternate translations.
+For example a *legal* page which is translated in English and French will have this `Link` header data:
+
+```
+<https://api.mysite.test/api/1.0/page/23/en>; rel="alternate"; hreflang="en"; type="application/json", 
+<https://api.mysite.test/api/1.0/page/23/fr>; rel="alternate"; hreflang="fr"; type="application/json", 
+</mentions-legales>; rel="alternate"; hreflang="fr"; type="text/html", 
+</legal>; rel="alternate"; hreflang="en"; type="text/html"
+```
+
+*text/html* resources URL will always be **absolute paths** instead of absolute URL in order to generate your own
+URL in your front-end framework without carrying API scheme.
+
+
 ### Listing node-source children
 
 For safety reasons, we do not embed node-sources children automatically. We invite you to use [TreeWalker](https://github.com/rezozero/tree-walker) library to extend your JSON serialization to build a safe graph for each of your node-types.
