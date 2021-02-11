@@ -85,7 +85,8 @@ abstract class AbstractNodeTypeApiController extends AbstractApiThemeApp
                             UrlGeneratorInterface::ABSOLUTE_URL
                         )),
                         'rel="alternate"',
-                        'hreflang="'.$availableLocale.'"'
+                        'hreflang="'.$availableLocale.'"',
+                        'type="application/json"'
                     ];
                     $links[] = implode('; ', $linksParams);
                 }

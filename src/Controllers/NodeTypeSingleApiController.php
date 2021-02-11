@@ -8,11 +8,14 @@ use RZ\Roadiz\Contracts\NodeType\NodeTypeInterface;
 use RZ\Roadiz\Core\Entities\Node;
 use RZ\Roadiz\Core\Entities\NodesSources;
 use RZ\Roadiz\Core\Entities\NodeType;
+use Symfony\Cmf\Component\Routing\RouteObjectInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Themes\AbstractApiTheme\Cache\CacheTagsCollection;
 use Themes\AbstractApiTheme\OptionsResolver\ApiRequestOptionsResolver;
+use Themes\AbstractApiTheme\Subscriber\LinkedApiResponseSubscriber;
 
 class NodeTypeSingleApiController extends AbstractNodeTypeApiController
 {
@@ -173,5 +176,38 @@ class NodeTypeSingleApiController extends AbstractNodeTypeApiController
     {
         // TODO: implement your own access-control logic for each node-type.
         // $this->denyAccessUnlessScopeGranted([strtolower($nodeType->getName())]);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function injectAlternateHrefLangLinks(Request $request, $resource = null): void
+    {
+        parent::injectAlternateHrefLangLinks($request, $resource);
+
+        if ($resource instanceof NodesSources && $resource->getNode()->getNodeType()->isReachable()) {
+            $node = $resource->getNode();
+            $this->get('em')->refresh($node);
+            /** @var array<string> $links */
+            $links = $request->attributes->get(LinkedApiResponseSubscriber::LINKED_RESOURCES_ATTRIBUTE, []);
+            /** @var NodesSources $nodeSource */
+            foreach ($node->getNodeSources() as $nodeSource) {
+                $linksParams = [
+                    sprintf('<%s>', $this->generateUrl(
+                        RouteObjectInterface::OBJECT_BASED_ROUTE_NAME,
+                        [
+                            RouteObjectInterface::ROUTE_OBJECT => $nodeSource,
+                            '_format' => 'html'
+                        ],
+                        UrlGeneratorInterface::ABSOLUTE_PATH
+                    )),
+                    'rel="alternate"',
+                    'hreflang="'.$nodeSource->getTranslation()->getPreferredLocale().'"',
+                    'type="text/html"'
+                ];
+                $links[] = implode('; ', $linksParams);
+            }
+            $request->attributes->set(LinkedApiResponseSubscriber::LINKED_RESOURCES_ATTRIBUTE, $links);
+        }
     }
 }
