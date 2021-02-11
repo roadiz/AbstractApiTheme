@@ -90,6 +90,7 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
             'publishedAt' => null,
             'tags' => null,
             'tagExclusive' => false,
+            'node.nodeName' => null,
             'node.parent' => false,
             'node.bNodes.nodeB' => false,
             'node.aNodes.nodeA' => false,
@@ -101,6 +102,7 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
             'node.home' => null,
             'path' => null
         ]));
+        $resolver->setAllowedTypes('_locale', ['string']);
         $resolver->setAllowedTypes('search', ['string', 'null']);
         $resolver->setAllowedTypes('title', ['string', 'null']);
         $resolver->setAllowedTypes('api_key', ['string', 'null']);
@@ -112,6 +114,7 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
         $resolver->setAllowedTypes('node.nodeType', ['array', NodeType::class, 'string', 'int', 'null']);
         $resolver->setAllowedTypes('node.visible', ['boolean', 'string', 'int', 'null']);
         $resolver->setAllowedTypes('node.parent', ['boolean', 'string', Node::class, 'null']);
+        $resolver->setAllowedTypes('node.nodeName', ['string', 'null']);
         $resolver->setAllowedTypes('node.bNodes.nodeB', ['boolean', 'string', Node::class, 'null']);
         $resolver->setAllowedTypes('node.aNodes.nodeA', ['boolean', 'string', Node::class, 'null']);
         $resolver->setAllowedTypes('node.bNodes.field.name', ['string', 'null']);
@@ -301,17 +304,17 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
 
     /**
      * @param string $path
-     * @return int Returns nodes-sources ID or 0 if no NS found for path to filter all results.
+     * @return NodesSources|null Returns nodes-sources or null if no NS found for path to filter all results.
      */
-    protected function normalizeNodesSourcesPath(string $path): int
+    protected function normalizeNodesSourcesPath(string $path): ?NodesSources
     {
         $resourceInfo = $this->pathResolver->resolvePath($path, ['html', 'json']);
         $resource = $resourceInfo->getResource();
         if (null !== $resource && $resource instanceof NodesSources) {
-            return $resource->getId() ?? 0;
+            return $resource;
         }
         // TODO: normalize against Redirections too!
-        return 0;
+        return null;
     }
 
     /**
@@ -388,8 +391,16 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
                     $options['node.nodeType'] = $this->normalizeNodeTypes($value);
                     unset($options['node_nodeType']);
                     break;
+                case 'node_nodeName':
+                    $options['node.nodeName'] = trim($value);
+                    unset($options['node_nodeName']);
+                    break;
                 case 'path':
-                    $options['id'] = $this->normalizeNodesSourcesPath($value);
+                    $nodesSource = $this->normalizeNodesSourcesPath($value);
+                    if (null !== $nodesSource) {
+                        $options['id'] = $nodesSource->getId();
+                        $options['_locale'] = $nodesSource->getTranslation()->getPreferredLocale();
+                    }
                     unset($options['path']);
                     break;
             }
