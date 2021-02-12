@@ -64,6 +64,7 @@ use Themes\AbstractApiTheme\Serialization\ChildrenApiSubscriber;
 use Themes\AbstractApiTheme\Serialization\DocumentApiSubscriber;
 use Themes\AbstractApiTheme\Serialization\EntityListManagerSubscriber;
 use Themes\AbstractApiTheme\Serialization\NodeSourceApiSubscriber;
+use Themes\AbstractApiTheme\Serialization\NodeSourceUriSubscriber;
 use Themes\AbstractApiTheme\Serialization\SeoDataSubscriber;
 use Themes\AbstractApiTheme\Serialization\SerializationContextFactory;
 use Themes\AbstractApiTheme\Serialization\SerializationContextFactoryInterface;
@@ -414,6 +415,7 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
         });
 
         $container->extend('serializer.subscribers', function (array $subscribers, $c) {
+            $subscribers[] = new NodeSourceUriSubscriber($c['router']);
             $subscribers[] = new EntityListManagerSubscriber($c['requestStack']);
             $subscribers[] = new NodeSourceApiSubscriber($c['router'], $c['api.reference_type']);
             $subscribers[] = new TagApiSubscriber();
