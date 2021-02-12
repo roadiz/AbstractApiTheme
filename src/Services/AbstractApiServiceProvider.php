@@ -64,6 +64,7 @@ use Themes\AbstractApiTheme\Serialization\ChildrenApiSubscriber;
 use Themes\AbstractApiTheme\Serialization\DocumentApiSubscriber;
 use Themes\AbstractApiTheme\Serialization\EntityListManagerSubscriber;
 use Themes\AbstractApiTheme\Serialization\NodeSourceApiSubscriber;
+use Themes\AbstractApiTheme\Serialization\SeoDataSubscriber;
 use Themes\AbstractApiTheme\Serialization\SerializationContextFactory;
 use Themes\AbstractApiTheme\Serialization\SerializationContextFactoryInterface;
 use Themes\AbstractApiTheme\Serialization\TagApiSubscriber;
@@ -418,6 +419,10 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
             $subscribers[] = new TagApiSubscriber();
             $subscribers[] = new DocumentApiSubscriber($c['assetPackages']);
             $subscribers[] = new ChildrenApiSubscriber($c['em']);
+            $subscribers[] = new SeoDataSubscriber(
+                $c['settingsBag']->get('site_name', ''),
+                $c['settingsBag']->get('seo_description', $c['settingsBag']->get('site_name', ''))
+            );
             $subscribers[] = new TagTranslationNameSubscriber();
             $subscribers[] = new TokenSubscriber();
             return $subscribers;

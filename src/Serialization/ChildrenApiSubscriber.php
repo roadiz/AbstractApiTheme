@@ -18,8 +18,6 @@ final class ChildrenApiSubscriber implements EventSubscriberInterface
     private $entityManager;
 
     /**
-     * ChildrenApiSubscriber constructor.
-     *
      * @param EntityManagerInterface $entityManager
      */
     public function __construct(EntityManagerInterface $entityManager)
