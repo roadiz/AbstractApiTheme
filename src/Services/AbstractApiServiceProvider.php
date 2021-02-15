@@ -201,6 +201,10 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
          * @return class-string
          */
         $container['api.user_controller_class'] = UserApiController::class;
+        /**
+         * @return int
+         */
+        $container['api.node_source_uri_reference_type'] = UrlGeneratorInterface::ABSOLUTE_PATH;
 
         /**
          * @return int in minutes
@@ -415,7 +419,7 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
         });
 
         $container->extend('serializer.subscribers', function (array $subscribers, $c) {
-            $subscribers[] = new NodeSourceUriSubscriber($c['router']);
+            $subscribers[] = new NodeSourceUriSubscriber($c['router'], $c['api.node_source_uri_reference_type']);
             $subscribers[] = new EntityListManagerSubscriber($c['requestStack']);
             $subscribers[] = new NodeSourceApiSubscriber($c['router'], $c['api.reference_type']);
             $subscribers[] = new TagApiSubscriber();

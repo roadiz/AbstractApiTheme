@@ -17,14 +17,22 @@ final class NodeSourceUriSubscriber implements EventSubscriberInterface
     /**
      * @var UrlGeneratorInterface
      */
-    private $urlGenerator;
+    private UrlGeneratorInterface $urlGenerator;
+    /**
+     * @var int
+     */
+    private int $referenceType;
 
     /**
      * @param UrlGeneratorInterface $urlGenerator
+     * @param int $referenceType
      */
-    public function __construct(UrlGeneratorInterface $urlGenerator)
-    {
+    public function __construct(
+        UrlGeneratorInterface $urlGenerator,
+        int $referenceType = UrlGeneratorInterface::ABSOLUTE_PATH
+    ) {
         $this->urlGenerator = $urlGenerator;
+        $this->referenceType = $referenceType;
     }
 
     /**
@@ -60,7 +68,7 @@ final class NodeSourceUriSubscriber implements EventSubscriberInterface
                         [
                             RouteObjectInterface::ROUTE_OBJECT => $nodeSource
                         ],
-                        UrlGeneratorInterface::ABSOLUTE_PATH
+                        $this->referenceType
                     )
                 );
             }

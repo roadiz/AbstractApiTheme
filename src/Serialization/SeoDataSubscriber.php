@@ -59,7 +59,6 @@ final class SeoDataSubscriber implements EventSubscriberInterface
             null !== $nodeSource->getNode() &&
             null !== $nodeSource->getNode()->getNodeType() &&
             $nodeSource->getNode()->getNodeType()->isReachable()) {
-
             if ($nodeSource->getMetaTitle() === '') {
                 $visitor->visitProperty(
                     new StaticPropertyMetadata('string', 'metaTitle', []),
