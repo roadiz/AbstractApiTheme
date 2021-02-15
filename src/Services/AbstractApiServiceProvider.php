@@ -426,8 +426,8 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
             $subscribers[] = new DocumentApiSubscriber($c['assetPackages']);
             $subscribers[] = new ChildrenApiSubscriber($c['em']);
             $subscribers[] = new SeoDataSubscriber(
-                $c['settingsBag']->get('site_name', ''),
-                $c['settingsBag']->get('seo_description', $c['settingsBag']->get('site_name', ''))
+                $c['settingsBag']->get('site_name', '') ?? '',
+                $c['settingsBag']->get('seo_description', $c['settingsBag']->get('site_name', '') ?? '') ?? ''
             );
             $subscribers[] = new TagTranslationNameSubscriber();
             $subscribers[] = new TokenSubscriber();
