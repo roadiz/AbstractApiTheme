@@ -308,7 +308,7 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
      */
     protected function normalizeNodesSourcesPath(string $path): ?NodesSources
     {
-        $resourceInfo = $this->pathResolver->resolvePath($path, ['html', 'json']);
+        $resourceInfo = $this->pathResolver->resolvePath($path, ['html', 'json'], true);
         $resource = $resourceInfo->getResource();
         if (null !== $resource && $resource instanceof NodesSources) {
             return $resource;
