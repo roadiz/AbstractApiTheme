@@ -23,14 +23,7 @@ class ApplicationExtractor implements ApplicationExtractorInterface, Application
 {
     use ContainerAwareTrait;
 
-    /**
-     * @var Container
-     */
-    protected $container;
-    /**
-     * @var string
-     */
-    protected $applicationClass;
+    protected string $applicationClass;
 
     /**
      * @param Container $container
