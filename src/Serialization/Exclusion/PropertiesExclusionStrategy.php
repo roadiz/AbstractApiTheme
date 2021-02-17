@@ -24,6 +24,9 @@ final class PropertiesExclusionStrategy implements ExclusionStrategyInterface
      */
     public function shouldSkipClass(ClassMetadata $metadata, Context $context): bool
     {
+        if (empty($this->ignoredClasses)) {
+            return false;
+        }
         return in_array($metadata->name, $this->ignoredClasses);
     }
 
@@ -35,9 +38,7 @@ final class PropertiesExclusionStrategy implements ExclusionStrategyInterface
         if (empty($this->fields)) {
             return false;
         }
-
         $name = $property->serializedName ?: $property->name;
-
         return !in_array($name, $this->fields);
     }
 }
