@@ -400,6 +400,9 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
                     if (null !== $nodesSource) {
                         $options['id'] = $nodesSource->getId();
                         $options['_locale'] = $nodesSource->getTranslation()->getPreferredLocale();
+                    } else {
+                        // Force NO results if path is not resolved.
+                        $options['id'] = 0;
                     }
                     unset($options['path']);
                     break;
