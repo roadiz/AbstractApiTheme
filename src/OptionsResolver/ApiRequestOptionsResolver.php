@@ -71,6 +71,7 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
             'api_key' => null,
             'order' => null,
             'archive' => null,
+            'properties' => null,
         ];
     }
 
@@ -107,6 +108,7 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
         $resolver->setAllowedTypes('title', ['string', 'null']);
         $resolver->setAllowedTypes('api_key', ['string', 'null']);
         $resolver->setAllowedTypes('order', ['array', 'null']);
+        $resolver->setAllowedTypes('properties', ['array', 'null']);
         $resolver->setAllowedTypes('publishedAt', ['array', 'string', 'null']);
         $resolver->setAllowedTypes('tags', ['array', 'string', 'null']);
         $resolver->setAllowedTypes('tagExclusive', ['boolean', 'string', 'int']);

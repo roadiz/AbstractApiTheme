@@ -69,7 +69,7 @@ class NodeTypeSingleApiController extends AbstractNodeTypeApiController
             $criteria['publishedAt'] = ['<=', new \DateTime()];
         }
 
-        return $this->getNodesSourcesResponse($request, $criteria);
+        return $this->getNodesSourcesResponse($request, $criteria, $options);
     }
 
     /**
@@ -117,15 +117,16 @@ class NodeTypeSingleApiController extends AbstractNodeTypeApiController
             $criteria['publishedAt'] = ['<=', new \DateTime()];
         }
 
-        return $this->getNodesSourcesResponse($request, $criteria);
+        return $this->getNodesSourcesResponse($request, $criteria, $options);
     }
 
     /**
      * @param Request $request
      * @param array $criteria
+     * @param array $options
      * @return Response
      */
-    protected function getNodesSourcesResponse(Request $request, array &$criteria): Response
+    protected function getNodesSourcesResponse(Request $request, array &$criteria, array &$options = []): Response
     {
         /** @var NodesSources|null $nodeSource */
         $nodeSource = $this->get('nodeSourceApi')->getOneBy($criteria);
@@ -136,7 +137,7 @@ class NodeTypeSingleApiController extends AbstractNodeTypeApiController
 
         /** @var SerializerInterface $serializer */
         $serializer = $this->get('serializer');
-        $context = $this->getSerializationContext();
+        $context = $this->getSerializationContext($options);
         $response = new JsonResponse(
             $serializer->serialize(
                 $nodeSource,

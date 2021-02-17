@@ -94,7 +94,7 @@ class NodesSourcesListingApiController extends AbstractNodeTypeApiController
 
         /** @var SerializerInterface $serializer */
         $serializer = $this->get('serializer');
-        $context = $this->getSerializationContext();
+        $context = $this->getSerializationContext($options);
         $response = new JsonResponse(
             $serializer->serialize(
                 $entityListManager,

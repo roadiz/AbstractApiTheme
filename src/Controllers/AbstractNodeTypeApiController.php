@@ -10,6 +10,7 @@ use RZ\Roadiz\Core\Entities\Translation;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Themes\AbstractApiTheme\AbstractApiThemeApp;
+use Themes\AbstractApiTheme\Serialization\Exclusion\PropertiesExclusionStrategy;
 use Themes\AbstractApiTheme\Serialization\SerializationContextFactoryInterface;
 use Themes\AbstractApiTheme\Subscriber\LinkedApiResponseSubscriber;
 
@@ -50,7 +51,7 @@ abstract class AbstractNodeTypeApiController extends AbstractApiThemeApp
     /**
      * @return SerializationContext
      */
-    protected function getSerializationContext(): SerializationContext
+    protected function getSerializationContext(array &$options = []): SerializationContext
     {
         /** @var SerializationContext $context */
         $context = $this->get(SerializationContextFactoryInterface::class)->create()
@@ -58,6 +59,13 @@ abstract class AbstractNodeTypeApiController extends AbstractApiThemeApp
             ->setAttribute('translation', $this->getTranslation());
         if (count($this->getSerializationGroups()) > 0) {
             $context->setGroups($this->getSerializationGroups());
+        }
+
+        if (isset($options['properties']) && count($options['properties']) > 0) {
+            $context->addExclusionStrategy(new PropertiesExclusionStrategy(
+                $options['properties'],
+                $this->get('api.exclusion_strategy.skip_classes')
+            ));
         }
 
         return $context;
@@ -81,7 +89,7 @@ abstract class AbstractNodeTypeApiController extends AbstractApiThemeApp
                                 $request->query->all(),
                                 $request->attributes->get('_route_params'),
                                 [
-                                '_locale' => $availableLocale
+                                    '_locale' => $availableLocale
                                 ]
                             ),
                             UrlGeneratorInterface::ABSOLUTE_URL

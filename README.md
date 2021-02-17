@@ -310,6 +310,7 @@ can be helpful for avoiding *document* or *node reference* fields to bloat your 
 - order: `array` Example `order[publishedAt]: DESC` with values:
   - `ASC`
   - `DESC`
+- properties: `array` Filters serialized properties by their names    
 - archive: `string` Example `archive: 2019-02` or `archive: 2019`. This parameter only works on `publishedAt` field
 
 On `NodesSources` content:
@@ -381,6 +382,7 @@ If your search parameter is longer than 3 characters, each API result item will 
 - node.parent: `int` or `string` (node-name)
 - node.visible: `bool`
 - node.nodeType: `array|string` Filter nodes-sources search by their type
+- properties: `array` Filters serialized properties by their names
 
 ### Listing tags per node-types
 
@@ -398,6 +400,7 @@ If you created a `Event` node-type, you may want to list any `Tags` attached to 
 - order: `array` Example `order[position]: ASC` with values:
   - `ASC`
   - `DESC`
+- properties: `array` Filters serialized properties by their names    
 
 On `Tag` content:
 

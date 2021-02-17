@@ -165,6 +165,11 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
         $container['api.node_type_whitelist'] = null;
 
         /**
+         * @return array
+         */
+        $container['api.exclusion_strategy.skip_classes'] = [];
+
+        /**
          * @return bool
          */
         $container['api.use_cache_tags'] = true;
