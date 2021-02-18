@@ -122,7 +122,7 @@ class NodeTypeSingleApiController extends AbstractNodeTypeApiController
         return $this->getNodesSourcesResponse($request, $criteria, $options);
     }
 
-    public function byPathAction(Request $request)
+    public function byPathAction(Request $request): Response
     {
         /** @var ApiRequestOptionsResolver $apiOptionsResolver */
         $apiOptionsResolver = $this->get(ApiRequestOptionsResolver::class);
