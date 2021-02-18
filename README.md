@@ -451,6 +451,14 @@ If you created a `Event` node-type, you may want to list any archives from *even
 
 For each node-source, API will expose detailed content on `/api/1.0/event/{id}` and `/api/1.0/event/by-slug/{slug}` endpoints.
 
+### Getting node-source details directly from its `path`
+
+- `/api/1.0/nodes-sources/by-path/?path={path}`: fetch one node-source details against its `path` (including homepages root paths)
+
+#### Filters
+
+- properties: `array` Filters serialized properties by their names
+
 #### Alternate resources URLs
 
 Any node-source detail response will have a `Link` header carrying URLs for all alternate translations.

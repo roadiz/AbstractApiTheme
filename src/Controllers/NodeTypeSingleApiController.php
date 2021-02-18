@@ -12,6 +12,8 @@ use Symfony\Cmf\Component\Routing\RouteObjectInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Themes\AbstractApiTheme\Cache\CacheTagsCollection;
 use Themes\AbstractApiTheme\OptionsResolver\ApiRequestOptionsResolver;
@@ -120,6 +122,25 @@ class NodeTypeSingleApiController extends AbstractNodeTypeApiController
         return $this->getNodesSourcesResponse($request, $criteria, $options);
     }
 
+    public function byPathAction(Request $request)
+    {
+        /** @var ApiRequestOptionsResolver $apiOptionsResolver */
+        $apiOptionsResolver = $this->get(ApiRequestOptionsResolver::class);
+        $options = $apiOptionsResolver->resolve($request->query->all(), null);
+        if (!isset($options['id'])) {
+            throw new BadRequestHttpException('Path parameter is missing');
+        }
+        if ($options['id'] === 0) {
+            throw new NotFoundHttpException('Path does not exist');
+        }
+
+        $criteria = [
+            'id' => $options['id'],
+        ];
+
+        return $this->getNodesSourcesResponse($request, $criteria, $options);
+    }
+
     /**
      * @param Request $request
      * @param array $criteria
@@ -129,7 +150,7 @@ class NodeTypeSingleApiController extends AbstractNodeTypeApiController
     protected function getNodesSourcesResponse(Request $request, array &$criteria, array &$options = []): Response
     {
         /** @var NodesSources|null $nodeSource */
-        $nodeSource = $this->get('nodeSourceApi')->getOneBy($criteria);
+        $nodeSource = $options['_node_source'] ?? $this->get('nodeSourceApi')->getOneBy($criteria);
 
         if (null === $nodeSource || null === $nodeSource->getNode()) {
             throw $this->createNotFoundException();

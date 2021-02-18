@@ -207,6 +207,26 @@ class ApiRouteCollection extends DeferredRouteCollection
             )
         );
 
+        $this->add(
+            'get_single_nodes_sources_by_path',
+            new Route(
+                $this->routePrefix . '/nodes-sources/by-path',
+                [
+                    '_controller' => $this->nodeTypeSingleControllerClass . '::byPathAction',
+                    '_format' => 'json',
+                    'nodeTypeId' => null
+                ],
+                [
+                    'path' => '[\/[a-z0-9A-Z\-\_]+'
+                ],
+                [],
+                '',
+                [],
+                ['GET'],
+                ''
+            )
+        );
+
         try {
             if (null === $this->nodeTypeWhitelist) {
                 /** @var NodeTypeInterface[] $nodeTypes */

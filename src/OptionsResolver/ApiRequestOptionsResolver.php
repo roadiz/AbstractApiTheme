@@ -72,6 +72,7 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
             'order' => null,
             'archive' => null,
             'properties' => null,
+            '_node_source' => null
         ];
     }
 
@@ -104,6 +105,7 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
             'path' => null
         ]));
         $resolver->setAllowedTypes('_locale', ['string']);
+        $resolver->setAllowedTypes('_node_source', [NodesSources::class, 'null']);
         $resolver->setAllowedTypes('search', ['string', 'null']);
         $resolver->setAllowedTypes('title', ['string', 'null']);
         $resolver->setAllowedTypes('api_key', ['string', 'null']);
@@ -401,6 +403,7 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
                     $nodesSource = $this->normalizeNodesSourcesPath($value);
                     if (null !== $nodesSource) {
                         $options['id'] = $nodesSource->getId();
+                        $options['_node_source'] = $nodesSource;
                         $options['_locale'] = $nodesSource->getTranslation()->getPreferredLocale();
                     } else {
                         // Force NO results if path is not resolved.
