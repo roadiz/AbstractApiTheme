@@ -96,14 +96,14 @@ class Application extends AbstractDateTimed implements UserInterface, AdvancedUs
      * @ORM\Column(type="string", name="redirect_uri", nullable=true)
      * @Serializer\Groups({"user"})
      */
-    private $redirectUri;
+    private $redirectUri = null;
 
     /**
      * @var bool|null
      * @ORM\Column(type="boolean", name="confidential", nullable=true)
      * @Serializer\Groups({"user"})
      */
-    private $confidential;
+    private $confidential = null;
 
     /**
      * @param string $baseRole
@@ -114,6 +114,7 @@ class Application extends AbstractDateTimed implements UserInterface, AdvancedUs
         $this->namespace = $namespace;
         $this->roles = [$baseRole];
         $this->confidential = false;
+        $this->initAbstractDateTimed();
     }
 
     /**

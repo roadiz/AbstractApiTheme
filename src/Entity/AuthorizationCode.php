@@ -23,26 +23,26 @@ class AuthorizationCode extends AbstractEntity
      * @var string
      * @ORM\Column(type="string", name="identifier", unique=true, nullable=false)
      */
-    private $identifier;
+    private $identifier = '';
 
     /**
-     * @var \DateTimeInterface
+     * @var \DateTimeInterface|null
      * @ORM\Column(name="expiry", type="datetime", nullable=true)
      */
-    private $expiry;
+    private $expiry = null;
 
     /**
      * @var string|null
      * @ORM\Column(name="user_identifier", type="string", unique=false, nullable=false)
      */
-    private $userIdentifier;
+    private $userIdentifier = null;
 
     /**
      * @var ClientEntityInterface|null
      * @ORM\ManyToOne(targetEntity="Themes\AbstractApiTheme\Entity\Application")
      * @ORM\JoinColumn(fieldName="client_id", referencedColumnName="id", onDelete="CASCADE")
      */
-    private $client;
+    private $client = null;
 
     /**
      * @var ScopeEntityInterface[]
@@ -80,9 +80,9 @@ class AuthorizationCode extends AbstractEntity
     }
 
     /**
-     * @return \DateTimeInterface
+     * @return \DateTimeInterface|null
      */
-    public function getExpiry(): \DateTimeInterface
+    public function getExpiry(): ?\DateTimeInterface
     {
         return $this->expiry;
     }
