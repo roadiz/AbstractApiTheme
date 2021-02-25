@@ -6,9 +6,9 @@ namespace Themes\AbstractApiTheme\Controllers;
 use Doctrine\ORM\QueryBuilder;
 use JMS\Serializer\SerializerInterface;
 use RZ\Roadiz\Contracts\NodeType\NodeTypeInterface;
+use RZ\Roadiz\Core\AbstractEntities\TranslationInterface;
 use RZ\Roadiz\Core\Entities\Node;
 use RZ\Roadiz\Core\Entities\Tag;
-use RZ\Roadiz\Core\Entities\Translation;
 use RZ\Roadiz\Preview\PreviewResolverInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -123,14 +123,14 @@ class NodeTypeTagsApiController extends AbstractNodeTypeApiController
 
     /**
      * @param NodeTypeInterface|null $nodeType
-     * @param Translation|null $translation
+     * @param TranslationInterface|null $translation
      * @param Tag|null $parentTag
      *
      * @return QueryBuilder
      */
     protected function getAvailableTags(
         ?NodeTypeInterface $nodeType,
-        ?Translation $translation,
+        ?TranslationInterface $translation,
         Tag $parentTag = null
     ): QueryBuilder {
         /**

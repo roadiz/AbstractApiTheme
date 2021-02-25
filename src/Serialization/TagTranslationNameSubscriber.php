@@ -8,9 +8,9 @@ use JMS\Serializer\EventDispatcher\ObjectEvent;
 use JMS\Serializer\Exclusion\DisjunctExclusionStrategy;
 use JMS\Serializer\Metadata\StaticPropertyMetadata;
 use JMS\Serializer\Visitor\SerializationVisitorInterface;
+use RZ\Roadiz\Core\AbstractEntities\TranslationInterface;
 use RZ\Roadiz\Core\Entities\Tag;
 use RZ\Roadiz\Core\Entities\TagTranslation;
-use RZ\Roadiz\Core\Entities\Translation;
 
 final class TagTranslationNameSubscriber implements EventSubscriberInterface
 {
@@ -37,11 +37,11 @@ final class TagTranslationNameSubscriber implements EventSubscriberInterface
         $visitor = $event->getVisitor();
         $context = $event->getContext();
         $exclusionStrategy = $event->getContext()->getExclusionStrategy() ?? new DisjunctExclusionStrategy();
-        /** @var Translation|null $translation */
+        /** @var TranslationInterface|null $translation */
         $translation = $context->hasAttribute('translation') ? $context->getAttribute('translation') : null;
 
         if ($visitor instanceof SerializationVisitorInterface) {
-            if (null !== $translation && $translation instanceof Translation) {
+            if (null !== $translation && $translation instanceof TranslationInterface) {
                 /** @var TagTranslation|false $tagTranslation */
                 $tagTranslation = $object->getTranslatedTagsByTranslation($translation)->first();
                 if (false !== $tagTranslation) {

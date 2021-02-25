@@ -49,6 +49,7 @@ abstract class AbstractNodeTypeApiController extends AbstractApiThemeApp
     }
 
     /**
+     * @param array $options
      * @return SerializationContext
      */
     protected function getSerializationContext(array &$options = []): SerializationContext
