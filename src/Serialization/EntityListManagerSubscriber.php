@@ -8,7 +8,7 @@ use JMS\Serializer\EventDispatcher\EventSubscriberInterface;
 use JMS\Serializer\EventDispatcher\ObjectEvent;
 use JMS\Serializer\Metadata\StaticPropertyMetadata;
 use JMS\Serializer\Visitor\SerializationVisitorInterface;
-use RZ\Roadiz\Core\ListManagers\EntityListManager;
+use RZ\Roadiz\Core\ListManagers\EntityListManagerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 final class EntityListManagerSubscriber implements EventSubscriberInterface
@@ -19,8 +19,6 @@ final class EntityListManagerSubscriber implements EventSubscriberInterface
     protected $requestStack;
 
     /**
-     * EntityListManagerSubscriber constructor.
-     *
      * @param RequestStack $requestStack
      */
     public function __construct(RequestStack $requestStack)
@@ -36,13 +34,18 @@ final class EntityListManagerSubscriber implements EventSubscriberInterface
         ]];
     }
 
+    /**
+     * @param ObjectEvent $event
+     * @throws \Exception
+     * @return void
+     */
     public function onPostSerialize(ObjectEvent $event)
     {
         $entityListManager = $event->getObject();
         $visitor = $event->getVisitor();
 
         if ($visitor instanceof SerializationVisitorInterface &&
-                $entityListManager instanceof EntityListManager) {
+                $entityListManager instanceof EntityListManagerInterface) {
             $entities = $entityListManager->getEntities();
             $request = $this->requestStack->getCurrentRequest();
             if (null === $request) {
@@ -89,6 +92,9 @@ final class EntityListManagerSubscriber implements EventSubscriberInterface
             }
             if (isset($assignation['lastPageQuery'])) {
                 $view['hydra:last'] = $request->getPathInfo() . '?' . $assignation['lastPageQuery'];
+            }
+            if (isset($assignation['dql_query'])) {
+                $view['debug:dqlQuery'] = $assignation['dql_query'];
             }
             $visitor->visitProperty(
                 new StaticPropertyMetadata('array', 'hydra:view', []),

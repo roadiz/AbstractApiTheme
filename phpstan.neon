@@ -13,3 +13,5 @@ parameters:
         - '#Call to an undefined method RZ\\Roadiz\\Core\\AbstractEntities\\LeafInterface#'
         - '#Doctrine\\Persistence\\ObjectRepository#'
     reportUnmatchedIgnoredErrors: false
+    checkMissingIterableValueType: false
+    checkGenericClassInNonGenericObjectType: false

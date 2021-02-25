@@ -34,6 +34,14 @@
         <source>api.applications.are_you_sure_delete</source>
         <target xml:lang="fr" state="translated">Êtes-vous sûr·e de vouloir supprimer cette application ? Cela détruira de manière permanente la clé d’API et supprimera tous les accès des applications en cours d’utilisation. Vous pouvez simplement désactiver une application si vous ne souhaitez suspendre l’accès que temporairement.</target>
       </trans-unit>
+      <trans-unit id="api.applications.confidential" xml:space="preserve">
+        <source>api.applications.confidential</source>
+        <target xml:lang="fr" state="translated">Confidentiel</target>
+      </trans-unit>
+      <trans-unit id="api.applications.confidential.help" xml:space="preserve">
+        <source>api.applications.confidential.help</source>
+        <target xml:lang="fr" state="translated">Une application confidentielle nécessitera OAuth2 avec au moins un Grant-type.</target>
+      </trans-unit>
       <trans-unit id="api.applications.delete" xml:space="preserve">
         <source>api.applications.delete</source>
         <target xml:lang="fr" state="translated">Supprimer l’application</target>
@@ -45,6 +53,10 @@
       <trans-unit id="api.applications.enabled" xml:space="preserve">
         <source>api.applications.enabled</source>
         <target xml:lang="fr" state="translated">Disponible ?</target>
+      </trans-unit>
+      <trans-unit id="api.applications.enabled.help" xml:space="preserve">
+        <source>api.applications.enabled.help</source>
+        <target xml:lang="fr" state="translated">Active/Désactive l'application actuelle pour empêcher toute connexion future à l'API avec ses identifiants.</target>
       </trans-unit>
       <trans-unit id="api.applications.form.add" xml:space="preserve">
         <source>api.applications.form.add</source>
@@ -58,13 +70,41 @@
         <source>api.applications.form.delete</source>
         <target xml:lang="fr" state="translated">Supprimer</target>
       </trans-unit>
+      <trans-unit id="api.applications.grantTypes" xml:space="preserve">
+        <source>api.applications.grantTypes</source>
+        <target xml:lang="fr" state="translated">Type d'accès</target>
+      </trans-unit>
+      <trans-unit id="api.applications.grantTypes.help" xml:space="preserve">
+        <source>api.applications.grantTypes.help</source>
+        <target xml:lang="fr" state="translated">Les types d'accès determinent la manière de configurer et de sécuriser les appels à l'API.</target>
+      </trans-unit>
       <trans-unit id="api.applications.name" xml:space="preserve">
         <source>api.applications.name</source>
         <target xml:lang="fr" state="translated">Nom de l’application</target>
       </trans-unit>
+      <trans-unit id="api.applications.redirectUri" xml:space="preserve">
+        <source>api.applications.redirectUri</source>
+        <target xml:lang="fr" state="translated">URI de redirection</target>
+      </trans-unit>
+      <trans-unit id="api.applications.redirectUri.help" xml:space="preserve">
+        <source>api.applications.redirectUri.help</source>
+        <target xml:lang="fr" state="translated">L'URI de redirection sera utilisée avec le type d'accès `authorization_code`.</target>
+      </trans-unit>
       <trans-unit id="api.applications.referer" xml:space="preserve">
         <source>api.applications.referer</source>
         <target xml:lang="fr" state="translated">Referrer autorisé (expression régulière)</target>
+      </trans-unit>
+      <trans-unit id="api.applications.roles" xml:space="preserve">
+        <source>api.applications.roles</source>
+        <target xml:lang="fr" state="translated">Rôles</target>
+      </trans-unit>
+      <trans-unit id="api.applications.roles.help" xml:space="preserve">
+        <source>api.applications.roles.help</source>
+        <target xml:lang="fr" state="translated">Rôles attribués à l'application. Attention les rôles préfixés par `ROLE_OAUTH2_` sont automatiquement convertis en *scopes* pour différencier les rôles des utilisateurs du backoffice.</target>
+      </trans-unit>
+      <trans-unit id="api.applications.secret" xml:space="preserve">
+        <source>api.applications.secret</source>
+        <target xml:lang="fr" state="translated">Clé secrète (à ne pas exposer sur un client web)</target>
       </trans-unit>
       <trans-unit id="api.applications.updated_at" xml:space="preserve">
         <source>api.applications.updated_at</source>
@@ -82,9 +122,45 @@
         <source>api.no_application</source>
         <target xml:lang="fr" state="translated">Aucune application disponible</target>
       </trans-unit>
+      <trans-unit id="authorization_code" xml:space="preserve">
+        <source>authorization_code</source>
+        <target xml:lang="fr" state="translated">Authorization code (pour obtenir un jeton d'accès avec les permission d'un utilisateur du CMS)</target>
+      </trans-unit>
       <trans-unit id="back_to.applications" xml:space="preserve">
         <source>back_to.applications</source>
         <target xml:lang="fr" state="translated">Retour à la liste des applications</target>
+      </trans-unit>
+      <trans-unit id="client_credentials" xml:space="preserve">
+        <source>client_credentials</source>
+        <target xml:lang="fr" state="translated">Client credentials (pour obtenir un jeton d'accès depuis un serveur anonyme)</target>
+      </trans-unit>
+      <trans-unit id="entity._name_._type_.has_been_created" xml:space="preserve">
+        <source>entity.%name%.%type%.has_been_created</source>
+        <target xml:lang="fr" state="translated">Une nouvelle entité “%name%” (%type%) a été créée.</target>
+      </trans-unit>
+      <trans-unit id="oauth2.deny" xml:space="preserve">
+        <source>oauth2.deny</source>
+        <target xml:lang="fr" state="translated">Refuser</target>
+      </trans-unit>
+      <trans-unit id="oauth2.grant" xml:space="preserve">
+        <source>oauth2.grant</source>
+        <target xml:lang="fr" state="translated">Autoriser</target>
+      </trans-unit>
+      <trans-unit id="oauth2.grant_following_permissions" xml:space="preserve">
+        <source>oauth2.grant_following_permissions</source>
+        <target xml:lang="fr" state="translated">Accorder les permissions suivantes :</target>
+      </trans-unit>
+      <trans-unit id="oauth2.grant_following_permissions_to_client" xml:space="preserve">
+        <source>oauth2.grant_following_permissions_to_client</source>
+        <target xml:lang="fr" state="translated"><![CDATA[L'application <strong>%client%</strong> demande l'accès aux permissions suivantes à partir de votre compte utilisateur :]]></target>
+      </trans-unit>
+      <trans-unit id="oauth2.grant_permissions" xml:space="preserve">
+        <source>oauth2.grant_permissions</source>
+        <target xml:lang="fr" state="translated">Demande d'autorisation</target>
+      </trans-unit>
+      <trans-unit id="oauth2.you_are_logged_in_as" xml:space="preserve">
+        <source>oauth2.you_are_logged_in_as</source>
+        <target xml:lang="fr" state="translated">Vous êtes connecté·e en tant que %user%</target>
       </trans-unit>
     </body>
   </file>

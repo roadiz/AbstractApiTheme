@@ -1,179 +1,82 @@
 <?php
+declare(strict_types=1);
 
 namespace Themes\AbstractApiTheme\Controllers\Admin;
 
-use RZ\Roadiz\Core\ListManagers\EntityListManager;
-use Symfony\Component\Form\Extension\Core\Type\FormType;
-use Symfony\Component\HttpFoundation\RedirectResponse;
+use RZ\Roadiz\Core\AbstractEntities\PersistableInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Themes\AbstractApiTheme\AbstractApiThemeApp;
 use Themes\AbstractApiTheme\Entity\Application;
 use Themes\AbstractApiTheme\Form\ApplicationType;
-use Themes\Rozier\RozierApp;
+use Themes\Rozier\Controllers\AbstractAdminController;
 
-class ApplicationController extends RozierApp
+class ApplicationController extends AbstractAdminController
 {
-    const ITEM_PER_PAGE = 20;
-
     /**
-     * @param Request $request
-     *
-     * @return Response
-     * @throws \Twig_Error_Runtime
+     * @return string
      */
-    public function listAction(Request $request)
+    protected function getTemplateNamespace(): string
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN_API');
-
-        $elm = new EntityListManager(
-            $request,
-            $this->get('em'),
-            $this->get('api.application_class'),
-            [],
-            [
-                'createdAt' => 'DESC'
-            ]
-        );
-        $elm->setItemPerPage(static::ITEM_PER_PAGE);
-        $elm->handle();
-
-        $this->assignation['applications'] = $elm->getEntities();
-        $this->assignation['filters'] = $elm->getAssignation();
-
-        return $this->render(
-            'admin/applications/list.html.twig',
-            $this->assignation,
-            null,
-            AbstractApiThemeApp::getThemeDir()
-        );
+        return 'AbstractApiTheme';
     }
 
-    /**
-     * @param Request $request
-     *
-     * @return RedirectResponse|Response
-     * @throws \Twig_Error_Runtime
-     */
-    public function addAction(Request $request)
+    protected function supports(PersistableInterface $item): bool
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN_API');
-
-        /** @var Application $application */
-        $application = $this->get('api.application_factory');
-
-        $form = $this->createForm(ApplicationType::class, $application, [
-            'entityManager' => $this->get('em'),
-        ]);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $this->get('em')->persist($application);
-            $this->get('em')->flush();
-
-            $msg = $this->getTranslator()->trans(
-                'api.applications.%name%.was_created',
-                [
-                    '%name%' => $application->getAppName(),
-                ]
-            );
-            $this->publishConfirmMessage($request, $msg);
-
-            return $this->redirect($this->get('urlGenerator')->generate('adminApiApplicationsDetails', [
-                'id' => $application->getId(),
-            ]));
-        }
-
-        $this->assignation['form'] = $form->createView();
-
-        return $this->render(
-            'admin/applications/add.html.twig',
-            $this->assignation,
-            null,
-            AbstractApiThemeApp::getThemeDir()
-        );
+        $className = $this->get('api.application_class');
+        return $item instanceof $className;
     }
 
-    public function editAction(Request $request, $id)
+    protected function getNamespace(): string
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN_API');
-
-        /** @var Application|null $application */
-        $application = $this->get('em')->find($this->get('api.application_class'), $id);
-
-        if (null === $application) {
-            throw $this->createNotFoundException();
-        }
-
-        $form = $this->createForm(ApplicationType::class, $application, [
-            'entityManager' => $this->get('em'),
-        ]);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $this->get('em')->flush();
-
-            $msg = $this->getTranslator()->trans(
-                'api.applications.%name%.was_updated',
-                [
-                    '%name%' => $application->getAppName(),
-                ]
-            );
-            $this->publishConfirmMessage($request, $msg);
-
-            return $this->redirect($this->get('urlGenerator')->generate('adminApiApplicationsDetails', [
-                'id' => $application->getId(),
-            ]));
-        }
-
-        $this->assignation['form'] = $form->createView();
-        $this->assignation['application'] = $application;
-
-        return $this->render(
-            'admin/applications/edit.html.twig',
-            $this->assignation,
-            null,
-            AbstractApiThemeApp::getThemeDir()
-        );
+        return 'api.application';
     }
 
-    public function deleteAction(Request $request, $id)
+    protected function createEmptyItem(Request $request): PersistableInterface
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN_API');
+        return $this->get('api.application_factory');
+    }
 
-        /** @var Application|null $application */
-        $application = $this->get('em')->find($this->get('api.application_class'), $id);
+    protected function getTemplateFolder(): string
+    {
+        return 'admin/applications';
+    }
 
-        if (null === $application) {
-            throw $this->createNotFoundException();
+    protected function getRequiredRole(): string
+    {
+        return 'ROLE_ADMIN_API';
+    }
+
+    protected function getEntityClass(): string
+    {
+        return $this->get('api.application_class');
+    }
+
+    protected function getFormType(): string
+    {
+        return ApplicationType::class;
+    }
+
+    protected function getDefaultRouteName(): string
+    {
+        return 'adminApiApplications';
+    }
+
+    protected function getEditRouteName(): string
+    {
+        return 'adminApiApplicationsDetails';
+    }
+
+    protected function getEntityName(PersistableInterface $item): string
+    {
+        if ($item instanceof Application) {
+            return $item->getName();
         }
+        throw new \InvalidArgumentException('Item must be instance of ' . Application::class);
+    }
 
-        $form = $this->createForm(FormType::class);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $this->get('em')->remove($application);
-            $this->get('em')->flush();
-
-            $msg = $this->getTranslator()->trans(
-                'api.applications.%name%.was_deleted',
-                [
-                    '%name%' => $application->getAppName(),
-                ]
-            );
-            $this->publishConfirmMessage($request, $msg);
-
-            return $this->redirect($this->get('urlGenerator')->generate('adminApiApplications'));
-        }
-
-        $this->assignation['form'] = $form->createView();
-        $this->assignation['application'] = $application;
-
-        return $this->render(
-            'admin/applications/delete.html.twig',
-            $this->assignation,
-            null,
-            AbstractApiThemeApp::getThemeDir()
-        );
+    protected function getDefaultOrder(): array
+    {
+        return [
+            'createdAt' => 'DESC'
+        ];
     }
 }

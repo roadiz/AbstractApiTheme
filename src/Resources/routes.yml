@@ -4,7 +4,7 @@
 adminApiApplications:
     path:     /rz-admin/api/applications
     defaults:
-        _controller: Themes\AbstractApiTheme\Controllers\Admin\ApplicationController::listAction
+        _controller: Themes\AbstractApiTheme\Controllers\Admin\ApplicationController::defaultAction
 
 adminApiApplicationsDetails:
     path:     /rz-admin/api/applications/{id}
@@ -24,3 +24,31 @@ adminApiApplicationsAdd:
     path:     /rz-admin/api/applications/add
     defaults:
         _controller: Themes\AbstractApiTheme\Controllers\Admin\ApplicationController::addAction
+
+# OAuth2 routes
+
+api_post_token:
+    path: /token
+    methods: [ POST ]
+    defaults:
+        _controller: Themes\AbstractApiTheme\Controllers\TokenController::defaultAction
+
+api_get_authorize:
+    path: /authorize
+    methods: [ GET, POST ]
+    defaults:
+        _controller: Themes\AbstractApiTheme\Controllers\AuthorizationController::defaultAction
+
+api_get_authorize_login:
+    path: /oauth2-login
+    methods: [ GET ]
+    defaults:
+        _controller: Themes\AbstractApiTheme\Controllers\LoginController::defaultAction
+
+api_get_authorize_check:
+    path: /authorize/check
+    methods: [ GET, POST ]
+
+api_get_authorize_logout:
+    path: /authorize/logout
+    methods: [ GET ]

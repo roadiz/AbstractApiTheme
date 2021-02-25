@@ -1,10 +1,4 @@
 <?php
-/**
- * AbstractApiTheme - ApplicationExtractor.php
- *
- * Initial version by: ambroisemaupate
- * Initial version created on: 2019-01-03
- */
 declare(strict_types=1);
 
 namespace Themes\AbstractApiTheme\Extractor;
@@ -29,18 +23,9 @@ class ApplicationExtractor implements ApplicationExtractorInterface, Application
 {
     use ContainerAwareTrait;
 
-    /**
-     * @var Container
-     */
-    protected $container;
-    /**
-     * @var string
-     */
-    protected $applicationClass;
+    protected string $applicationClass;
 
     /**
-     * ApplicationExtractor constructor.
-     *
      * @param Container $container
      * @param string    $applicationClass
      */

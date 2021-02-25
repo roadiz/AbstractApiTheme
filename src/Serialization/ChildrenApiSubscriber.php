@@ -18,8 +18,6 @@ final class ChildrenApiSubscriber implements EventSubscriberInterface
     private $entityManager;
 
     /**
-     * ChildrenApiSubscriber constructor.
-     *
      * @param EntityManagerInterface $entityManager
      */
     public function __construct(EntityManagerInterface $entityManager)
@@ -36,6 +34,10 @@ final class ChildrenApiSubscriber implements EventSubscriberInterface
         ]];
     }
 
+    /**
+     * @param ObjectEvent $event
+     * @return void
+     */
     public function onPostSerialize(ObjectEvent $event)
     {
         $nodeSource = $event->getObject();

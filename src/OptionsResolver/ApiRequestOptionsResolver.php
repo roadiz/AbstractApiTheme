@@ -3,63 +3,55 @@ declare(strict_types=1);
 
 namespace Themes\AbstractApiTheme\OptionsResolver;
 
+use Doctrine\ORM\EntityManagerInterface;
 use RZ\Roadiz\CMS\Utils\NodeApi;
 use RZ\Roadiz\CMS\Utils\TagApi;
+use RZ\Roadiz\Contracts\NodeType\NodeTypeInterface;
 use RZ\Roadiz\Core\Entities\Node;
+use RZ\Roadiz\Core\Entities\NodesSources;
 use RZ\Roadiz\Core\Entities\NodeType;
 use RZ\Roadiz\Core\Entities\NodeTypeField;
-use RZ\Roadiz\Core\Entities\Tag;
+use RZ\Roadiz\Core\Routing\PathResolverInterface;
 use Symfony\Component\OptionsResolver\Exception\InvalidOptionsException;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class ApiRequestOptionsResolver
+class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
 {
     /**
-     * @var string|null
+     * @var PathResolverInterface
      */
-    protected $defaultLocale;
+    private PathResolverInterface $pathResolver;
+
+    private EntityManagerInterface $entityManager;
 
     /**
-     * @var TagApi
-     */
-    protected $tagApi;
-
-    /**
-     * @var NodeApi
-     */
-    protected $nodeApi;
-
-    /**
-     * ApiRequestOptionsResolver constructor.
-     *
      * @param string|null $defaultLocale
-     * @param TagApi      $tagApi
-     * @param NodeApi     $nodeApi
+     * @param TagApi $tagApi
+     * @param NodeApi $nodeApi
+     * @param PathResolverInterface $pathResolver
+     * @param EntityManagerInterface $entityManager
      */
-    public function __construct(?string $defaultLocale, TagApi $tagApi, NodeApi $nodeApi)
-    {
-        $this->defaultLocale = $defaultLocale;
-        $this->tagApi = $tagApi;
-        $this->nodeApi = $nodeApi;
+    public function __construct(
+        ?string $defaultLocale,
+        TagApi $tagApi,
+        NodeApi $nodeApi,
+        PathResolverInterface $pathResolver,
+        EntityManagerInterface $entityManager
+    ) {
+        parent::__construct($defaultLocale, $tagApi, $nodeApi);
+        $this->pathResolver = $pathResolver;
+        $this->entityManager = $entityManager;
     }
 
     /**
-     * @return string|null
-     */
-    public function getDefaultLocale(): ?string
-    {
-        return $this->defaultLocale;
-    }
-
-    /**
-     * @param array         $params
-     * @param NodeType|null $nodeType
+     * @param array $params
+     * @param NodeTypeInterface|null $nodeType
      *
      * @return array
      * @throws \Exception
      */
-    public function resolve(array $params, ?NodeType $nodeType): array
+    public function resolve(array $params, ?NodeTypeInterface $nodeType): array
     {
         return $this->resolveOptions($this->normalizeQueryParams($params), $nodeType);
     }
@@ -74,43 +66,72 @@ class ApiRequestOptionsResolver
             'maxChildrenCount' => 30,
             'page' => 1,
             '_locale' => $this->getDefaultLocale(),
+            '_preview' => false,
             'search' => null,
             'api_key' => null,
             'order' => null,
             'archive' => null,
+            'properties' => null,
+            '_node_source' => null
         ];
     }
 
     /**
      * @param array         $options
-     * @param NodeType|null $nodeType
+     * @param NodeTypeInterface|null $nodeType
      *
      * @return array
      * @throws \Exception
      */
-    protected function resolveOptions(array $options, ?NodeType $nodeType): array
+    protected function resolveOptions(array $options, ?NodeTypeInterface $nodeType): array
     {
         $resolver = new OptionsResolver();
         $resolver->setDefaults(array_merge($this->getMetaOptions(), [
+            'id' => null,
             'title' => null,
             'publishedAt' => null,
             'tags' => null,
             'tagExclusive' => false,
+            'node.nodeName' => null,
             'node.parent' => false,
+            'node.bNodes.nodeB' => false,
+            'node.aNodes.nodeA' => false,
+            'node.bNodes.field.name' => null,
+            'node.aNodes.field.name' => null,
             'node.visible' => null,
             'node.nodeType.reachable' => null,
+            'node.nodeType' => null,
+            'node.home' => null,
+            'path' => null
         ]));
+        $resolver->setAllowedTypes('_locale', ['string']);
+        $resolver->setAllowedTypes('_node_source', [NodesSources::class, 'null']);
         $resolver->setAllowedTypes('search', ['string', 'null']);
         $resolver->setAllowedTypes('title', ['string', 'null']);
         $resolver->setAllowedTypes('api_key', ['string', 'null']);
         $resolver->setAllowedTypes('order', ['array', 'null']);
+        $resolver->setAllowedTypes('properties', ['array', 'null']);
         $resolver->setAllowedTypes('publishedAt', ['array', 'string', 'null']);
         $resolver->setAllowedTypes('tags', ['array', 'string', 'null']);
         $resolver->setAllowedTypes('tagExclusive', ['boolean', 'string', 'int']);
         $resolver->setAllowedTypes('node.nodeType.reachable', ['boolean', 'string', 'int', 'null']);
+        $resolver->setAllowedTypes('node.nodeType', ['array', NodeType::class, 'string', 'int', 'null']);
         $resolver->setAllowedTypes('node.visible', ['boolean', 'string', 'int', 'null']);
+        $resolver->setAllowedTypes('node.parent', ['boolean', 'string', Node::class, 'null']);
+        $resolver->setAllowedTypes('node.nodeName', ['string', 'null']);
+        $resolver->setAllowedTypes('node.bNodes.nodeB', ['boolean', 'string', Node::class, 'null']);
+        $resolver->setAllowedTypes('node.aNodes.nodeA', ['boolean', 'string', Node::class, 'null']);
+        $resolver->setAllowedTypes('node.bNodes.field.name', ['string', 'null']);
+        $resolver->setAllowedTypes('node.aNodes.field.name', ['string', 'null']);
+        $resolver->setAllowedTypes('node.home', ['boolean', 'string', 'int', 'null']);
+        $resolver->setAllowedTypes('path', ['string', 'null']);
+        $resolver->setAllowedTypes('id', ['int', NodesSources::class, 'null']);
 
         $resolver->setNormalizer('tagExclusive', function (Options $options, $value) {
+            return $this->normalizeBoolean($value);
+        });
+
+        $resolver->setNormalizer('_preview', function (Options $options, $value) {
             return $this->normalizeBoolean($value);
         });
 
@@ -136,6 +157,13 @@ class ApiRequestOptionsResolver
             return null;
         });
 
+        $resolver->setNormalizer('node.home', function (Options $options, $value) {
+            if (null !== $value) {
+                return $this->normalizeBoolean($value);
+            }
+            return null;
+        });
+
         $resolver->setNormalizer('order', function (Options $options, $value) {
             if (null !== $value) {
                 if (!is_array($value)) {
@@ -154,6 +182,14 @@ class ApiRequestOptionsResolver
         });
 
         $resolver->setNormalizer('node.parent', function (Options $options, $value) {
+            return $this->normalizeNodeFilter($value);
+        });
+
+        $resolver->setNormalizer('node.bNodes.nodeB', function (Options $options, $value) {
+            return $this->normalizeNodeFilter($value);
+        });
+
+        $resolver->setNormalizer('node.aNodes.nodeA', function (Options $options, $value) {
             return $this->normalizeNodeFilter($value);
         });
 
@@ -271,115 +307,47 @@ class ApiRequestOptionsResolver
     }
 
     /**
-     * @param mixed $value
-     *
-     * @return array|\DateTime
-     * @throws \Exception
+     * @param string $path
+     * @return NodesSources|null Returns nodes-sources or null if no NS found for path to filter all results.
      */
-    protected function normalizeDateTimeFilter($value)
+    protected function normalizeNodesSourcesPath(string $path): ?NodesSources
     {
-        if (null !== $value && is_string($value)) {
-            return new \DateTime($value);
+        $resourceInfo = $this->pathResolver->resolvePath($path, ['html', 'json'], true);
+        $resource = $resourceInfo->getResource();
+        if (null !== $resource && $resource instanceof NodesSources) {
+            return $resource;
         }
-        if (is_array($value)) {
-            if (isset($value['after']) && isset($value['before'])) {
-                return ['BETWEEN', new \DateTime($value['after']), new \DateTime($value['before'])];
-            }
-            if (isset($value['strictly_after']) && isset($value['strictly_before'])) {
-                return ['BETWEEN', new \DateTime($value['strictly_after']), new \DateTime($value['strictly_before'])];
-            }
-            if (isset($value['after'])) {
-                return ['>=', new \DateTime($value['after'])];
-            }
-            if (isset($value['strictly_after'])) {
-                return ['>', new \DateTime($value['strictly_after'])];
-            }
-            if (isset($value['before'])) {
-                return ['<=', new \DateTime($value['before'])];
-            }
-            if (isset($value['strictly_before'])) {
-                return ['<', new \DateTime($value['strictly_before'])];
-            }
-        }
-        return $value;
-    }
-
-    /**
-     * @param mixed $value
-     *
-     * @return bool
-     */
-    protected function normalizeBoolean($value): bool
-    {
-        return $value === true ||
-            $value === 'true' ||
-            $value === 'ON' ||
-            $value === 'on' ||
-            $value === 'yes' ||
-            $value === '1' ||
-            $value === 1
-            ;
-    }
-
-    /**
-     * @param mixed $value
-     *
-     * @return Tag|null
-     */
-    protected function normalizeTagFilter($value): ?Tag
-    {
-        if (null !== $value && $value instanceof Tag) {
-            return $value;
-        }
-        if (null !== $value && is_string($value)) {
-            return $this->tagApi->getOneBy([
-                'tagName' => $value,
-            ]);
-        }
-        if (null !== $value && is_numeric($value)) {
-            return $this->tagApi->getOneBy([
-                'id' => $value,
-            ]);
-        }
+        // TODO: normalize against Redirections too!
         return null;
     }
 
     /**
-     * @param mixed $value
-     *
-     * @return Node|null
+     * @param int|string|array<int|string> $nodeTypes
+     * @return NodeTypeInterface|array<NodeTypeInterface>|null
      */
-    protected function normalizeNodeFilter($value): ?Node
+    protected function normalizeNodeTypes($nodeTypes)
     {
-        if (null !== $value && $value instanceof Node) {
-            return $value;
+        if (is_array($nodeTypes)) {
+            return array_values(array_filter(array_map([$this, 'normalizeSingleNodeType'], $nodeTypes)));
+        } else {
+            return $this->normalizeSingleNodeType($nodeTypes);
         }
-        if (null !== $value && is_numeric($value)) {
-            return $this->nodeApi->getOneBy([
-                'id' => $value,
-            ]);
-        }
-        if (null !== $value && is_string($value)) {
-            return $this->nodeApi->getOneBy([
-                'nodeName' => $value,
-            ]);
-        }
-        return null;
     }
 
     /**
-     * @param array $options
-     *
-     * @return array
+     * @param int|string $nodeType
+     * @return NodeTypeInterface|null
      */
-    public function getCriteriaFromOptions(array &$options): array
+    protected function normalizeSingleNodeType($nodeType): ?NodeTypeInterface
     {
-        $activeOptions = array_filter($options, function ($value) {
-            return null !== $value;
-        });
-        return array_filter($activeOptions, function ($key) {
-            return !array_key_exists($key, $this->getMetaOptions());
-        }, ARRAY_FILTER_USE_KEY);
+        if (is_integer($nodeType)) {
+            return $this->entityManager->find(NodeType::class, (int) $nodeType);
+        } elseif (is_string($nodeType)) {
+            return $this->entityManager
+                ->getRepository(NodeType::class)
+                ->findOneByName($nodeType);
+        }
+        return null;
     }
 
     /**
@@ -390,15 +358,59 @@ class ApiRequestOptionsResolver
     protected function normalizeQueryParams(array $options): array
     {
         foreach ($options as $key => $value) {
-            if ($key === 'node_parent') {
-                $options['node.parent'] = $this->normalizeNodeFilter($value);
-                unset($options['node_parent']);
-            } elseif ($key === 'node_visible') {
-                $options['node.visible'] = $this->normalizeBoolean($value);
-                unset($options['node_visible']);
-            } elseif ($key === 'node_nodeType_reachable') {
-                $options['node.nodeType.reachable'] = $this->normalizeBoolean($value);
-                unset($options['node_nodeType_reachable']);
+            switch ($key) {
+                case 'node_parent':
+                    $options['node.parent'] = $this->normalizeNodeFilter($value);
+                    unset($options['node_parent']);
+                    break;
+                case 'node_bNodes_nodeB':
+                    $options['node.bNodes.nodeB'] = $this->normalizeNodeFilter($value);
+                    unset($options['node_bNodes_nodeB']);
+                    break;
+                case 'node_aNodes_nodeA':
+                    $options['node.aNodes.nodeA'] = $this->normalizeNodeFilter($value);
+                    unset($options['node_aNodes_nodeA']);
+                    break;
+                case 'node_bNodes_field_name':
+                    $options['node.bNodes.field.name'] = $value;
+                    unset($options['node_bNodes_field_name']);
+                    break;
+                case 'node_aNodes_field_name':
+                    $options['node.aNodes.field.name'] = $value;
+                    unset($options['node_aNodes_field_name']);
+                    break;
+                case 'node_visible':
+                    $options['node.visible'] = $this->normalizeBoolean($value);
+                    unset($options['node_visible']);
+                    break;
+                case 'node_home':
+                    $options['node.home'] = $this->normalizeBoolean($value);
+                    unset($options['node_home']);
+                    break;
+                case 'node_nodeType_reachable':
+                    $options['node.nodeType.reachable'] = $this->normalizeBoolean($value);
+                    unset($options['node_nodeType_reachable']);
+                    break;
+                case 'node_nodeType':
+                    $options['node.nodeType'] = $this->normalizeNodeTypes($value);
+                    unset($options['node_nodeType']);
+                    break;
+                case 'node_nodeName':
+                    $options['node.nodeName'] = trim($value);
+                    unset($options['node_nodeName']);
+                    break;
+                case 'path':
+                    $nodesSource = $this->normalizeNodesSourcesPath($value);
+                    if (null !== $nodesSource) {
+                        $options['id'] = $nodesSource->getId();
+                        $options['_node_source'] = $nodesSource;
+                        $options['_locale'] = $nodesSource->getTranslation()->getPreferredLocale();
+                    } else {
+                        // Force NO results if path is not resolved.
+                        $options['id'] = 0;
+                    }
+                    unset($options['path']);
+                    break;
             }
         }
         return $options;

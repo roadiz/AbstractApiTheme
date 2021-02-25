@@ -3,85 +3,118 @@ declare(strict_types=1);
 
 namespace Themes\AbstractApiTheme\Routing;
 
+use RZ\Roadiz\Contracts\NodeType\NodeTypeInterface;
 use RZ\Roadiz\Core\Bags\NodeTypes;
 use RZ\Roadiz\Core\Bags\Settings;
-use RZ\Roadiz\Core\Entities\NodeType;
 use RZ\Roadiz\Core\Routing\DeferredRouteCollection;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Stopwatch\Stopwatch;
-use Themes\AbstractApiTheme\Controllers\NodeTypeApiController;
+use Themes\AbstractApiTheme\Controllers\NodesSourcesListingApiController;
+use Themes\AbstractApiTheme\Controllers\NodesSourcesSearchApiController;
+use Themes\AbstractApiTheme\Controllers\NodeTypeArchivesApiController;
+use Themes\AbstractApiTheme\Controllers\NodeTypeListingApiController;
+use Themes\AbstractApiTheme\Controllers\NodeTypeSingleApiController;
+use Themes\AbstractApiTheme\Controllers\NodeTypeTagsApiController;
 use Themes\AbstractApiTheme\Controllers\RootApiController;
+use Themes\AbstractApiTheme\Controllers\UserApiController;
 
 class ApiRouteCollection extends DeferredRouteCollection
 {
     /**
      * @var NodeTypes
      */
-    protected $nodeTypesBag;
+    protected NodeTypes $nodeTypesBag;
     /**
      * @var string
      */
-    protected $apiVersion;
+    protected string $apiVersion;
     /**
      * @var string
      */
-    protected $apiPrefix;
+    protected string $apiPrefix;
     /**
      * @var string
      */
-    protected $routePrefix;
+    protected string $routePrefix;
     /**
      * @var Stopwatch|null
      */
-    protected $stopwatch;
-    /**
-     * @var bool
-     */
-    protected $isPreview;
+    protected ?Stopwatch $stopwatch;
     /**
      * @var Settings
      */
-    protected $settingsBag;
+    protected Settings $settingsBag;
     /**
      * @var array|null
      */
-    protected $nodeTypeWhitelist;
+    protected ?array $nodeTypeWhitelist;
     /**
-     * @var string
+     * @var class-string
      */
-    private $rootControllerClass;
+    private string $rootControllerClass;
     /**
-     * @var string
+     * @var class-string
      */
-    private $nodeTypeControllerClass;
+    private string $userControllerClass;
+    /**
+     * @var class-string
+     */
+    private string $nodeTypeListingControllerClass;
+    /**
+     * @var class-string
+     */
+    private string $nodeTypeSingleControllerClass;
+    /**
+     * @var class-string
+     */
+    private string $nodeTypeTagsControllerClass;
+    /**
+     * @var class-string
+     */
+    private string $nodesSourcesListingApiControllerClass;
+    /**
+     * @var class-string
+     */
+    private string $nodesSourcesSearchApiControllerClass;
+    /**
+     * @var class-string
+     */
+    private string $nodeTypeArchivesControllerClass;
 
     /**
-     * ApiRouteCollection constructor.
-     *
      * @param NodeTypes $nodeTypesBag
      * @param Settings $settingsBag
      * @param Stopwatch|null $stopwatch
-     * @param bool $isPreview
      * @param string $apiPrefix
      * @param string $apiVersion
      * @param array|null $nodeTypeWhitelist
-     * @param string $rootControllerClass
-     * @param string $nodeTypeControllerClass
+     * @param class-string $rootControllerClass
+     * @param class-string $nodeTypeListingControllerClass
+     * @param class-string $nodeTypeSingleControllerClass
+     * @param class-string $userControllerClass
+     * @param class-string $nodeTypeTagsControllerClass
+     * @param class-string $nodesSourcesListingApiControllerClass
+     * @param class-string $nodesSourcesSearchApiControllerClass
+     * @param class-string $nodeTypeArchivesControllerClass
      */
     final public function __construct(
         NodeTypes $nodeTypesBag,
         Settings $settingsBag,
         Stopwatch $stopwatch = null,
-        $isPreview = false,
         $apiPrefix = '/api',
         $apiVersion = '1.0',
         $nodeTypeWhitelist = null,
         $rootControllerClass = RootApiController::class,
-        $nodeTypeControllerClass = NodeTypeApiController::class
+        $nodeTypeListingControllerClass = NodeTypeListingApiController::class,
+        $nodeTypeSingleControllerClass = NodeTypeSingleApiController::class,
+        $userControllerClass = UserApiController::class,
+        $nodeTypeTagsControllerClass = NodeTypeTagsApiController::class,
+        $nodesSourcesListingApiControllerClass = NodesSourcesListingApiController::class,
+        $nodesSourcesSearchApiControllerClass = NodesSourcesSearchApiController::class,
+        $nodeTypeArchivesControllerClass = NodeTypeArchivesApiController::class
     ) {
         $this->stopwatch = $stopwatch;
-        $this->isPreview = $isPreview;
         $this->settingsBag = $settingsBag;
         $this->nodeTypesBag = $nodeTypesBag;
         $this->apiVersion = $apiVersion;
@@ -90,7 +123,13 @@ class ApiRouteCollection extends DeferredRouteCollection
         $this->routePrefix = $this->apiPrefix . '/' . $this->apiVersion;
         $this->nodeTypeWhitelist = $nodeTypeWhitelist;
         $this->rootControllerClass = $rootControllerClass;
-        $this->nodeTypeControllerClass = $nodeTypeControllerClass;
+        $this->userControllerClass = $userControllerClass;
+        $this->nodeTypeListingControllerClass = $nodeTypeListingControllerClass;
+        $this->nodeTypeSingleControllerClass = $nodeTypeSingleControllerClass;
+        $this->nodeTypeTagsControllerClass = $nodeTypeTagsControllerClass;
+        $this->nodesSourcesListingApiControllerClass = $nodesSourcesListingApiControllerClass;
+        $this->nodesSourcesSearchApiControllerClass = $nodesSourcesSearchApiControllerClass;
+        $this->nodeTypeArchivesControllerClass = $nodeTypeArchivesControllerClass;
     }
 
     public function parseResources(): void
@@ -104,6 +143,7 @@ class ApiRouteCollection extends DeferredRouteCollection
                 $this->routePrefix,
                 [
                     '_controller' => $this->rootControllerClass . '::getRootAction',
+                    '_format' => 'json'
                 ],
                 [],
                 [],
@@ -114,16 +154,89 @@ class ApiRouteCollection extends DeferredRouteCollection
             )
         );
 
+        $this->add(
+            'api_user_me',
+            new Route(
+                $this->routePrefix . '/me',
+                [
+                    '_controller' => $this->userControllerClass . '::getUserAction',
+                    '_format' => 'json'
+                ],
+                [],
+                [],
+                '',
+                [],
+                ['GET'],
+                ''
+            )
+        );
+
+        $this->add(
+            'get_listing_nodes_sources',
+            new Route(
+                $this->routePrefix . '/nodes-sources',
+                [
+                    '_controller' => $this->nodesSourcesListingApiControllerClass . '::defaultAction',
+                    '_format' => 'json',
+                    'nodeTypeId' => null
+                ],
+                [],
+                [],
+                '',
+                [],
+                ['GET'],
+                ''
+            )
+        );
+
+        $this->add(
+            'get_search_nodes_sources',
+            new Route(
+                $this->routePrefix . '/nodes-sources/search',
+                [
+                    '_controller' => $this->nodesSourcesSearchApiControllerClass . '::defaultAction',
+                    '_format' => 'json',
+                    'nodeTypeId' => null
+                ],
+                [],
+                [],
+                '',
+                [],
+                ['GET'],
+                ''
+            )
+        );
+
+        $this->add(
+            'get_single_nodes_sources_by_path',
+            new Route(
+                $this->routePrefix . '/nodes-sources/by-path',
+                [
+                    '_controller' => $this->nodeTypeSingleControllerClass . '::byPathAction',
+                    '_format' => 'json',
+                    'nodeTypeId' => null
+                ],
+                [
+                    'path' => '[\/[a-z0-9A-Z\-\_]+'
+                ],
+                [],
+                '',
+                [],
+                ['GET'],
+                ''
+            )
+        );
+
         try {
             if (null === $this->nodeTypeWhitelist) {
-                /** @var NodeType[] $nodeTypes */
+                /** @var NodeTypeInterface[] $nodeTypes */
                 $nodeTypes = $this->nodeTypesBag->all();
                 foreach ($nodeTypes as $nodeType) {
                     $this->addCollection($this->getCollectionForNodeType($nodeType));
                 }
             } else {
                 foreach ($this->nodeTypeWhitelist as $nodeTypeName) {
-                    /** @var NodeType|null $nodeTypes */
+                    /** @var NodeTypeInterface|null $nodeType */
                     $nodeType = $this->nodeTypesBag->get($nodeTypeName);
                     if (null !== $nodeType) {
                         $this->addCollection($this->getCollectionForNodeType($nodeType));
@@ -141,15 +254,53 @@ class ApiRouteCollection extends DeferredRouteCollection
         }
     }
 
-    private function getCollectionForNodeType(NodeType $nodeType): RouteCollection
+    private function getCollectionForNodeType(NodeTypeInterface $nodeType): RouteCollection
     {
+        if (!method_exists($nodeType, 'getId')) {
+            throw new \InvalidArgumentException('Node-type must implement getId method.');
+        }
         $collection = new RouteCollection();
         $collection->add(
             'get_listing_'.mb_strtolower($nodeType->getName()),
             new Route(
                 $this->routePrefix . '/' . mb_strtolower($nodeType->getName()),
                 [
-                    '_controller' => $this->nodeTypeControllerClass . '::getListingAction',
+                    '_controller' => $this->nodeTypeListingControllerClass . '::defaultAction',
+                    '_format' => 'json',
+                    'nodeTypeId' => $nodeType->getId()
+                ],
+                [],
+                [],
+                '',
+                [],
+                ['GET'],
+                ''
+            )
+        );
+        $collection->add(
+            'get_tags_'.mb_strtolower($nodeType->getName()),
+            new Route(
+                $this->routePrefix . '/' . mb_strtolower($nodeType->getName()) . '/tags',
+                [
+                    '_controller' => $this->nodeTypeTagsControllerClass . '::defaultAction',
+                    '_format' => 'json',
+                    'nodeTypeId' => $nodeType->getId()
+                ],
+                [],
+                [],
+                '',
+                [],
+                ['GET'],
+                ''
+            )
+        );
+        $collection->add(
+            'get_archives_'.mb_strtolower($nodeType->getName()),
+            new Route(
+                $this->routePrefix . '/' . mb_strtolower($nodeType->getName()) . '/archives',
+                [
+                    '_controller' => $this->nodeTypeArchivesControllerClass . '::defaultAction',
+                    '_format' => 'json',
                     'nodeTypeId' => $nodeType->getId()
                 ],
                 [],
@@ -165,7 +316,8 @@ class ApiRouteCollection extends DeferredRouteCollection
             new Route(
                 $this->routePrefix . '/' . mb_strtolower($nodeType->getName()) . '/{id}',
                 [
-                    '_controller' => $this->nodeTypeControllerClass . '::getDetailAction',
+                    '_controller' => $this->nodeTypeSingleControllerClass . '::defaultAction',
+                    '_format' => 'json',
                     'nodeTypeId' => $nodeType->getId()
                 ],
                 [
@@ -179,11 +331,32 @@ class ApiRouteCollection extends DeferredRouteCollection
             )
         );
         $collection->add(
+            'get_localized_single_'.mb_strtolower($nodeType->getName()),
+            new Route(
+                $this->routePrefix . '/' . mb_strtolower($nodeType->getName()) . '/{id}/{_locale}',
+                [
+                    '_controller' => $this->nodeTypeSingleControllerClass . '::defaultAction',
+                    '_format' => 'json',
+                    'nodeTypeId' => $nodeType->getId()
+                ],
+                [
+                    'id' => '[0-9]+',
+                    '_locale' => '[a-z]{2,3}'
+                ],
+                [],
+                '',
+                [],
+                ['GET'],
+                ''
+            )
+        );
+        $collection->add(
             'get_single_slug_'.mb_strtolower($nodeType->getName()),
             new Route(
                 $this->routePrefix . '/' . mb_strtolower($nodeType->getName()) . '/by-slug/{slug}',
                 [
-                    '_controller' => $this->nodeTypeControllerClass . '::getDetailBySlugAction',
+                    '_controller' => $this->nodeTypeSingleControllerClass . '::bySlugAction',
+                    '_format' => 'json',
                     'nodeTypeId' => $nodeType->getId()
                 ],
                 [

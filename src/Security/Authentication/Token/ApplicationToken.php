@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Themes\AbstractApiTheme\Security\Authentication\Token;
 
+use JMS\Serializer\Annotation as Serializer;
 use Symfony\Component\Security\Core\Authentication\Token\AbstractToken;
 use Themes\AbstractApiTheme\Entity\Application;
 
@@ -16,6 +17,7 @@ class ApplicationToken extends AbstractToken
 {
     /**
      * @var string
+     * @Serializer\Groups({"user"})
      */
     protected $referer = '';
 

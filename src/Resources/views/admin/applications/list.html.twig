@@ -16,6 +16,7 @@
                 <tr>
                     <th class="table-actions-row uk-visible-xlarge">{% trans %}api.applications.enabled{% endtrans %}</th>
                     <th class="table-actions-row uk-visible-xlarge">{% trans %}api.applications.allowedPreview{% endtrans %}</th>
+                    <th class="table-actions-row uk-visible-xlarge">{% trans %}api.applications.confidential{% endtrans %}</th>
                     <th>
                         {% trans %}api.applications.name{% endtrans %}
                         {% include 'includes/column_ordering.html.twig' with {
@@ -35,31 +36,38 @@
                 </tr>
                 </thead>
                 <tbody>
-                {% for application in applications %}
+                {% for item in items %}
                     {% apply spaceless %}
                         <tr>
                             <td class="uk-visible-xlarge">
-                                {%- if application.Enabled -%}
+                                {%- if item.Enabled -%}
                                     <div class="uk-button-status"><i class="uk-icon-check"></i></div>
                                 {%- else -%}
                                     <div class="uk-button-status"><i class="uk-icon-ban"></i></div>
                                 {%- endif -%}
                             </td>
                             <td class="uk-visible-xlarge">
-                                {%- if application.AllowedPreview -%}
+                                {%- if item.AllowedPreview -%}
                                     <div class="uk-button-status"><i class="uk-icon-check"></i></div>
                                 {%- else -%}
                                     <div class="uk-button-status"><i class="uk-icon-ban"></i></div>
                                 {%- endif -%}
                             </td>
-                            <td><a href="{{ path('adminApiApplicationsDetails', {id: application.id}) }}">{{- application.appName -}}</a></td>
-                            <td><code>{{- application.apiKey -}}</code></td>
-                            <td class="uk-visible-xlarge">{{- application.updatedAt|format_datetime('short', 'short', locale=app.request.locale) -}}</td>
+                            <td class="uk-visible-xlarge">
+                                {%- if item.Confidential -%}
+                                    <div class="uk-button-status"><i class="uk-icon-lock"></i></div>
+                                {%- else -%}
+                                    <div class="uk-button-status"><i class="uk-icon-users"></i></div>
+                                {%- endif -%}
+                            </td>
+                            <td><a href="{{ path('adminApiApplicationsDetails', {id: item.id}) }}">{{- item.appName -}}</a></td>
+                            <td><code>{{- item.apiKey -}}</code></td>
+                            <td class="uk-visible-xlarge">{{- item.updatedAt|format_datetime('short', 'short', locale=app.request.locale) -}}</td>
                             <td class="table-actions-row">
-                                <a href="{{ path('adminApiApplicationsDetails', {id: application.id}) }}"
+                                <a href="{{ path('adminApiApplicationsDetails', {id: item.id}) }}"
                                    title="{% trans %}edit{% endtrans %}"
                                    class="uk-button uk-button-content uk-button-small"><i class="uk-icon-rz-pencil"></i></a>
-                                <a href="{{ path('adminApiApplicationsDelete', {id: application.id}) }}"
+                                <a href="{{ path('adminApiApplicationsDelete', {id: item.id}) }}"
                                    title="{% trans %}delete{% endtrans %}"
                                    class="uk-button uk-button-content uk-button-small uk-button-table-delete"><i class="uk-icon-rz-trash-mini-o"></i></a>
                             </td>
