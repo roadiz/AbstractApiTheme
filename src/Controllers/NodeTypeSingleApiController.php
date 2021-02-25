@@ -28,6 +28,7 @@ class NodeTypeSingleApiController extends AbstractNodeTypeApiController
             'children', // rezozero tree-walker
             'nodes_sources',
             'document_display',
+            'thumbnail',
             'url_alias',
             'tag_base',
             'urls',

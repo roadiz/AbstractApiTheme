@@ -23,6 +23,7 @@ class NodesSourcesSearchApiController extends AbstractNodeTypeApiController
         return [
             'nodes_sources_base',
             'document_display',
+            'thumbnail',
             'tag_base',
             'nodes_sources_default',
             'urls',
