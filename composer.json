@@ -20,7 +20,9 @@
         "roadiz/models": "^1.6.0 || dev-develop",
         "roadiz/markdown": "^1.6.0 || dev-develop",
         "roadiz/entity-generator": "~1.6.0 || dev-main",
-        "roadiz/random": "~1.6.0 || dev-main"
+        "roadiz/random": "~1.6.0 || dev-main",
+        "roadiz/jwt": "~1.6.0 || dev-main",
+        "roadiz/openid": "~1.6.0 || dev-main"
     },
     "autoload": {
         "psr-4": {
