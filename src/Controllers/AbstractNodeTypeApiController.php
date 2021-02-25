@@ -60,7 +60,6 @@ abstract class AbstractNodeTypeApiController extends AbstractApiThemeApp
         if (count($this->getSerializationGroups()) > 0) {
             $context->setGroups($this->getSerializationGroups());
         }
-
         if (isset($options['properties']) && count($options['properties']) > 0) {
             $context->addExclusionStrategy(new PropertiesExclusionStrategy(
                 $options['properties'],

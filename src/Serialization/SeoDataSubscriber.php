@@ -5,6 +5,7 @@ namespace Themes\AbstractApiTheme\Serialization;
 
 use JMS\Serializer\EventDispatcher\EventSubscriberInterface;
 use JMS\Serializer\EventDispatcher\ObjectEvent;
+use JMS\Serializer\Exclusion\DisjunctExclusionStrategy;
 use JMS\Serializer\Metadata\StaticPropertyMetadata;
 use JMS\Serializer\Visitor\SerializationVisitorInterface;
 use RZ\Roadiz\Core\Entities\NodesSources;
@@ -52,6 +53,7 @@ final class SeoDataSubscriber implements EventSubscriberInterface
         $nodeSource = $event->getObject();
         $visitor = $event->getVisitor();
         $context = $event->getContext();
+        $exclusionStrategy = $event->getContext()->getExclusionStrategy() ?? new DisjunctExclusionStrategy();
 
         if ($this->siteName !== '' &&
             $visitor instanceof SerializationVisitorInterface &&
@@ -59,16 +61,30 @@ final class SeoDataSubscriber implements EventSubscriberInterface
             null !== $nodeSource->getNode() &&
             null !== $nodeSource->getNode()->getNodeType() &&
             $nodeSource->getNode()->getNodeType()->isReachable()) {
-            if ($nodeSource->getMetaTitle() === '') {
+            $titleProperty = new StaticPropertyMetadata(
+                'string',
+                'metaTitle',
+                '',
+                ['nodes_sources_base']
+            );
+            if (!$exclusionStrategy->shouldSkipProperty($titleProperty, $context) &&
+                $nodeSource->getMetaTitle() === '') {
                 $visitor->visitProperty(
-                    new StaticPropertyMetadata('string', 'metaTitle', []),
+                    $titleProperty,
                     sprintf($this->format, $nodeSource->getTitle(), $this->siteName)
                 );
             }
 
-            if ($nodeSource->getMetaDescription() === '' && $this->siteDescription !== '') {
+            $descriptionProperty = new StaticPropertyMetadata(
+                'string',
+                'metaDescription',
+                '',
+                ['nodes_sources_base']
+            );
+            if (!$exclusionStrategy->shouldSkipProperty($descriptionProperty, $context) &&
+                $nodeSource->getMetaDescription() === '' && $this->siteDescription !== '') {
                 $visitor->visitProperty(
-                    new StaticPropertyMetadata('string', 'metaDescription', []),
+                    $descriptionProperty,
                     sprintf($this->format, $nodeSource->getTitle(), $this->siteDescription)
                 );
             }

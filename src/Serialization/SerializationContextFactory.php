@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Themes\AbstractApiTheme\Serialization;
 
+use JMS\Serializer\Exclusion\DisjunctExclusionStrategy;
 use JMS\Serializer\SerializationContext;
 use Themes\AbstractApiTheme\Cache\CacheTagsCollection;
 
@@ -24,7 +25,8 @@ final class SerializationContextFactory implements SerializationContextFactoryIn
     public function create(): SerializationContext
     {
         $context = SerializationContext::create()
-            ->enableMaxDepthChecks();
+            ->enableMaxDepthChecks()
+            ->addExclusionStrategy(new DisjunctExclusionStrategy());
         if ($this->useCacheTags) {
             $context->setAttribute('cache-tags', new CacheTagsCollection());
         }

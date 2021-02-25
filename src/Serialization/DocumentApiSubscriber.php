@@ -5,6 +5,7 @@ namespace Themes\AbstractApiTheme\Serialization;
 
 use JMS\Serializer\EventDispatcher\EventSubscriberInterface;
 use JMS\Serializer\EventDispatcher\ObjectEvent;
+use JMS\Serializer\Exclusion\DisjunctExclusionStrategy;
 use JMS\Serializer\Metadata\StaticPropertyMetadata;
 use JMS\Serializer\Visitor\SerializationVisitorInterface;
 use RZ\Roadiz\Core\Entities\Document;
@@ -43,14 +44,17 @@ final class DocumentApiSubscriber implements EventSubscriberInterface
         /** @var Document $document */
         $document = $event->getObject();
         $visitor = $event->getVisitor();
+        $context = $event->getContext();
+        $exclusionStrategy = $event->getContext()->getExclusionStrategy() ?? new DisjunctExclusionStrategy();
+
         if ($visitor instanceof SerializationVisitorInterface) {
             /*
              * Add cache-tags to serialization context.
              */
-            if ($event->getContext()->hasAttribute('cache-tags') &&
-                $event->getContext()->getAttribute('cache-tags') instanceof CacheTagsCollection) {
+            if ($context->hasAttribute('cache-tags') &&
+                $context->getAttribute('cache-tags') instanceof CacheTagsCollection) {
                 /** @var CacheTagsCollection $cacheTags */
-                $cacheTags = $event->getContext()->getAttribute('cache-tags');
+                $cacheTags = $context->getAttribute('cache-tags');
                 $cacheTags->addDocument($document);
             }
             $visitor->visitProperty(
@@ -58,10 +62,16 @@ final class DocumentApiSubscriber implements EventSubscriberInterface
                 'Document'
             );
 
-
-            if (in_array('urls', $event->getContext()->getAttribute('groups'))) {
+            $urlProperty = new StaticPropertyMetadata(
+                'string',
+                'url',
+                '',
+                ['urls']
+            );
+            if (in_array('urls', $context->getAttribute('groups')) &&
+                !$exclusionStrategy->shouldSkipProperty($urlProperty, $context)) {
                 $visitor->visitProperty(
-                    new StaticPropertyMetadata('string', 'url', []),
+                    $urlProperty,
                     $this->packages->getUrl(
                         $document->getRelativePath() ?? '',
                         \RZ\Roadiz\Utils\Asset\Packages::DOCUMENTS
@@ -69,10 +79,17 @@ final class DocumentApiSubscriber implements EventSubscriberInterface
                 );
             }
 
-            if (in_array('thumbnail', $event->getContext()->getAttribute('groups')) &&
+            $thumbnailProperty = new StaticPropertyMetadata(
+                Document::class,
+                'thumbnail',
+                null,
+                ['thumbnail']
+            );
+            if (in_array('thumbnail', $context->getAttribute('groups')) &&
+                !$exclusionStrategy->shouldSkipProperty($thumbnailProperty, $context) &&
                 $document instanceof HasThumbnailInterface) {
                 $visitor->visitProperty(
-                    new StaticPropertyMetadata(Document::class, 'thumbnail', []),
+                    $thumbnailProperty,
                     $document->getThumbnails()->first() ?: null
                 );
             }

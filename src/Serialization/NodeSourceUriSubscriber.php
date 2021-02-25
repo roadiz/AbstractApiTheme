@@ -5,6 +5,7 @@ namespace Themes\AbstractApiTheme\Serialization;
 
 use JMS\Serializer\EventDispatcher\EventSubscriberInterface;
 use JMS\Serializer\EventDispatcher\ObjectEvent;
+use JMS\Serializer\Exclusion\DisjunctExclusionStrategy;
 use JMS\Serializer\Metadata\StaticPropertyMetadata;
 use JMS\Serializer\Visitor\SerializationVisitorInterface;
 use RZ\Roadiz\Core\Entities\Node;
@@ -54,15 +55,19 @@ final class NodeSourceUriSubscriber implements EventSubscriberInterface
 
         if ($context->hasAttribute('groups') &&
             in_array('urls', $context->getAttribute('groups'))) {
+            $exclusionStrategy = $event->getContext()->getExclusionStrategy() ?? new DisjunctExclusionStrategy();
+            $urlProperty = new StaticPropertyMetadata('string', 'url', '', ['urls']);
+
             if ($nodeSource instanceof NodesSources &&
                 null !== $nodeSource->getNode() &&
                 null !== $nodeSource->getNode()->getNodeType() &&
                 $visitor instanceof SerializationVisitorInterface &&
+                !$exclusionStrategy->shouldSkipProperty($urlProperty, $event->getContext()) &&
                 $nodeSource->getNode()->getStatus() <= Node::PUBLISHED &&
                 $nodeSource->getNode()->getNodeType()->isReachable()
             ) {
                 $visitor->visitProperty(
-                    new StaticPropertyMetadata('string', 'url', []),
+                    $urlProperty,
                     $this->urlGenerator->generate(
                         RouteObjectInterface::OBJECT_BASED_ROUTE_NAME,
                         [
