@@ -315,7 +315,7 @@ can be helpful for avoiding *document* or *node reference* fields to bloat your 
 
 On `NodesSources` content:
 
-- path: `string` Filters nodes-sources against a valid path (based on node' name or alias), example: `/home`. Path does require `_locale` filter to fetch right translation.
+- path: `string` Filters nodes-sources against a valid path (based on node' name or alias), example: `/home`. Path does require `_locale` filter to fetch right translation. Path filter can resolve any *Redirection* too if it is linked to a valid node-source.
 - id: `id` Nodes-sources ID
 - title: `string`
 - publishedAt: `DateTime` or `array` with :
