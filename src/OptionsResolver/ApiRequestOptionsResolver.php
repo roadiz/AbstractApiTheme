@@ -11,6 +11,7 @@ use RZ\Roadiz\Core\Entities\Node;
 use RZ\Roadiz\Core\Entities\NodesSources;
 use RZ\Roadiz\Core\Entities\NodeType;
 use RZ\Roadiz\Core\Entities\NodeTypeField;
+use RZ\Roadiz\Core\Entities\Redirection;
 use RZ\Roadiz\Core\Routing\PathResolverInterface;
 use Symfony\Component\OptionsResolver\Exception\InvalidOptionsException;
 use Symfony\Component\OptionsResolver\Options;
@@ -314,10 +315,20 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
     {
         $resourceInfo = $this->pathResolver->resolvePath($path, ['html', 'json'], true);
         $resource = $resourceInfo->getResource();
+        /*
+         * Normalize redirected node-sources
+         */
+        if (null !== $resource &&
+            $resource instanceof Redirection &&
+            null !== $resource->getRedirectNodeSource()) {
+            return $resource->getRedirectNodeSource();
+        }
+        /*
+         * Or plain node-source
+         */
         if (null !== $resource && $resource instanceof NodesSources) {
             return $resource;
         }
-        // TODO: normalize against Redirections too!
         return null;
     }
 

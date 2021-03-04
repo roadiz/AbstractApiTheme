@@ -55,6 +55,8 @@ use Themes\AbstractApiTheme\OAuth2\Repository\ScopeRepository;
 use Themes\AbstractApiTheme\OptionsResolver\ApiRequestOptionsResolver;
 use Themes\AbstractApiTheme\OptionsResolver\TagApiRequestOptionsResolver;
 use Themes\AbstractApiTheme\Routing\ApiRouteCollection;
+use Themes\AbstractApiTheme\Routing\ChainedPathResolver;
+use Themes\AbstractApiTheme\Routing\RedirectionPathResolver;
 use Themes\AbstractApiTheme\Security\Authentication\Provider\AuthenticationProvider;
 use Themes\AbstractApiTheme\Security\Authentication\Provider\OAuth2Provider;
 use Themes\AbstractApiTheme\Security\Authentication\Token\OAuth2TokenFactory;
@@ -345,12 +347,26 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
             );
         };
 
+        $container[RedirectionPathResolver::class] = function (Container $c) {
+            return new RedirectionPathResolver($c['em']);
+        };
+
+        /*
+         * Resolve redirection and nodeSource at the same time.
+         */
+        $container[ChainedPathResolver::class] = function (Container $c) {
+            return new ChainedPathResolver([
+                $c[RedirectionPathResolver::class],
+                $c[NodesSourcesPathResolver::class]
+            ]);
+        };
+
         $container[ApiRequestOptionsResolver::class] = $container->factory(function ($c) {
             return new ApiRequestOptionsResolver(
                 $c['defaultTranslation']->getLocale(),
                 $c['tagApi'],
                 $c['nodeApi'],
-                $c[NodesSourcesPathResolver::class],
+                $c[ChainedPathResolver::class],
                 $c['em']
             );
         });
