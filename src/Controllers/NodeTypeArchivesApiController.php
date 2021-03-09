@@ -85,6 +85,10 @@ class NodeTypeArchivesApiController extends AbstractNodeTypeApiController
         /** @var SerializerInterface $serializer */
         $serializer = $this->get('serializer');
         $context = $this->getSerializationContext($options);
+        $context
+            ->setAttribute('request', $request)
+            ->setAttribute('nodeType', $nodeType)
+        ;
         $response = new JsonResponse(
             $serializer->serialize(
                 $entityListManager,
