@@ -478,27 +478,41 @@ URL in your front-end framework without carrying API scheme.
 
 ### Listing node-source children
 
-For safety reasons, we do not embed node-sources children automatically. We invite you to use [TreeWalker](https://github.com/rezozero/tree-walker) library to extend your JSON serialization to build a safe graph for each of your node-types.
+For safety reasons, we do not embed node-sources children automatically. We invite you to use [TreeWalker](https://github.com/rezozero/tree-walker) library to extend your JSON serialization to build a safe graph for each of your node-types. Create a `JMS\Serializer\EventDispatcher\EventSubscriberInterface` subscriber to extend
+`serializer.post_serialize` event with `StaticPropertyMetadata`.
 
 ```php
-$blockWalker = BlockNodeSourceWalker::build(
-    $nodeSource,
-    $this->get(NodeSourceWalkerContext::class),
-    4, // max graph level
-    $this->get('nodesSourcesUrlCacheProvider')
+# Any JMS\Serializer\EventDispatcher\EventSubscriberInterface implementation…
+
+$exclusionStrategy = $context->getExclusionStrategy() ?? 
+    new \JMS\Serializer\Exclusion\DisjunctExclusionStrategy();
+/** @var array<string> $groups */
+$groups = $context->hasAttribute('groups') ? 
+    $context->getAttribute('groups') : 
+    [];
+$groups = array_unique(array_merge($groups, [
+    'walker',
+    'children'
+]));
+$propertyMetadata = new \JMS\Serializer\Metadata\StaticPropertyMetadata(
+    'Collection',
+    'children',
+    [],
+    $groups
 );
-$visitor->visitProperty(
-    new StaticPropertyMetadata(
-        'Collection',
-        'children',
-        [],
-        array_merge($context->getAttribute('groups'), [
-            'walker',
-            'children'
-        ])
-    ),
-    $blockWalker->getChildren()
-);
+# Check if virtual property children has been requested with properties[] filter…
+if (!$exclusionStrategy->shouldSkipProperty($propertyMetadata, $context)) {
+    $blockWalker = BlockNodeSourceWalker::build(
+        $nodeSource,
+        $this->get(NodeSourceWalkerContext::class),
+        4, // max graph level
+        $this->get('nodesSourcesUrlCacheProvider')
+    );
+    $visitor->visitProperty(
+        $propertyMetadata,
+        $blockWalker->getChildren()
+    );
+}
 ```
 
 ### Serialization context
@@ -534,7 +548,7 @@ public function onPostSerialize(\JMS\Serializer\EventDispatcher\ObjectEvent $eve
 
 ### Errors
 
-If you want to get detailed errors in JSON, do not forget to add header: `Accept: application/json` to
+If you want to get detailed errors in JSON, do not forget to add the header: `Accept: application/json` to
 every request you make. You'll get message such as:
 
 ```json
