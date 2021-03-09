@@ -8,28 +8,29 @@
 which implemented [thephpleague/oauth2-server](https://github.com/thephpleague/oauth2-server) to 
 Symfony ecosystem.
 
-- [Configuration](#configuration)
-    * [Use .env file](#use-env-file)
-    * [Registering API theme](#registering-api-theme)
-    * [Choose between simple *API-Key* or full *OAuth2* authentication schemes](#choose-between-simple-api-key-or-full-oauth2-authentication-schemes)
-    * [Enable grant types for your website](#enable-grant-types-for-your-website)
-    * [Customize CORS](#customize-cors)
-- [Create a new application](#create-a-new-application)
-    * [Confidential applications: *OAuth2*](#confidential-applications-oauth2)
-        + [Reserved roles / scope](#reserved-roles-scope)
-- [Generic Roadiz API](#generic-roadiz-api)
-    * [API Route listing](#api-route-listing)
-    * [OAuth2 entry points](#oauth2-entry-points)
-    * [User detail entry point](#user-detail-entry-point)
-    * [Listing nodes-sources](#listing-nodes-sources)
-        + [Filters](#filters)
-    * [Search nodes-sources](#search-nodes-sources)
-        + [Filters](#filters-1)
-    * [Listing tags per node-types](#listing-tags-per-node-types)
-        + [Filters](#filters-2)
-    * [Getting node-source details](#getting-node-source-details)
-    * [Listing node-source children](#listing-node-source-children)
-
+* [Configuration](#configuration)
+  + [Use .env file](#use-env-file)
+  + [Registering API theme](#registering-api-theme)
+  + [Choose between simple *API-Key* or full *OAuth2* authentication schemes](#choose-between-simple-api-key-or-full-oauth2-authentication-schemes)
+  + [Enable grant types for your website](#enable-grant-types-for-your-website)
+  + [Customize CORS](#customize-cors)
+  + [Use cache-tags](#use-cache-tags)
+* [Create a new application](#create-a-new-application)
+  + [Confidential applications: *OAuth2*](#confidential-applications-oauth2)
+* [Generic Roadiz API](#generic-roadiz-api)
+  + [API Route listing](#api-route-listing)
+  + [OAuth2 entry points](#oauth2-entry-points)
+  + [User detail entry point](#user-detail-entry-point)
+  + [Listing nodes-sources](#listing-nodes-sources)
+  + [Search nodes-sources](#search-nodes-sources)
+  + [Listing tags per node-types](#listing-tags-per-node-types)
+  + [Listing archives per node-types](#listing-archives-per-node-types)
+  + [Getting node-source details](#getting-node-source-details)
+  + [Getting node-source details directly from its path](#getting-node-source-details-directly-from-its-path)
+  + [Listing node-source children](#listing-node-source-children)
+  + [Serialization context](#serialization-context)
+  + [Errors](#errors)
+  
 ## Configuration
 
 ### Use .env file
@@ -477,33 +478,78 @@ URL in your front-end framework without carrying API scheme.
 
 ### Listing node-source children
 
-For safety reasons, we do not embed node-sources children automatically. We invite you to use [TreeWalker](https://github.com/rezozero/tree-walker) library to extend your JSON serialization to build a safe graph for each of your node-types.
+For safety reasons, we do not embed node-sources children automatically. We invite you to use [TreeWalker](https://github.com/rezozero/tree-walker) library to extend your JSON serialization to build a safe graph for each of your node-types. Create a `JMS\Serializer\EventDispatcher\EventSubscriberInterface` subscriber to extend
+`serializer.post_serialize` event with `StaticPropertyMetadata`.
 
 ```php
-$blockWalker = BlockNodeSourceWalker::build(
-    $nodeSource,
-    $this->get(NodeSourceWalkerContext::class),
-    4, // max graph level
-    $this->get('nodesSourcesUrlCacheProvider')
+# Any JMS\Serializer\EventDispatcher\EventSubscriberInterface implementation…
+
+$exclusionStrategy = $context->getExclusionStrategy() ?? 
+    new \JMS\Serializer\Exclusion\DisjunctExclusionStrategy();
+/** @var array<string> $groups */
+$groups = $context->hasAttribute('groups') ? 
+    $context->getAttribute('groups') : 
+    [];
+$groups = array_unique(array_merge($groups, [
+    'walker',
+    'children'
+]));
+$propertyMetadata = new \JMS\Serializer\Metadata\StaticPropertyMetadata(
+    'Collection',
+    'children',
+    [],
+    $groups
 );
-$visitor->visitProperty(
-    new StaticPropertyMetadata(
-        'Collection',
-        'children',
-        [],
-        array_merge($context->getAttribute('groups'), [
-            'walker',
-            'children'
-        ])
-    ),
-    $blockWalker->getChildren()
-);
+# Check if virtual property children has been requested with properties[] filter…
+if (!$exclusionStrategy->shouldSkipProperty($propertyMetadata, $context)) {
+    $blockWalker = BlockNodeSourceWalker::build(
+        $nodeSource,
+        $this->get(NodeSourceWalkerContext::class),
+        4, // max graph level
+        $this->get('nodesSourcesUrlCacheProvider')
+    );
+    $visitor->visitProperty(
+        $propertyMetadata,
+        $blockWalker->getChildren()
+    );
+}
+```
+
+### Serialization context
+
+For each request, serialization context holds many useful objects during `serializer.post_serialize` events:
+
+- `request`: Symfony current request object
+- `nodeType`: Initial node-source type (or `null` if not applicable)
+- `cache-tags`: Cache-tags collection which is filled up during serialization graph
+- `translation`: Current request translation
+- `groups`: Serialization groups for current request
+
+```php
+# Any JMS\Serializer\EventDispatcher\EventSubscriberInterface implementation…
+
+public function onPostSerialize(\JMS\Serializer\EventDispatcher\ObjectEvent $event): void
+{
+    $context = $event->getContext();
+    
+    /** @var \Symfony\Component\HttpFoundation\Request $request */
+    $request = $context->hasAttribute('request') ? $context->getAttribute('request') : null;
+    
+    /** @var \RZ\Roadiz\Contracts\NodeType\NodeTypeInterface|null $nodeType */
+    $nodeType = $context->hasAttribute('nodeType') ? $context->getAttribute('nodeType') : null;
+    
+    /** @var \RZ\Roadiz\Core\AbstractEntities\TranslationInterface|null $translation */
+    $translation = $context->hasAttribute('translation') ? $context->getAttribute('translation') : null;
+    
+    /** @var array<string> $groups */
+    $groups = $context->hasAttribute('groups') ? $context->getAttribute('groups') : [];
+}
 ```
 
 ### Errors
 
-If you want to get detailed errors in JSON, do not forget to add header: `Accept: application/json` to
-every requests you make. You'll get message such as:
+If you want to get detailed errors in JSON, do not forget to add the header: `Accept: application/json` to
+every request you make. You'll get message such as:
 
 ```json
 {
@@ -511,7 +557,7 @@ every requests you make. You'll get message such as:
     "error_message": "Search engine does not respond.",
     "message": "Search engine does not respond.",
     "exception": "Symfony\\Component\\HttpKernel\\Exception\\HttpException",
-    "humanMessage": "A problem occurred on our website. We are working on this to be back soon.",
+    "humanMessage": "A problem occurred on our website. We are working on this to be back soon.",
     "status": "danger"
 }
 ```
