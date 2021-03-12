@@ -551,8 +551,7 @@ public function onPostSerialize(\JMS\Serializer\EventDispatcher\ObjectEvent $eve
 
 If you want your API to provide breadcrumbs for each reachable nodes-sources, you can implement 
 `Themes\AbstractApiTheme\Breadcrumbs\BreadcrumbsFactoryInterface` and register it in your `AppServiceProvider`.
-For each *NodeTypeSingle* API request, a `breadcrumbs` will be injected with all your data parents as defined in
-your *BreadcrumbsFactoryInterface*.
+For each *NodeTypeSingle* API request (i.e. not in listing context), a `breadcrumbs` will be injected with all your node parents as defined in your *BreadcrumbsFactoryInterface*.
 
 Here is a vanilla implementation which respects Roadiz node tree structure:
 
