@@ -14,14 +14,8 @@ use Themes\AbstractApiTheme\Cache\CacheTagsCollection;
 
 final class NodeSourceApiSubscriber implements EventSubscriberInterface
 {
-    /**
-     * @var UrlGeneratorInterface
-     */
-    private $urlGenerator;
-    /**
-     * @var int
-     */
-    private $referenceType;
+    private UrlGeneratorInterface $urlGenerator;
+    private int $referenceType;
 
     /**
      * @param UrlGeneratorInterface $urlGenerator

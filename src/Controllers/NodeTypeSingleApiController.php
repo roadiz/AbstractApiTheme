@@ -33,6 +33,7 @@ class NodeTypeSingleApiController extends AbstractNodeTypeApiController
             'tag_base',
             'urls',
             'meta',
+            'breadcrumbs', // only allows breadcrumbs on detail requests
         ];
     }
 

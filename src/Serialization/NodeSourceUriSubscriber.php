@@ -15,14 +15,9 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 final class NodeSourceUriSubscriber implements EventSubscriberInterface
 {
-    /**
-     * @var UrlGeneratorInterface
-     */
     private UrlGeneratorInterface $urlGenerator;
-    /**
-     * @var int
-     */
     private int $referenceType;
+    private StaticPropertyMetadata $propertyMetadata;
 
     /**
      * @param UrlGeneratorInterface $urlGenerator
@@ -34,6 +29,12 @@ final class NodeSourceUriSubscriber implements EventSubscriberInterface
     ) {
         $this->urlGenerator = $urlGenerator;
         $this->referenceType = $referenceType;
+        $this->propertyMetadata = new StaticPropertyMetadata(
+            'string',
+            'url',
+            '',
+            ['urls']
+        );
     }
 
     /**
@@ -52,31 +53,25 @@ final class NodeSourceUriSubscriber implements EventSubscriberInterface
         $nodeSource = $event->getObject();
         $visitor = $event->getVisitor();
         $context = $event->getContext();
+        $exclusionStrategy = $event->getContext()->getExclusionStrategy() ?? new DisjunctExclusionStrategy();
 
-        if ($context->hasAttribute('groups') &&
-            in_array('urls', $context->getAttribute('groups'))) {
-            $exclusionStrategy = $event->getContext()->getExclusionStrategy() ?? new DisjunctExclusionStrategy();
-            $urlProperty = new StaticPropertyMetadata('string', 'url', '', ['urls']);
-
-            if ($nodeSource instanceof NodesSources &&
-                null !== $nodeSource->getNode() &&
-                null !== $nodeSource->getNode()->getNodeType() &&
-                $visitor instanceof SerializationVisitorInterface &&
-                !$exclusionStrategy->shouldSkipProperty($urlProperty, $event->getContext()) &&
-                $nodeSource->getNode()->getStatus() <= Node::PUBLISHED &&
-                $nodeSource->getNode()->getNodeType()->isReachable()
-            ) {
-                $visitor->visitProperty(
-                    $urlProperty,
-                    $this->urlGenerator->generate(
-                        RouteObjectInterface::OBJECT_BASED_ROUTE_NAME,
-                        [
-                            RouteObjectInterface::ROUTE_OBJECT => $nodeSource
-                        ],
-                        $this->referenceType
-                    )
-                );
-            }
+        if ($nodeSource instanceof NodesSources &&
+            !$exclusionStrategy->shouldSkipProperty($this->propertyMetadata, $context) &&
+            null !== $nodeSource->getNode() &&
+            null !== $nodeSource->getNode()->getNodeType() &&
+            $visitor instanceof SerializationVisitorInterface &&
+            $nodeSource->getNode()->getStatus() <= Node::PUBLISHED &&
+            $nodeSource->getNode()->getNodeType()->isReachable()) {
+            $visitor->visitProperty(
+                $this->propertyMetadata,
+                $this->urlGenerator->generate(
+                    RouteObjectInterface::OBJECT_BASED_ROUTE_NAME,
+                    [
+                        RouteObjectInterface::ROUTE_OBJECT => $nodeSource
+                    ],
+                    $this->referenceType
+                )
+            );
         }
     }
 }
