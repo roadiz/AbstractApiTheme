@@ -14,6 +14,35 @@ use RZ\Roadiz\Core\Entities\TagTranslation;
 
 final class TagTranslationNameSubscriber implements EventSubscriberInterface
 {
+    private StaticPropertyMetadata $nameProperty;
+    private StaticPropertyMetadata $descriptionProperty;
+    private StaticPropertyMetadata $documentsProperty;
+
+    public function __construct()
+    {
+        $this->nameProperty = new StaticPropertyMetadata(
+            'string',
+            'name',
+            '',
+            ['tag_base', 'tag']
+        );
+        $this->nameProperty->skipWhenEmpty = true;
+        $this->descriptionProperty = new StaticPropertyMetadata(
+            'string',
+            'description',
+            '',
+            ['tag_base', 'tag']
+        );
+        $this->descriptionProperty->skipWhenEmpty = true;
+        $this->documentsProperty = new StaticPropertyMetadata(
+            'array',
+            'documents',
+            [],
+            ['tag_base', 'tag']
+        );
+        $this->documentsProperty->skipWhenEmpty = true;
+    }
+
     /**
      * @inheritDoc
      */
@@ -45,41 +74,23 @@ final class TagTranslationNameSubscriber implements EventSubscriberInterface
                 /** @var TagTranslation|false $tagTranslation */
                 $tagTranslation = $object->getTranslatedTagsByTranslation($translation)->first();
                 if (false !== $tagTranslation) {
-                    $nameProperty = new StaticPropertyMetadata(
-                        'string',
-                        'name',
-                        '',
-                        ['tag_base', 'tag']
-                    );
-                    if (!$exclusionStrategy->shouldSkipProperty($nameProperty, $context)) {
+                    if (!$exclusionStrategy->shouldSkipProperty($this->nameProperty, $context)) {
                         $visitor->visitProperty(
-                            $nameProperty,
+                            $this->nameProperty,
                             $tagTranslation->getName()
                         );
                     }
 
-                    $descriptionProperty = new StaticPropertyMetadata(
-                        'string',
-                        'description',
-                        '',
-                        ['tag_base', 'tag']
-                    );
-                    if (!$exclusionStrategy->shouldSkipProperty($descriptionProperty, $context)) {
+                    if (!$exclusionStrategy->shouldSkipProperty($this->descriptionProperty, $context)) {
                         $visitor->visitProperty(
-                            $descriptionProperty,
+                            $this->descriptionProperty,
                             $tagTranslation->getDescription()
                         );
                     }
 
-                    $documentsProperty = new StaticPropertyMetadata(
-                        'array',
-                        'documents',
-                        [],
-                        ['tag_base', 'tag']
-                    );
-                    if (!$exclusionStrategy->shouldSkipProperty($documentsProperty, $context)) {
+                    if (!$exclusionStrategy->shouldSkipProperty($this->documentsProperty, $context)) {
                         $visitor->visitProperty(
-                            $documentsProperty,
+                            $this->documentsProperty,
                             $tagTranslation->getDocuments()
                         );
                     }

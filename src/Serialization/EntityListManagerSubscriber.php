@@ -13,10 +13,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 
 final class EntityListManagerSubscriber implements EventSubscriberInterface
 {
-    /**
-     * @var RequestStack
-     */
-    protected $requestStack;
+    private RequestStack $requestStack;
 
     /**
      * @param RequestStack $requestStack

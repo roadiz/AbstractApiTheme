@@ -30,6 +30,7 @@ use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Security\Http\Firewall\ExceptionListener;
 use Symfony\Component\Security\Http\FirewallMap;
 use Symfony\Component\Translation\Translator;
+use Themes\AbstractApiTheme\Breadcrumbs\BreadcrumbsFactoryInterface;
 use Themes\AbstractApiTheme\Controllers\NodesSourcesListingApiController;
 use Themes\AbstractApiTheme\Controllers\NodesSourcesSearchApiController;
 use Themes\AbstractApiTheme\Controllers\NodeTypeArchivesApiController;
@@ -62,7 +63,7 @@ use Themes\AbstractApiTheme\Security\Authentication\Provider\OAuth2Provider;
 use Themes\AbstractApiTheme\Security\Authentication\Token\OAuth2TokenFactory;
 use Themes\AbstractApiTheme\Security\Firewall\ApplicationListener;
 use Themes\AbstractApiTheme\Security\Firewall\OAuth2Listener;
-use Themes\AbstractApiTheme\Serialization\ChildrenApiSubscriber;
+use Themes\AbstractApiTheme\Serialization\BreadcrumbsSubscriber;
 use Themes\AbstractApiTheme\Serialization\DocumentApiSubscriber;
 use Themes\AbstractApiTheme\Serialization\EntityListManagerSubscriber;
 use Themes\AbstractApiTheme\Serialization\NodeSourceApiSubscriber;
@@ -439,13 +440,15 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
             return $routeCollection;
         });
 
-        $container->extend('serializer.subscribers', function (array $subscribers, $c) {
+        $container->extend('serializer.subscribers', function (array $subscribers, Container $c) {
             $subscribers[] = new NodeSourceUriSubscriber($c['router'], $c['api.node_source_uri_reference_type']);
             $subscribers[] = new EntityListManagerSubscriber($c['requestStack']);
             $subscribers[] = new NodeSourceApiSubscriber($c['router'], $c['api.reference_type']);
             $subscribers[] = new TagApiSubscriber();
             $subscribers[] = new DocumentApiSubscriber($c['assetPackages']);
-            $subscribers[] = new ChildrenApiSubscriber($c['em']);
+            if ($c->offsetExists(BreadcrumbsFactoryInterface::class)) {
+                $subscribers[] = new BreadcrumbsSubscriber($c[BreadcrumbsFactoryInterface::class]);
+            }
             $subscribers[] = new SeoDataSubscriber(
                 $c['settingsBag']->get('site_name', null) ?? '',
                 $c['settingsBag']->get('seo_description', $c['settingsBag']->get('site_name', null)) ?? ''

@@ -1,6 +1,6 @@
 # Abstract API theme
 
-**Base theme for createing simple public RESTful API protected with referrer API keys.**
+**Base theme for creating simple public RESTful API protected with referrer API keys.**
 
 [![Build Status](https://travis-ci.org/roadiz/AbstractApiTheme.svg?branch=master)](https://travis-ci.org/roadiz/AbstractApiTheme)
 
@@ -29,6 +29,7 @@ Symfony ecosystem.
   + [Getting node-source details directly from its path](#getting-node-source-details-directly-from-its-path)
   + [Listing node-source children](#listing-node-source-children)
   + [Serialization context](#serialization-context)
+  + [Breadcrumbs](#breadcrumbs)
   + [Errors](#errors)
   
 ## Configuration
@@ -544,6 +545,60 @@ public function onPostSerialize(\JMS\Serializer\EventDispatcher\ObjectEvent $eve
     /** @var array<string> $groups */
     $groups = $context->hasAttribute('groups') ? $context->getAttribute('groups') : [];
 }
+```
+
+### Breadcrumbs
+
+If you want your API to provide breadcrumbs for each reachable nodes-sources, you can implement 
+`Themes\AbstractApiTheme\Breadcrumbs\BreadcrumbsFactoryInterface` and register it in your `AppServiceProvider`.
+For each *NodeTypeSingle* API request, a `breadcrumbs` will be injected with all your data parents as defined in
+your *BreadcrumbsFactoryInterface*.
+
+Here is a vanilla implementation which respects Roadiz node tree structure:
+
+```php
+<?php
+declare(strict_types=1);
+
+namespace App\Breadcrumbs;
+
+use RZ\Roadiz\Core\Entities\NodesSources;
+use Themes\AbstractApiTheme\Breadcrumbs\BreadcrumbsFactoryInterface;
+use Themes\AbstractApiTheme\Breadcrumbs\Breadcrumbs;
+
+final class BreadcrumbsFactory implements BreadcrumbsFactoryInterface
+{
+    /**
+     * @param NodesSources|null $nodesSources
+     * @return Breadcrumbs|null
+     */
+    public function create(?NodesSources $nodesSources): ?Breadcrumbs
+    {
+        if (null === $nodesSources ||
+            null === $nodesSources->getNode() ||
+            null === $nodesSources->getNode()->getNodeType() ||
+            !$nodesSources->getNode()->getNodeType()->isReachable()) {
+            return null;
+        }
+        $parents = [];
+
+        while (null !== $nodesSources = $nodesSources->getParent()) {
+            if (null !== $nodesSources->getNode() &&
+                $nodesSources->getNode()->isPublished() &&
+                $nodesSources->getNode()->isVisible()) {
+                $parents[] = $nodesSources;
+            }
+        }
+        return new Breadcrumbs(array_reverse($parents));
+    }
+}
+```
+
+```php
+# App\AppServiceProvider
+$container[BreadcrumbsFactoryInterface::class] = function (Container $c) {
+    return new BreadcrumbsFactory();
+};
 ```
 
 ### Errors
