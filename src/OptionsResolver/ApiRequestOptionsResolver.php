@@ -372,22 +372,42 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
             switch ($key) {
                 case 'node_parent':
                     $options['node.parent'] = $this->normalizeNodeFilter($value);
+                    if (null === $options['node.parent']) {
+                        // Force NO results if filter does not resolve.
+                        $options['id'] = 0;
+                    }
                     unset($options['node_parent']);
                     break;
                 case 'node_bNodes_nodeB':
                     $options['node.bNodes.nodeB'] = $this->normalizeNodeFilter($value);
+                    if (null === $options['node.bNodes.nodeB']) {
+                        // Force NO results if filter does not resolve.
+                        $options['id'] = 0;
+                    }
                     unset($options['node_bNodes_nodeB']);
                     break;
                 case 'node_aNodes_nodeA':
                     $options['node.aNodes.nodeA'] = $this->normalizeNodeFilter($value);
+                    if (null === $options['node.aNodes.nodeA']) {
+                        // Force NO results if filter does not resolve.
+                        $options['id'] = 0;
+                    }
                     unset($options['node_aNodes_nodeA']);
                     break;
                 case 'node_bNodes_field_name':
                     $options['node.bNodes.field.name'] = $value;
+                    if (null === $options['node.bNodes.field.name']) {
+                        // Force NO results if filter does not resolve.
+                        $options['id'] = 0;
+                    }
                     unset($options['node_bNodes_field_name']);
                     break;
                 case 'node_aNodes_field_name':
                     $options['node.aNodes.field.name'] = $value;
+                    if (null === $options['node.aNodes.field.name']) {
+                        // Force NO results if filter does not resolve.
+                        $options['id'] = 0;
+                    }
                     unset($options['node_aNodes_field_name']);
                     break;
                 case 'node_visible':
@@ -404,6 +424,10 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
                     break;
                 case 'node_nodeType':
                     $options['node.nodeType'] = $this->normalizeNodeTypes($value);
+                    if (null === $options['node.nodeType']) {
+                        // Force NO results if filter does not resolve.
+                        $options['id'] = 0;
+                    }
                     unset($options['node_nodeType']);
                     break;
                 case 'node_nodeName':
