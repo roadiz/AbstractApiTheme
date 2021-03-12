@@ -3,22 +3,22 @@ declare(strict_types=1);
 
 namespace Themes\AbstractApiTheme\Breadcrumbs;
 
-use JMS\Serializer\Annotation as JMS;
+use JMS\Serializer\Annotation as Serializer;
 use RZ\Roadiz\Core\Entities\NodesSources;
 
 final class Breadcrumbs
 {
     /**
      * @var array<NodesSources>
-     * @JMS\Groups({"breadcrumbs"})
-     * @JMS\Type("array<RZ\Roadiz\Core\Entities\NodesSources>")
-     * @JMS\MaxDepth(1)
-     * @JMS\SkipWhenEmpty
+     * @Serializer\Groups({"breadcrumbs"})
+     * @Serializer\Type("array<RZ\Roadiz\Core\Entities\NodesSources>")
+     * @Serializer\MaxDepth(1)
+     * @Serializer\SkipWhenEmpty
      */
     private array $items;
 
     /**
-     * @param array $items
+     * @param array<NodesSources> $items
      */
     public function __construct(array $items)
     {
