@@ -70,7 +70,7 @@ final class SeoDataSubscriber implements EventSubscriberInterface
             null !== $nodeSource->getNode()->getNodeType() &&
             $nodeSource->getNode()->getNodeType()->isReachable()) {
             if (!$exclusionStrategy->shouldSkipProperty($this->titleProperty, $context) &&
-                (null === $nodeSource->getMetaTitle() || $nodeSource->getMetaTitle() === '')) {
+                $nodeSource->getMetaTitle() === '') {
                 $visitor->visitProperty(
                     $this->titleProperty,
                     sprintf($this->format, $nodeSource->getTitle(), $this->siteName)
@@ -78,7 +78,7 @@ final class SeoDataSubscriber implements EventSubscriberInterface
             }
 
             if (!$exclusionStrategy->shouldSkipProperty($this->descriptionProperty, $context) &&
-                (null === $nodeSource->getMetaDescription() || $nodeSource->getMetaDescription() === '') &&
+                $nodeSource->getMetaDescription() === '' &&
                 $this->siteDescription !== '') {
                 $visitor->visitProperty(
                     $this->descriptionProperty,
