@@ -14,10 +14,9 @@ use JMS\Serializer\SerializationContext;
 use JMS\Serializer\Visitor\SerializationVisitorInterface;
 use RZ\Roadiz\Core\Entities\NodesSources;
 
-final class BreadcrumbsSubscriber implements EventSubscriberInterface
+final class BreadcrumbsSubscriber extends AbstractReachableNodesSourcesPostSerializationSubscriber
 {
     private BreadcrumbsFactoryInterface $breadcrumbsFactory;
-    private StaticPropertyMetadata $propertyMetadata;
 
     /**
      * @param BreadcrumbsFactoryInterface $breadcrumbsFactory
@@ -34,32 +33,11 @@ final class BreadcrumbsSubscriber implements EventSubscriberInterface
         $this->propertyMetadata->skipWhenEmpty = true;
     }
 
-    /**
-     * @inheritDoc
-     */
-    public static function getSubscribedEvents()
-    {
-        return [[
-            'event' => 'serializer.post_serialize',
-            'method' => 'onPostSerialize',
-        ]];
-    }
-
-    private function supports(ObjectEvent $event, PropertyMetadata $propertyMetadata): bool
-    {
-        $context = $event->getContext();
-        $exclusionStrategy = $context->getExclusionStrategy() ?? new DisjunctExclusionStrategy();
-        return $event->getObject() instanceof NodesSources &&
-            !$exclusionStrategy->shouldSkipProperty($propertyMetadata, $context);
-    }
-
     public function onPostSerialize(ObjectEvent $event): void
     {
         $nodeSource = $event->getObject();
-        /** @var SerializationContext $context */
-        $context = $event->getContext();
         /** @var SerializationVisitorInterface $visitor */
-        $visitor = $context->getVisitor();
+        $visitor = $event->getVisitor();
 
         if ($this->supports($event, $this->propertyMetadata)) {
             $visitor->visitProperty(
