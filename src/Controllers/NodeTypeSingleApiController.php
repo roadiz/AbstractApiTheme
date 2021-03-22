@@ -27,6 +27,7 @@ class NodeTypeSingleApiController extends AbstractNodeTypeApiController
             'walker', // rezozero tree-walker
             'children', // rezozero tree-walker
             'nodes_sources',
+            'nodes_sources_single', // for displaying custom objects only on main entity
             'document_display',
             'thumbnail',
             'url_alias',

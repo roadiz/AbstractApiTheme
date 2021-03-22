@@ -525,6 +525,26 @@ For each request, serialization context holds many useful objects during `serial
 - `cache-tags`: Cache-tags collection which is filled up during serialization graph
 - `translation`: Current request translation
 - `groups`: Serialization groups for current request
+    - Serialization groups during a **listing** nodes-sources request:
+        - `nodes_sources_base`
+        - `document_display`
+        - `thumbnail`
+        - `tag_base`
+        - `nodes_sources_default`
+        - `urls`
+        - `meta`
+  - Serialization groups during a **single** node-source request:
+        - `walker`: rezozero tree-walker
+        - `children`: rezozero tree-walker
+        - `nodes_sources`
+        - `nodes_sources_single`: for displaying custom objects only on main entity
+        - `document_display`
+        - `thumbnail`
+        - `url_alias`
+        - `tag_base`
+        - `urls`
+        - `meta`
+        - `breadcrumbs`: only allows breadcrumbs on detail requests
 
 ```php
 # Any JMS\Serializer\EventDispatcher\EventSubscriberInterface implementation…
