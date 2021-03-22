@@ -28,7 +28,7 @@ abstract class AbstractReachableNodesSourcesPostSerializationSubscriber implemen
     }
 
     /**
-     * @return class-string
+     * @return class-string<NodesSources>
      */
     protected function getSupportedType(): string
     {
@@ -44,10 +44,10 @@ abstract class AbstractReachableNodesSourcesPostSerializationSubscriber implemen
         $supportedType = $this->getSupportedType();
 
         return !$exclusionStrategy->shouldSkipProperty($propertyMetadata, $context) &&
+            $visitor instanceof SerializationVisitorInterface &&
             $nodeSource instanceof $supportedType &&
             null !== $nodeSource->getNode() &&
             $nodeSource->getNode()->getStatus() <= Node::PUBLISHED &&
-            $visitor instanceof SerializationVisitorInterface &&
             null !== $nodeSource->getNode()->getNodeType() &&
             $nodeSource->getNode()->getNodeType()->isReachable();
     }
