@@ -138,6 +138,24 @@ abstract class AbstractApiRequestOptionsResolver
                 'id' => $value,
             ]);
         }
+        /*
+         * Test against an IRI
+         */
+        if (null !== $value &&
+            is_string($value) &&
+            1 === preg_match(
+                '#/(?<nodeType>[a-zA-Z\-\_0-9]+)/(?<id>[0-9]+)/(?<locale>[a-z]{2,3})#',
+                $value,
+                $matches
+            )
+        ) {
+            return $this->nodeApi->getOneBy([
+                'id' => (int) $matches['id'],
+            ]);
+        }
+        /*
+         * Test against nodeName
+         */
         if (null !== $value && is_string($value)) {
             return $this->nodeApi->getOneBy([
                 'nodeName' => $value,

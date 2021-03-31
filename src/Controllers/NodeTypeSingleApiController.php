@@ -21,7 +21,7 @@ use Themes\AbstractApiTheme\Subscriber\LinkedApiResponseSubscriber;
 
 class NodeTypeSingleApiController extends AbstractNodeTypeApiController
 {
-    protected function getSerializationGroups(): array
+    protected function getDefaultSerializationGroups(): array
     {
         return [
             'walker', // rezozero tree-walker
