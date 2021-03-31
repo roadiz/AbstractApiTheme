@@ -9,7 +9,7 @@ install:
     - php composer.phar install --dev --no-interaction
 script:
     - vendor/bin/phpcs --report=full --report-file=./report.txt -p
-    - vendor/bin/phpstan analyse -c phpstan.neon -l max src
+    - vendor/bin/phpstan analyse -c phpstan.neon
 jobs:
     allow_failures:
         -   php: nightly

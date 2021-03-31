@@ -24,6 +24,15 @@ class NodeTypeTagsApiController extends AbstractNodeTypeApiController
      */
     protected array $implicitTags = [];
 
+    protected function getDefaultSerializationGroups(): array
+    {
+        return [
+            'tag',
+            'urls',
+            'meta',
+        ];
+    }
+
     /**
      * @param Request $request
      * @param int     $nodeTypeId
@@ -198,15 +207,6 @@ class NodeTypeTagsApiController extends AbstractNodeTypeApiController
     protected function getImplicitTags(): ?array
     {
         return $this->implicitTags;
-    }
-
-    protected function getSerializationGroups(): array
-    {
-        return [
-            'tag',
-            'urls',
-            'meta',
-        ];
     }
 
     protected function denyAccessUnlessNodeTypeGranted(NodeTypeInterface $nodeType): void

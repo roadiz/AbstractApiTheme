@@ -18,19 +18,6 @@ use Themes\AbstractApiTheme\OptionsResolver\ApiRequestOptionsResolver;
 
 class NodesSourcesSearchApiController extends AbstractNodeTypeApiController
 {
-    protected function getSerializationGroups(): array
-    {
-        return [
-            'nodes_sources_base',
-            'document_display',
-            'thumbnail',
-            'tag_base',
-            'nodes_sources_default',
-            'urls',
-            'meta',
-        ];
-    }
-
     protected function denyAccessUnlessNodeTypeGranted(NodeTypeInterface $nodeType): void
     {
         // Override denyAccessUnlessNodeTypeGranted() in your custom controller.

@@ -16,7 +16,37 @@ use Themes\AbstractApiTheme\Subscriber\LinkedApiResponseSubscriber;
 
 abstract class AbstractNodeTypeApiController extends AbstractApiThemeApp
 {
-    abstract protected function getSerializationGroups(): array;
+    protected array $serializationGroups;
+
+    /**
+     * @param array|null $serializationGroups
+     */
+    public function __construct(?array $serializationGroups = null)
+    {
+        if (null !== $serializationGroups) {
+            $this->serializationGroups = $serializationGroups;
+        } else {
+            $this->serializationGroups = $this->getDefaultSerializationGroups();
+        }
+    }
+
+    protected function getSerializationGroups(): array
+    {
+        return $this->serializationGroups;
+    }
+
+    protected function getDefaultSerializationGroups(): array
+    {
+        return [
+            'nodes_sources_base',
+            'document_display',
+            'thumbnail',
+            'tag_base',
+            'nodes_sources_default',
+            'urls',
+            'meta',
+        ];
+    }
 
     abstract protected function denyAccessUnlessNodeTypeGranted(NodeTypeInterface $nodeType): void;
 

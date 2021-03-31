@@ -19,6 +19,14 @@ use Themes\AbstractApiTheme\OptionsResolver\ApiRequestOptionsResolver;
 
 class NodeTypeArchivesApiController extends AbstractNodeTypeApiController
 {
+    protected function getDefaultSerializationGroups(): array
+    {
+        return [
+            'urls',
+            'meta',
+        ];
+    }
+
     /**
      * @param Request $request
      * @param int     $nodeTypeId
@@ -177,14 +185,6 @@ class NodeTypeArchivesApiController extends AbstractNodeTypeApiController
         }
 
         return $qb;
-    }
-
-    protected function getSerializationGroups(): array
-    {
-        return [
-            'urls',
-            'meta',
-        ];
     }
 
     protected function denyAccessUnlessNodeTypeGranted(NodeTypeInterface $nodeType): void

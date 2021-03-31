@@ -14,19 +14,6 @@ use Themes\AbstractApiTheme\OptionsResolver\ApiRequestOptionsResolver;
 
 class NodeTypeListingApiController extends AbstractNodeTypeApiController
 {
-    protected function getSerializationGroups(): array
-    {
-        return [
-            'nodes_sources_base',
-            'document_display',
-            'thumbnail',
-            'tag_base',
-            'nodes_sources_default',
-            'urls',
-            'meta',
-        ];
-    }
-
     protected function getListingType(?NodeTypeInterface $nodeType): string
     {
         return $nodeType ? $nodeType->getSourceEntityFullQualifiedClassName() : NodesSources::class;

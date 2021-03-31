@@ -320,6 +320,7 @@ On `NodesSources` content:
 - path: `string` Filters nodes-sources against a valid path (based on node' name or alias), example: `/home`. Path does require `_locale` filter to fetch right translation. Path filter can resolve any *Redirection* too if it is linked to a valid node-source.
 - id: `id` Nodes-sources ID
 - title: `string`
+- not: `array<int|string>|int|string`, filters out one or many nodes using their numeric ID or node-name
 - publishedAt: `DateTime` or `array` with :
   - `after`
   - `before`
@@ -342,7 +343,7 @@ Plus **any** date, datetime and boolean node-type fields which are **indexed**.
 #### Locale filter
 
 `_locale` filter **set Roadiz main translation** for all database lookups, make sure to always set it to
-the right locale or you won't get any result with `search` or `path` filters against French queries.
+the right locale, or you won't get any result with `search` or `path` filters against French queries.
 
 #### Path filter
 

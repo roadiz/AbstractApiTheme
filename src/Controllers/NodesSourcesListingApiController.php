@@ -14,19 +14,6 @@ use Themes\AbstractApiTheme\OptionsResolver\ApiRequestOptionsResolver;
 
 class NodesSourcesListingApiController extends AbstractNodeTypeApiController
 {
-    protected function getSerializationGroups(): array
-    {
-        return [
-            'nodes_sources_base',
-            'document_display',
-            'thumbnail',
-            'tag_base',
-            'nodes_sources_default',
-            'urls',
-            'meta',
-        ];
-    }
-
     protected function getListingType(array $options): string
     {
         if ($options['node.nodeType'] instanceof NodeTypeInterface) {
