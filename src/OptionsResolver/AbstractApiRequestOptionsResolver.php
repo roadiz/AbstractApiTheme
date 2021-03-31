@@ -141,13 +141,13 @@ abstract class AbstractApiRequestOptionsResolver
         /*
          * Test against an IRI
          */
-        if (
-            null !== $value &&
+        if (null !== $value &&
             is_string($value) &&
             1 === preg_match(
                 '#/(?<nodeType>[a-zA-Z\-\_0-9]+)/(?<id>[0-9]+)/(?<locale>[a-z]{2,3})#',
                 $value,
-                $matches)
+                $matches
+            )
         ) {
             return $this->nodeApi->getOneBy([
                 'id' => (int) $matches['id'],

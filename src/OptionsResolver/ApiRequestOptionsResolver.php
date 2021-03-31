@@ -192,10 +192,11 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
                     if (!is_numeric($value) && !is_string($value)) {
                         throw new InvalidOptionsException('Not filter must be an ID or a node-name');
                     }
-                }
-                foreach ($value as $key => $notValue) {
-                    if (!is_numeric($notValue) && !is_string($notValue)) {
-                        throw new InvalidOptionsException('Not filter value must be an ID or a node-name');
+                } else {
+                    foreach ($value as $key => $notValue) {
+                        if (!is_numeric($notValue) && !is_string($notValue)) {
+                            throw new InvalidOptionsException('Not filter value must be an ID or a node-name');
+                        }
                     }
                 }
             }
