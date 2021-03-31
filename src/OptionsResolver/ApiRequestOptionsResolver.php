@@ -92,7 +92,7 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
             'title' => null,
             'publishedAt' => null,
             'tags' => null,
-            'tagExclusive' => false,
+            'tagExclusive' => null,
             'not' => null,
             'node.id' => null,
             'node.nodeName' => null,
@@ -117,7 +117,7 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
         $resolver->setAllowedTypes('properties', ['array', 'null']);
         $resolver->setAllowedTypes('publishedAt', ['array', 'string', 'null']);
         $resolver->setAllowedTypes('tags', ['array', 'string', 'null']);
-        $resolver->setAllowedTypes('tagExclusive', ['boolean', 'string', 'int']);
+        $resolver->setAllowedTypes('tagExclusive', ['boolean', 'string', 'int', 'null']);
         $resolver->setAllowedTypes('node.nodeType.reachable', ['boolean', 'string', 'int', 'null']);
         $resolver->setAllowedTypes('node.nodeType', ['array', NodeType::class, 'string', 'int', 'null']);
         $resolver->setAllowedTypes('node.visible', ['boolean', 'string', 'int', 'null']);
@@ -133,7 +133,10 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
         $resolver->setAllowedTypes('id', ['int', 'array', NodesSources::class, 'null']);
 
         $resolver->setNormalizer('tagExclusive', function (Options $options, $value) {
-            return $this->normalizeBoolean($value);
+            if (null !== $value && null !== $options['search']) {
+                throw new InvalidOptionsException('tagExclusive filter cannot be used with search filter');
+            }
+            return null !== $value ? $this->normalizeBoolean($value) : null;
         });
 
         $resolver->setNormalizer('_preview', function (Options $options, $value) {
@@ -220,10 +223,13 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
         });
 
         $resolver->setNormalizer('tags', function (Options $options, $value) {
+            if (null !== $value && null !== $options['search']) {
+                throw new InvalidOptionsException('tags filter cannot be used with search filter');
+            }
             if (is_array($value)) {
-                return array_map(function ($singleValue) {
+                return array_filter(array_map(function ($singleValue) {
                     return $this->normalizeTagFilter($singleValue);
-                }, $value);
+                }, $value));
             }
             return $this->normalizeTagFilter($value);
         });

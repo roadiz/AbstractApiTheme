@@ -326,8 +326,8 @@ On `NodesSources` content:
   - `before`
   - `strictly_after`
   - `strictly_before`
-- tags: `array<string>`
-- tagExclusive: `bool`
+- tags: `array<string>` filter by tags (cannot be used with `search`)
+- tagExclusive: `bool` filter by tags with AND logic (cannot be used with `search`)
 - node.parent: `int|string` numeric ID, node-name or *@id*
 - node.aNodes.nodeA: `int|string` (numeric ID, node-name or *@id*) Filter by a node reference (finds nodes which are referenced)
 - node.bNodes.nodeB: `int|string` (numeric ID, node-name or *@id*) Filter by a node reference (finds node which owns reference)
