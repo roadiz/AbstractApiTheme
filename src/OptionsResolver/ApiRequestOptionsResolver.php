@@ -94,6 +94,7 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
             'tags' => null,
             'tagExclusive' => false,
             'not' => null,
+            'node.id' => null,
             'node.nodeName' => null,
             'node.parent' => false,
             'node.bNodes.nodeB' => false,
@@ -121,6 +122,7 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
         $resolver->setAllowedTypes('node.nodeType', ['array', NodeType::class, 'string', 'int', 'null']);
         $resolver->setAllowedTypes('node.visible', ['boolean', 'string', 'int', 'null']);
         $resolver->setAllowedTypes('node.parent', ['boolean', 'string', Node::class, 'null']);
+        $resolver->setAllowedTypes('node.id', ['array', 'int', 'null']);
         $resolver->setAllowedTypes('node.nodeName', ['string', 'null']);
         $resolver->setAllowedTypes('node.bNodes.nodeB', ['boolean', 'string', Node::class, 'null']);
         $resolver->setAllowedTypes('node.aNodes.nodeA', ['boolean', 'string', Node::class, 'null']);
@@ -128,7 +130,7 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
         $resolver->setAllowedTypes('node.aNodes.field.name', ['string', 'null']);
         $resolver->setAllowedTypes('node.home', ['boolean', 'string', 'int', 'null']);
         $resolver->setAllowedTypes('path', ['string', 'null']);
-        $resolver->setAllowedTypes('id', ['int', NodesSources::class, 'null']);
+        $resolver->setAllowedTypes('id', ['int', 'array', NodesSources::class, 'null']);
 
         $resolver->setNormalizer('tagExclusive', function (Options $options, $value) {
             return $this->normalizeBoolean($value);
@@ -190,13 +192,11 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
                     if (!is_numeric($value) && !is_string($value)) {
                         throw new InvalidOptionsException('Not filter must be an ID or a node-name');
                     }
-                    return $this->normalizeNodeFilter($value);
                 }
                 foreach ($value as $key => $notValue) {
                     if (!is_numeric($notValue) && !is_string($notValue)) {
                         throw new InvalidOptionsException('Not filter value must be an ID or a node-name');
                     }
-                    $value[$key] = $this->normalizeNodeFilter($notValue);
                 }
             }
             return $value;
@@ -456,9 +456,15 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
                     break;
                 case 'not':
                     if (is_array($value)) {
-                        $options['id'] = ['NOT IN', $value];
+                        $notNodes = array_filter(array_map([$this, 'normalizeNodeFilter'], $value));
+                        if (count($notNodes) > 0) {
+                            $options['node.id'] = ['NOT IN', $notNodes];
+                        }
                     } else {
-                        $options['id'] = ['!=', $value];
+                        $notNodes = $this->normalizeNodeFilter($value);
+                        if (null !== $notNodes) {
+                            $options['node.id'] = ['!=', $notNodes];
+                        }
                     }
                     unset($options['not']);
                     break;

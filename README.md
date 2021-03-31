@@ -320,7 +320,7 @@ On `NodesSources` content:
 - path: `string` Filters nodes-sources against a valid path (based on node' name or alias), example: `/home`. Path does require `_locale` filter to fetch right translation. Path filter can resolve any *Redirection* too if it is linked to a valid node-source.
 - id: `id` Nodes-sources ID
 - title: `string`
-- not: `array<int|string>|int|string`, filters out one or many nodes using their numeric ID or node-name
+- not: `array<int|string>|int|string`, filters out one or many nodes using their numeric ID, node-name or *@id*
 - publishedAt: `DateTime` or `array` with :
   - `after`
   - `before`
@@ -328,9 +328,9 @@ On `NodesSources` content:
   - `strictly_before`
 - tags: `array<string>`
 - tagExclusive: `bool`
-- node.parent: `int` or `string` (node-name)
-- node.aNodes.nodeA: `int` or `string` (node-name) Filter by a node reference (finds nodes which are referenced)
-- node.bNodes.nodeB: `int` or `string` (node-name) Filter by a node reference (finds node which owns reference)
+- node.parent: `int|string` numeric ID, node-name or *@id*
+- node.aNodes.nodeA: `int|string` (numeric ID, node-name or *@id*) Filter by a node reference (finds nodes which are referenced)
+- node.bNodes.nodeB: `int|string` (numeric ID, node-name or *@id*) Filter by a node reference (finds node which owns reference)
 - node.aNodes.field.name: `string` Filter node references by a node-type field name (optional, if not set, `node.aNodes.nodeA` filter will apply on any node reference)
 - node.bNodes.field.name: `string` Filter node references by a node-type field name (optional, if not set, `node.bNodes.nodeB` filter will apply on any node reference)
 - node.visible: `bool`
