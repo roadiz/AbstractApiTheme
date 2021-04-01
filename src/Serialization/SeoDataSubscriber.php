@@ -32,14 +32,14 @@ final class SeoDataSubscriber implements EventSubscriberInterface
             'string',
             'metaTitle',
             '',
-            ['nodes_sources_base']
+            ['nodes_sources_base', 'nodes_sources']
         );
         $this->titleProperty->skipWhenEmpty = true;
         $this->descriptionProperty = new StaticPropertyMetadata(
             'string',
             'metaDescription',
             '',
-            ['nodes_sources_base']
+            ['nodes_sources_base', 'nodes_sources']
         );
         $this->descriptionProperty->skipWhenEmpty = true;
     }
