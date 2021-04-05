@@ -17,9 +17,19 @@ abstract class AbstractReachableNodesSourcesPostSerializationSubscriber implemen
 {
     protected StaticPropertyMetadata $propertyMetadata;
 
+    protected function atRoot(): bool
+    {
+        return false;
+    }
+
     protected function once(): bool
     {
-        return true;
+        return false;
+    }
+
+    protected static function getPriority(): int
+    {
+        return 0;
     }
 
     /**
@@ -30,6 +40,7 @@ abstract class AbstractReachableNodesSourcesPostSerializationSubscriber implemen
         return [[
             'event' => 'serializer.post_serialize',
             'method' => 'onPostSerialize',
+            'priority' => static::getPriority()
         ]];
     }
 
@@ -49,6 +60,10 @@ abstract class AbstractReachableNodesSourcesPostSerializationSubscriber implemen
         $exclusionStrategy = $context->getExclusionStrategy() ?? new DisjunctExclusionStrategy();
         $supportedType = $this->getSupportedType();
         $alreadyCalled = false;
+
+        if ($this->atRoot() && $context->getDepth() !== 0) {
+            return false;
+        }
 
         if ($context->hasAttribute('locks')) {
             /** @var ArrayCollection $locks */
