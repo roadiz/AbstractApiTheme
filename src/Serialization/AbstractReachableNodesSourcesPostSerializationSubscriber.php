@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Themes\AbstractApiTheme\Serialization;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use JMS\Serializer\EventDispatcher\EventSubscriberInterface;
 use JMS\Serializer\EventDispatcher\ObjectEvent;
 use JMS\Serializer\Exclusion\DisjunctExclusionStrategy;
@@ -15,6 +16,11 @@ use RZ\Roadiz\Core\Entities\NodesSources;
 abstract class AbstractReachableNodesSourcesPostSerializationSubscriber implements EventSubscriberInterface
 {
     protected StaticPropertyMetadata $propertyMetadata;
+
+    protected function once(): bool
+    {
+        return true;
+    }
 
     /**
      * @inheritDoc
@@ -42,8 +48,16 @@ abstract class AbstractReachableNodesSourcesPostSerializationSubscriber implemen
         $context = $event->getContext();
         $exclusionStrategy = $context->getExclusionStrategy() ?? new DisjunctExclusionStrategy();
         $supportedType = $this->getSupportedType();
+        $alreadyCalled = false;
 
-        return !$exclusionStrategy->shouldSkipProperty($propertyMetadata, $context) &&
+        if ($context->hasAttribute('locks')) {
+            /** @var ArrayCollection $locks */
+            $locks = $context->getAttribute('locks');
+            $alreadyCalled = $this->once() && $locks->contains(static::class);
+        }
+
+        return !$alreadyCalled &&
+            !$exclusionStrategy->shouldSkipProperty($propertyMetadata, $context) &&
             $visitor instanceof SerializationVisitorInterface &&
             $nodeSource instanceof $supportedType &&
             null !== $nodeSource->getNode() &&

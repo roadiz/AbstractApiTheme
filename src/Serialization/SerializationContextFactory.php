@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Themes\AbstractApiTheme\Serialization;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use JMS\Serializer\Exclusion\DisjunctExclusionStrategy;
 use JMS\Serializer\SerializationContext;
 use Themes\AbstractApiTheme\Cache\CacheTagsCollection;
@@ -27,6 +28,10 @@ final class SerializationContextFactory implements SerializationContextFactoryIn
         $context = SerializationContext::create()
             ->enableMaxDepthChecks()
             ->addExclusionStrategy(new DisjunctExclusionStrategy());
+        /**
+         * Locks are used to enforce Unique Class serialization
+         */
+        $context->setAttribute('locks', new ArrayCollection());
         if ($this->useCacheTags) {
             $context->setAttribute('cache-tags', new CacheTagsCollection());
         }
