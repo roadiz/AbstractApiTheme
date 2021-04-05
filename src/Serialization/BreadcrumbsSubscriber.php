@@ -18,6 +18,16 @@ final class BreadcrumbsSubscriber extends AbstractReachableNodesSourcesPostSeria
 {
     private BreadcrumbsFactoryInterface $breadcrumbsFactory;
 
+    protected function atRoot(): bool
+    {
+        return true;
+    }
+
+    protected static function getPriority(): int
+    {
+        return -1000;
+    }
+
     /**
      * @param BreadcrumbsFactoryInterface $breadcrumbsFactory
      */
@@ -38,8 +48,13 @@ final class BreadcrumbsSubscriber extends AbstractReachableNodesSourcesPostSeria
         $nodeSource = $event->getObject();
         /** @var SerializationVisitorInterface $visitor */
         $visitor = $event->getVisitor();
+        /** @var SerializationContext $context */
+        $context = $event->getContext();
 
         if ($this->supports($event, $this->propertyMetadata)) {
+            if ($context->hasAttribute('locks')) {
+                $context->getAttribute('locks')->add(static::class);
+            }
             $visitor->visitProperty(
                 $this->propertyMetadata,
                 $this->breadcrumbsFactory->create($nodeSource)
