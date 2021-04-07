@@ -99,6 +99,15 @@ abstract class AbstractApiRequestOptionsResolver
         }
         return $value;
     }
+    
+    protected function limitPublishedAtEndDate(\DateTime $endDate): \DateTime
+    {
+        $now = new \DateTime();
+        if ($endDate > $now) {
+            return $now;
+        }
+        return $endDate;
+    }
 
     /**
      * @param mixed $value

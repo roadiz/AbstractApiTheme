@@ -285,15 +285,6 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
         return $resolver->resolve($options);
     }
 
-    protected function limitPublishedAtEndDate(\DateTime $endDate): \DateTime
-    {
-        $now = new \DateTime();
-        if ($endDate > $now) {
-            return $now;
-        }
-        return $endDate;
-    }
-
     /**
 
      * Support archive parameter with year or year-month
