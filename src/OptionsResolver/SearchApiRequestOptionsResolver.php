@@ -6,18 +6,15 @@ namespace Themes\AbstractApiTheme\OptionsResolver;
 use Doctrine\ORM\EntityManagerInterface;
 use RZ\Roadiz\CMS\Utils\NodeApi;
 use RZ\Roadiz\CMS\Utils\TagApi;
-use RZ\Roadiz\Contracts\NodeType\NodeTypeInterface;
 use RZ\Roadiz\Core\Entities\Node;
-use RZ\Roadiz\Core\Entities\NodesSources;
 use RZ\Roadiz\Core\Entities\NodeType;
-use RZ\Roadiz\Core\Entities\NodeTypeField;
-use RZ\Roadiz\Core\Routing\PathResolverInterface;
-use Symfony\Component\OptionsResolver\Exception\InvalidOptionsException;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 final class SearchApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
 {
+    use NodeTypeAwareOptionResolverTrait;
+
     private EntityManagerInterface $entityManager;
 
     /**
@@ -37,6 +34,14 @@ final class SearchApiRequestOptionsResolver extends AbstractApiRequestOptionsRes
     }
 
     /**
+     * @return EntityManagerInterface
+     */
+    protected function getEntityManager(): EntityManagerInterface
+    {
+        return $this->entityManager;
+    }
+
+    /**
      * @param array $params
      *
      * @return array
@@ -44,7 +49,7 @@ final class SearchApiRequestOptionsResolver extends AbstractApiRequestOptionsRes
      */
     public function resolve(array $params): array
     {
-        return $this->resolveOptions($this->normalizeQueryParams($params));
+        return $this->configureOptions($this->normalizeQueryParams($params));
     }
 
     /**
@@ -65,12 +70,12 @@ final class SearchApiRequestOptionsResolver extends AbstractApiRequestOptionsRes
     }
 
     /**
-     * @param array         $options
+     * @param array $options
      *
      * @return array
      * @throws \Exception
      */
-    protected function resolveOptions(array $options): array
+    protected function configureOptions(array $options): array
     {
         $resolver = new OptionsResolver();
         $resolver->setDefaults(array_merge($this->getMetaOptions(), [
@@ -83,7 +88,7 @@ final class SearchApiRequestOptionsResolver extends AbstractApiRequestOptionsRes
         $resolver->setAllowedTypes('_locale', ['string']);
         $resolver->setAllowedTypes('search', ['string', 'null']);
         $resolver->setAllowedTypes('api_key', ['string', 'null']);
-        $resolver->setAllowedTypes('properties', ['array', 'null']);
+        $resolver->setAllowedTypes('properties', ['string[]', 'null']);
         $resolver->setAllowedTypes('publishedAt', ['array', 'string', 'null']);
         $resolver->setAllowedTypes('tags', ['array', 'string', 'null']);
         $resolver->setAllowedTypes('node.nodeType', ['array', NodeType::class, 'string', 'int', 'null']);
@@ -123,75 +128,6 @@ final class SearchApiRequestOptionsResolver extends AbstractApiRequestOptionsRes
         });
 
         return $resolver->resolve($options);
-    }
-
-    /**
-
-     * Support archive parameter with year or year-month
-     *
-     * @param Options $options
-     * @param mixed   $value
-     *
-     * @return array|\DateTime
-     * @throws \Exception
-     */
-    protected function normalizePublishedAtFilter(Options $options, $value)
-    {
-        /*
-         * Support archive parameter with year or year-month
-         */
-        if (null !== $options['archive'] && $options['archive'] !== '') {
-            $archive = $options['archive'];
-            if (preg_match('#[0-9]{4}\-[0-9]{2}\-[0-9]{2}#', $archive) > 0) {
-                $startDate = new \DateTime($archive . ' 00:00:00');
-                $endDate = clone $startDate;
-                $endDate->add(new \DateInterval('P1D'));
-
-                return ['BETWEEN', $startDate, $this->limitPublishedAtEndDate($endDate)];
-            } elseif (preg_match('#[0-9]{4}\-[0-9]{2}#', $archive) > 0) {
-                $startDate = new \DateTime($archive . '-01 00:00:00');
-                $endDate = clone $startDate;
-                $endDate->add(new \DateInterval('P1M'));
-
-                return ['BETWEEN', $startDate, $this->limitPublishedAtEndDate($endDate)];
-            } elseif (preg_match('#[0-9]{4}#', $archive) > 0) {
-                $startDate = new \DateTime($archive . '-01-01 00:00:00');
-                $endDate = clone $startDate;
-                $endDate->add(new \DateInterval('P1Y'));
-
-                return ['BETWEEN', $startDate, $this->limitPublishedAtEndDate($endDate)];
-            }
-        }
-        return $this->normalizeDateTimeFilter($value);
-    }
-
-    /**
-     * @param int|string|array<int|string> $nodeTypes
-     * @return NodeTypeInterface|array<NodeTypeInterface>|null
-     */
-    protected function normalizeNodeTypes($nodeTypes)
-    {
-        if (is_array($nodeTypes)) {
-            return array_values(array_filter(array_map([$this, 'normalizeSingleNodeType'], $nodeTypes)));
-        } else {
-            return $this->normalizeSingleNodeType($nodeTypes);
-        }
-    }
-
-    /**
-     * @param int|string $nodeType
-     * @return NodeTypeInterface|null
-     */
-    protected function normalizeSingleNodeType($nodeType): ?NodeTypeInterface
-    {
-        if (is_integer($nodeType)) {
-            return $this->entityManager->find(NodeType::class, (int) $nodeType);
-        } elseif (is_string($nodeType)) {
-            return $this->entityManager
-                ->getRepository(NodeType::class)
-                ->findOneByName($nodeType);
-        }
-        return null;
     }
 
     /**

@@ -189,11 +189,14 @@ class NodeTypeSingleApiController extends AbstractNodeTypeApiController
         }
 
         $this->injectAlternateHrefLangLinks($request, $nodeSource);
-
+        $ttl = $this->get('api.cache.ttl');
+        if (null !== $nodeSource->getNode()) {
+            $ttl = $nodeSource->getNode()->getTtl();
+        }
         return $this->makeResponseCachable(
             $request,
             $response,
-            $nodeSource->getNode()->getTtl() ?? $this->get('api.cache.ttl')
+            $ttl
         );
     }
 

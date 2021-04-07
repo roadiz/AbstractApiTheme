@@ -14,7 +14,6 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Themes\AbstractApiTheme\Cache\CacheTagsCollection;
 use Themes\AbstractApiTheme\ListManagers\SolrSearchListManager;
-use Themes\AbstractApiTheme\OptionsResolver\ApiRequestOptionsResolver;
 use Themes\AbstractApiTheme\OptionsResolver\SearchApiRequestOptionsResolver;
 
 class NodesSourcesSearchApiController extends AbstractNodeTypeApiController

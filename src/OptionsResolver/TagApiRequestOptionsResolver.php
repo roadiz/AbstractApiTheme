@@ -7,7 +7,7 @@ use Symfony\Component\OptionsResolver\Exception\InvalidOptionsException;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class TagApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
+final class TagApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
 {
     /**
      * @param array $params
@@ -17,7 +17,7 @@ class TagApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
      */
     public function resolve(array $params): array
     {
-        return $this->resolveOptions($this->normalizeQueryParams($params));
+        return $this->configureOptions($this->normalizeQueryParams($params));
     }
 
     /**
@@ -33,7 +33,8 @@ class TagApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
             '_preview' => false,
             'search' => null,
             'api_key' => null,
-            'order' => null
+            'order' => null,
+            'properties' => null,
         ];
     }
 
@@ -43,7 +44,7 @@ class TagApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
      * @return array
      * @throws \Exception
      */
-    protected function resolveOptions(array $options): array
+    protected function configureOptions(array $options): array
     {
         $resolver = new OptionsResolver();
         $resolver->setDefaults(array_merge($this->getMetaOptions(), [
@@ -51,6 +52,7 @@ class TagApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
             'parent' => false,
             'visible' => null,
         ]));
+        $resolver->setAllowedTypes('properties', ['string[]', 'null']);
         $resolver->setAllowedTypes('search', ['string', 'null']);
         $resolver->setAllowedTypes('tagName', ['string', 'null']);
         $resolver->setAllowedTypes('api_key', ['string', 'null']);

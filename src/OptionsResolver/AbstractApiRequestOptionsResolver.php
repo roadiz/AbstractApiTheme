@@ -7,23 +7,13 @@ use RZ\Roadiz\CMS\Utils\NodeApi;
 use RZ\Roadiz\CMS\Utils\TagApi;
 use RZ\Roadiz\Core\Entities\Node;
 use RZ\Roadiz\Core\Entities\Tag;
+use Symfony\Component\OptionsResolver\Options;
 
 abstract class AbstractApiRequestOptionsResolver
 {
-    /**
-     * @var string|null
-     */
-    protected $defaultLocale;
-
-    /**
-     * @var TagApi
-     */
-    protected $tagApi;
-
-    /**
-     * @var NodeApi
-     */
-    protected $nodeApi;
+    protected ?string $defaultLocale;
+    protected TagApi $tagApi;
+    protected NodeApi $nodeApi;
 
     /**
      * @param string|null $defaultLocale
@@ -46,7 +36,7 @@ abstract class AbstractApiRequestOptionsResolver
     }
 
     /**
-     * @return array
+     * @return array Options only used for request and views, not filtering database entities
      */
     abstract protected function getMetaOptions(): array;
 
@@ -99,7 +89,7 @@ abstract class AbstractApiRequestOptionsResolver
         }
         return $value;
     }
-    
+
     protected function limitPublishedAtEndDate(\DateTime $endDate): \DateTime
     {
         $now = new \DateTime();
@@ -107,6 +97,45 @@ abstract class AbstractApiRequestOptionsResolver
             return $now;
         }
         return $endDate;
+    }
+
+    /**
+     * Support archive parameter with year or year-month
+     *
+     * @param Options $options
+     * @param mixed   $value
+     *
+     * @return array|\DateTime
+     * @throws \Exception
+     */
+    protected function normalizePublishedAtFilter(Options $options, $value)
+    {
+        /*
+         * Support archive parameter with year or year-month
+         */
+        if (null !== $options['archive'] && $options['archive'] !== '') {
+            $archive = $options['archive'];
+            if (preg_match('#[0-9]{4}\-[0-9]{2}\-[0-9]{2}#', $archive) > 0) {
+                $startDate = new \DateTime($archive . ' 00:00:00');
+                $endDate = clone $startDate;
+                $endDate->add(new \DateInterval('P1D'));
+
+                return ['BETWEEN', $startDate, $this->limitPublishedAtEndDate($endDate)];
+            } elseif (preg_match('#[0-9]{4}\-[0-9]{2}#', $archive) > 0) {
+                $startDate = new \DateTime($archive . '-01 00:00:00');
+                $endDate = clone $startDate;
+                $endDate->add(new \DateInterval('P1M'));
+
+                return ['BETWEEN', $startDate, $this->limitPublishedAtEndDate($endDate)];
+            } elseif (preg_match('#[0-9]{4}#', $archive) > 0) {
+                $startDate = new \DateTime($archive . '-01-01 00:00:00');
+                $endDate = clone $startDate;
+                $endDate->add(new \DateInterval('P1Y'));
+
+                return ['BETWEEN', $startDate, $this->limitPublishedAtEndDate($endDate)];
+            }
+        }
+        return $this->normalizeDateTimeFilter($value);
     }
 
     /**
