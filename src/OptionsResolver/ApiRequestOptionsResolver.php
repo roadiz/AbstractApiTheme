@@ -17,13 +17,11 @@ use Symfony\Component\OptionsResolver\Exception\InvalidOptionsException;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
+final class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
 {
-    /**
-     * @var PathResolverInterface
-     */
-    private PathResolverInterface $pathResolver;
+    use NodeTypeAwareOptionResolverTrait;
 
+    private PathResolverInterface $pathResolver;
     private EntityManagerInterface $entityManager;
 
     /**
@@ -46,6 +44,14 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
     }
 
     /**
+     * @return EntityManagerInterface
+     */
+    protected function getEntityManager(): EntityManagerInterface
+    {
+        return $this->entityManager;
+    }
+
+    /**
      * @param array $params
      * @param NodeTypeInterface|null $nodeType
      *
@@ -54,7 +60,7 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
      */
     public function resolve(array $params, ?NodeTypeInterface $nodeType): array
     {
-        return $this->resolveOptions($this->normalizeQueryParams($params), $nodeType);
+        return $this->configureOptions($this->normalizeQueryParams($params), $nodeType);
     }
 
     /**
@@ -73,7 +79,8 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
             'order' => null,
             'archive' => null,
             'properties' => null,
-            '_node_source' => null
+            '_node_source' => null,
+            'path' => null
         ];
     }
 
@@ -84,7 +91,7 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
      * @return array
      * @throws \Exception
      */
-    protected function resolveOptions(array $options, ?NodeTypeInterface $nodeType): array
+    protected function configureOptions(array $options, ?NodeTypeInterface $nodeType): array
     {
         $resolver = new OptionsResolver();
         $resolver->setDefaults(array_merge($this->getMetaOptions(), [
@@ -104,8 +111,7 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
             'node.visible' => null,
             'node.nodeType.reachable' => null,
             'node.nodeType' => null,
-            'node.home' => null,
-            'path' => null
+            'node.home' => null
         ]));
         $resolver->setAllowedTypes('_locale', ['string']);
         $resolver->setAllowedTypes('_node_source', [NodesSources::class, 'null']);
@@ -114,7 +120,7 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
         $resolver->setAllowedTypes('api_key', ['string', 'null']);
         $resolver->setAllowedTypes('order', ['array', 'null']);
         $resolver->setAllowedTypes('not', ['array', 'string', 'int', 'null']);
-        $resolver->setAllowedTypes('properties', ['array', 'null']);
+        $resolver->setAllowedTypes('properties', ['string[]', 'null']);
         $resolver->setAllowedTypes('publishedAt', ['array', 'string', 'null']);
         $resolver->setAllowedTypes('tags', ['array', 'string', 'null']);
         $resolver->setAllowedTypes('tagExclusive', ['boolean', 'string', 'int', 'null']);
@@ -247,12 +253,14 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
                 switch ($field->getType()) {
                     case NodeTypeField::DATE_T:
                     case NodeTypeField::DATETIME_T:
+                        $resolver->setInfo($field->getVarName(), $field->getDescription() ?? $field->getLabel());
                         $resolver->setDefault($field->getVarName(), null);
                         $resolver->setNormalizer($field->getVarName(), function (Options $options, $value) {
                             return $this->normalizeDateTimeFilter($value);
                         });
                         break;
                     case NodeTypeField::BOOLEAN_T:
+                        $resolver->setInfo($field->getVarName(), $field->getDescription() ?? $field->getLabel());
                         $resolver->setDefault($field->getVarName(), null);
                         $resolver->setNormalizer($field->getVarName(), function (Options $options, $value) {
                             if (null !== $value) {
@@ -264,6 +272,7 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
                     case NodeTypeField::STRING_T:
                     case NodeTypeField::COUNTRY_T:
                     case NodeTypeField::ENUM_T:
+                        $resolver->setInfo($field->getVarName(), $field->getDescription() ?? $field->getLabel());
                         $resolver->setDefault($field->getVarName(), null);
                         $resolver->setAllowedTypes($field->getVarName(), ['null', 'string', 'array']);
                         $resolver->setNormalizer($field->getVarName(), function (Options $options, $value) {
@@ -283,55 +292,6 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
         }
 
         return $resolver->resolve($options);
-    }
-
-    protected function limitPublishedAtEndDate(\DateTime $endDate): \DateTime
-    {
-        $now = new \DateTime();
-        if ($endDate > $now) {
-            return $now;
-        }
-        return $endDate;
-    }
-
-    /**
-
-     * Support archive parameter with year or year-month
-     *
-     * @param Options $options
-     * @param mixed   $value
-     *
-     * @return array|\DateTime
-     * @throws \Exception
-     */
-    protected function normalizePublishedAtFilter(Options $options, $value)
-    {
-        /*
-         * Support archive parameter with year or year-month
-         */
-        if (null !== $options['archive'] && $options['archive'] !== '') {
-            $archive = $options['archive'];
-            if (preg_match('#[0-9]{4}\-[0-9]{2}\-[0-9]{2}#', $archive) > 0) {
-                $startDate = new \DateTime($archive . ' 00:00:00');
-                $endDate = clone $startDate;
-                $endDate->add(new \DateInterval('P1D'));
-
-                return ['BETWEEN', $startDate, $this->limitPublishedAtEndDate($endDate)];
-            } elseif (preg_match('#[0-9]{4}\-[0-9]{2}#', $archive) > 0) {
-                $startDate = new \DateTime($archive . '-01 00:00:00');
-                $endDate = clone $startDate;
-                $endDate->add(new \DateInterval('P1M'));
-
-                return ['BETWEEN', $startDate, $this->limitPublishedAtEndDate($endDate)];
-            } elseif (preg_match('#[0-9]{4}#', $archive) > 0) {
-                $startDate = new \DateTime($archive . '-01-01 00:00:00');
-                $endDate = clone $startDate;
-                $endDate->add(new \DateInterval('P1Y'));
-
-                return ['BETWEEN', $startDate, $this->limitPublishedAtEndDate($endDate)];
-            }
-        }
-        return $this->normalizeDateTimeFilter($value);
     }
 
     /**
@@ -355,35 +315,6 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
          */
         if (null !== $resource && $resource instanceof NodesSources) {
             return $resource;
-        }
-        return null;
-    }
-
-    /**
-     * @param int|string|array<int|string> $nodeTypes
-     * @return NodeTypeInterface|array<NodeTypeInterface>|null
-     */
-    protected function normalizeNodeTypes($nodeTypes)
-    {
-        if (is_array($nodeTypes)) {
-            return array_values(array_filter(array_map([$this, 'normalizeSingleNodeType'], $nodeTypes)));
-        } else {
-            return $this->normalizeSingleNodeType($nodeTypes);
-        }
-    }
-
-    /**
-     * @param int|string $nodeType
-     * @return NodeTypeInterface|null
-     */
-    protected function normalizeSingleNodeType($nodeType): ?NodeTypeInterface
-    {
-        if (is_integer($nodeType)) {
-            return $this->entityManager->find(NodeType::class, (int) $nodeType);
-        } elseif (is_string($nodeType)) {
-            return $this->entityManager
-                ->getRepository(NodeType::class)
-                ->findOneByName($nodeType);
         }
         return null;
     }

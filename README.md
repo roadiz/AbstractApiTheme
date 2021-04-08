@@ -1,6 +1,5 @@
 # Abstract API theme
-
-**Base theme for creating simple public RESTful API protected with referrer API keys.**
+**Exposes Roadiz content as a public REST API.** Mainly used in *Roadiz Headless edition*.
 
 [![Build Status](https://travis-ci.org/roadiz/AbstractApiTheme.svg?branch=master)](https://travis-ci.org/roadiz/AbstractApiTheme)
 

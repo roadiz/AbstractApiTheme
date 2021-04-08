@@ -14,7 +14,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Themes\AbstractApiTheme\Cache\CacheTagsCollection;
 use Themes\AbstractApiTheme\ListManagers\SolrSearchListManager;
-use Themes\AbstractApiTheme\OptionsResolver\ApiRequestOptionsResolver;
+use Themes\AbstractApiTheme\OptionsResolver\SearchApiRequestOptionsResolver;
 
 class NodesSourcesSearchApiController extends AbstractNodeTypeApiController
 {
@@ -31,9 +31,9 @@ class NodesSourcesSearchApiController extends AbstractNodeTypeApiController
      */
     public function defaultAction(Request $request): Response
     {
-        /** @var ApiRequestOptionsResolver $apiOptionsResolver */
-        $apiOptionsResolver = $this->get(ApiRequestOptionsResolver::class);
-        $options = $apiOptionsResolver->resolve($request->query->all(), null);
+        /** @var SearchApiRequestOptionsResolver $apiOptionsResolver */
+        $apiOptionsResolver = $this->get(SearchApiRequestOptionsResolver::class);
+        $options = $apiOptionsResolver->resolve($request->query->all());
 
         if (empty($options['search'])) {
             throw new BadRequestHttpException('Search parameter is not valid.');
