@@ -1,6 +1,6 @@
 {
     "name": "roadiz/abstract-api-theme",
-    "description": "Base theme for creating public RESTful API only restricted with API keys.",
+    "description": "Exposes Roadiz content as a public REST API.",
     "type": "library",
     "require": {
         "php":">=7.4",
