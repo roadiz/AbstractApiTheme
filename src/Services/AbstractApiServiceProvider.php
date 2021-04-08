@@ -54,6 +54,7 @@ use Themes\AbstractApiTheme\OAuth2\Repository\ClientRepository;
 use Themes\AbstractApiTheme\OAuth2\Repository\RefreshTokenRepository;
 use Themes\AbstractApiTheme\OAuth2\Repository\ScopeRepository;
 use Themes\AbstractApiTheme\OptionsResolver\ApiRequestOptionsResolver;
+use Themes\AbstractApiTheme\OptionsResolver\SearchApiRequestOptionsResolver;
 use Themes\AbstractApiTheme\OptionsResolver\TagApiRequestOptionsResolver;
 use Themes\AbstractApiTheme\Routing\ApiRouteCollection;
 use Themes\AbstractApiTheme\Routing\ChainedPathResolver;
@@ -377,6 +378,15 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
                 $c['defaultTranslation']->getLocale(),
                 $c['tagApi'],
                 $c['nodeApi']
+            );
+        });
+        
+        $container[SearchApiRequestOptionsResolver::class] = $container->factory(function ($c) {
+            return new SearchApiRequestOptionsResolver(
+                $c['defaultTranslation']->getLocale(),
+                $c['tagApi'],
+                $c['nodeApi'],
+                $c['em']
             );
         });
 
