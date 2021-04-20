@@ -220,7 +220,7 @@ class NodeTypeSingleApiController extends AbstractNodeTypeApiController
         if ($resource instanceof NodesSources &&
             null !== $resource->getNode() &&
             null !== $resource->getNode()->getNodeType() &&
-            $resource->getNode()->getNodeType()->isReachable()) {
+            $resource->isReachable()) {
             $node = $resource->getNode();
             $this->get('em')->refresh($node);
             /** @var array<string> $links */
