@@ -16,7 +16,7 @@ final class NaiveBreadcrumbsFactory implements BreadcrumbsFactoryInterface
         if (null === $nodesSources ||
             null === $nodesSources->getNode() ||
             null === $nodesSources->getNode()->getNodeType() ||
-            !$nodesSources->getNode()->getNodeType()->isReachable()) {
+            !$nodesSources->isReachable()) {
             return null;
         }
         $parents = [];

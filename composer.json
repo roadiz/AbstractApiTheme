@@ -4,7 +4,7 @@
     "type": "library",
     "require": {
         "php":">=7.4",
-        "roadiz/roadiz": "~1.6.0",
+        "roadiz/roadiz": "~1.6.10",
         "ramsey/uuid": "^3.8",
         "friendsofsymfony/jsrouting-bundle": "^2.5.3",
         "league/oauth2-server": "^8.2.2",

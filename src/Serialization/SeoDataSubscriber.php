@@ -68,7 +68,7 @@ final class SeoDataSubscriber implements EventSubscriberInterface
             $nodeSource instanceof NodesSources &&
             null !== $nodeSource->getNode() &&
             null !== $nodeSource->getNode()->getNodeType() &&
-            $nodeSource->getNode()->getNodeType()->isReachable()) {
+            $nodeSource->isReachable()) {
             if (!$exclusionStrategy->shouldSkipProperty($this->titleProperty, $context) &&
                 $nodeSource->getMetaTitle() === '') {
                 $visitor->visitProperty(
