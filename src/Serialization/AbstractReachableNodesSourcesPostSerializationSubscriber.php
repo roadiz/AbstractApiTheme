@@ -78,7 +78,7 @@ abstract class AbstractReachableNodesSourcesPostSerializationSubscriber implemen
             null !== $nodeSource->getNode() &&
             $nodeSource->getNode()->getStatus() <= Node::PUBLISHED &&
             null !== $nodeSource->getNode()->getNodeType() &&
-            $nodeSource->getNode()->getNodeType()->isReachable();
+            $nodeSource->isReachable();
     }
 
     abstract public function onPostSerialize(ObjectEvent $event): void;
