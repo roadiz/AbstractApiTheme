@@ -158,6 +158,11 @@ class NodeTypeSingleApiController extends AbstractNodeTypeApiController
         if (null === $nodeSource || null === $nodeSource->getNode()) {
             throw $this->createNotFoundException();
         }
+        // Sets translation from resolved NodesSources if empty
+        // to enable Serialization context translation attribute
+        if (null === $this->translation) {
+            $this->translation = $nodeSource->getTranslation();
+        }
 
         /** @var SerializerInterface $serializer */
         $serializer = $this->get('serializer');
