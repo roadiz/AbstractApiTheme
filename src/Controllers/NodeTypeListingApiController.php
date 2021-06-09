@@ -108,7 +108,7 @@ class NodeTypeListingApiController extends AbstractNodeTypeApiController
             }
         }
 
-        $this->injectAlternateHrefLangLinks($request, $nodeType);
+        $this->injectAlternateHrefLangLinks($request);
 
         return $this->makeResponseCachable($request, $response, $this->get('api.cache.ttl'));
     }
