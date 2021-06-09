@@ -3,19 +3,20 @@ declare(strict_types=1);
 
 namespace Themes\AbstractApiTheme\Controllers;
 
+use Doctrine\ORM\EntityManagerInterface;
 use JMS\Serializer\SerializationContext;
 use RZ\Roadiz\Contracts\NodeType\NodeTypeInterface;
 use RZ\Roadiz\Core\Entities\NodeType;
 use RZ\Roadiz\Core\Entities\Translation;
-use Symfony\Component\HttpFoundation\Request;
+use RZ\Roadiz\Core\Repositories\TranslationRepository;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Themes\AbstractApiTheme\AbstractApiThemeApp;
 use Themes\AbstractApiTheme\Serialization\Exclusion\PropertiesExclusionStrategy;
 use Themes\AbstractApiTheme\Serialization\SerializationContextFactoryInterface;
-use Themes\AbstractApiTheme\Subscriber\LinkedApiResponseSubscriber;
 
 abstract class AbstractNodeTypeApiController extends AbstractApiThemeApp
 {
+    use LocalizedController;
     protected array $serializationGroups;
 
     /**
@@ -49,6 +50,31 @@ abstract class AbstractNodeTypeApiController extends AbstractApiThemeApp
     }
 
     abstract protected function denyAccessUnlessNodeTypeGranted(NodeTypeInterface $nodeType): void;
+
+    /**
+     * @return EntityManagerInterface
+     */
+    protected function getEntityManager(): EntityManagerInterface
+    {
+        return $this->get('em');
+    }
+
+    /**
+     * @return TranslationRepository
+     */
+    protected function getTranslationRepository(): TranslationRepository
+    {
+        /** @type TranslationRepository  */
+        return $this->getEntityManager()->getRepository(Translation::class);
+    }
+
+    /**
+     * @return UrlGeneratorInterface
+     */
+    protected function getUrlGenerator(): UrlGeneratorInterface
+    {
+        return $this->get('urlGenerator');
+    }
 
     /**
      * @param int $nodeTypeId
@@ -99,39 +125,5 @@ abstract class AbstractNodeTypeApiController extends AbstractApiThemeApp
         }
 
         return $context;
-    }
-
-    /**
-     * @param Request $request
-     * @param mixed|null $resource
-     */
-    protected function injectAlternateHrefLangLinks(Request $request, $resource = null): void
-    {
-        if ($request->attributes->has('_route')) {
-            $availableLocales = $this->get('em')->getRepository(Translation::class)->getAvailableLocales();
-            if (count($availableLocales) > 1 && !$request->query->has('path')) {
-                $links = [];
-                foreach ($availableLocales as $availableLocale) {
-                    $linksParams = [
-                        sprintf('<%s>', $this->generateUrl(
-                            $request->attributes->get('_route'),
-                            array_merge(
-                                $request->query->all(),
-                                $request->attributes->get('_route_params'),
-                                [
-                                    '_locale' => $availableLocale
-                                ]
-                            ),
-                            UrlGeneratorInterface::ABSOLUTE_URL
-                        )),
-                        'rel="alternate"',
-                        'hreflang="'.$availableLocale.'"',
-                        'type="application/json"'
-                    ];
-                    $links[] = implode('; ', $linksParams);
-                }
-                $request->attributes->set(LinkedApiResponseSubscriber::LINKED_RESOURCES_ATTRIBUTE, $links);
-            }
-        }
     }
 }
