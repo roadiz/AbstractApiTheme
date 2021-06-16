@@ -31,6 +31,7 @@ use Symfony\Component\Security\Http\Firewall\ExceptionListener;
 use Symfony\Component\Security\Http\FirewallMap;
 use Symfony\Component\Translation\Translator;
 use Themes\AbstractApiTheme\Breadcrumbs\BreadcrumbsFactoryInterface;
+use Themes\AbstractApiTheme\Cache\CacheTagsCollection;
 use Themes\AbstractApiTheme\Controllers\NodesSourcesListingApiController;
 use Themes\AbstractApiTheme\Controllers\NodesSourcesSearchApiController;
 use Themes\AbstractApiTheme\Controllers\NodeTypeArchivesApiController;
@@ -76,6 +77,7 @@ use Themes\AbstractApiTheme\Serialization\TagApiSubscriber;
 use Themes\AbstractApiTheme\Serialization\TagTranslationNameSubscriber;
 use Themes\AbstractApiTheme\Serialization\TokenSubscriber;
 use Themes\AbstractApiTheme\Subscriber\AuthorizationRequestSubscriber;
+use Themes\AbstractApiTheme\Subscriber\CacheTagsBanSubscriber;
 use Themes\AbstractApiTheme\Subscriber\CorsSubscriber;
 use Themes\AbstractApiTheme\Subscriber\LinkedApiResponseSubscriber;
 use Themes\AbstractApiTheme\Subscriber\RoadizUserRoleResolveSubscriber;
@@ -380,7 +382,7 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
                 $c['nodeApi']
             );
         });
-        
+
         $container[SearchApiRequestOptionsResolver::class] = $container->factory(function ($c) {
             return new SearchApiRequestOptionsResolver(
                 $c['defaultTranslation']->getLocale(),
@@ -477,6 +479,15 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
                 $c['requestStack'],
                 new InlineFragmentRenderer($c['kernel'], $dispatcher)
             ));
+
+            if ($c['api.use_cache_tags'] === true) {
+                $dispatcher->addSubscriber(new CacheTagsBanSubscriber(
+                    $c['config'],
+                    new CacheTagsCollection(),
+                    $c['logger.cache'],
+                    $c['kernel']->isDebug()
+                ));
+            }
             return $dispatcher;
         });
 
