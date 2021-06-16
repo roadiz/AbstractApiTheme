@@ -24,6 +24,7 @@ use Symfony\Bridge\PsrHttpMessage\HttpMessageFactoryInterface;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpKernel\Fragment\InlineFragmentRenderer;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\Loader\YamlFileLoader;
 use Symfony\Component\Routing\RouteCollection;
@@ -484,6 +485,7 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
                 $dispatcher->addSubscriber(new CacheTagsBanSubscriber(
                     $c['config'],
                     new CacheTagsCollection(),
+                    $c[MessageBusInterface::class],
                     $c['logger.cache'],
                     $c['kernel']->isDebug()
                 ));

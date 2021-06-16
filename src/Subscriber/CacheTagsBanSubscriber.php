@@ -3,10 +3,9 @@ declare(strict_types=1);
 
 namespace Themes\AbstractApiTheme\Subscriber;
 
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Psr7\Request;
 use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use RZ\Roadiz\Core\AbstractEntities\AbstractEntity;
 use RZ\Roadiz\Core\Entities\Document;
 use RZ\Roadiz\Core\Entities\Node;
@@ -16,7 +15,11 @@ use RZ\Roadiz\Core\Events\DocumentUpdatedEvent;
 use RZ\Roadiz\Core\Events\Node\NodeUpdatedEvent;
 use RZ\Roadiz\Core\Events\NodesSources\NodesSourcesUpdatedEvent;
 use RZ\Roadiz\Core\Events\Tag\TagUpdatedEvent;
+use RZ\Roadiz\Message\GuzzleRequestMessage;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\Messenger\Exception\NoHandlerForMessageException;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Workflow\Event\Event;
 use Themes\AbstractApiTheme\Cache\CacheTagsCollection;
 
@@ -24,19 +27,22 @@ final class CacheTagsBanSubscriber implements EventSubscriberInterface
 {
     private array $configuration;
     private bool $debug;
-    private ?LoggerInterface $logger;
+    private LoggerInterface $logger;
     private CacheTagsCollection $cacheTagsCollection;
+    private MessageBusInterface $bus;
 
     public function __construct(
         array $configuration,
         CacheTagsCollection $cacheTagsCollection,
+        MessageBusInterface $bus,
         ?LoggerInterface $logger = null,
         bool $debug = false
     ) {
         $this->configuration = $configuration;
         $this->debug = $debug;
-        $this->logger = $logger;
+        $this->logger = $logger ?? new NullLogger();
         $this->cacheTagsCollection = $cacheTagsCollection;
+        $this->bus = $bus;
     }
 
     /**
@@ -159,22 +165,14 @@ final class CacheTagsBanSubscriber implements EventSubscriberInterface
 
     private function banCacheTag(AbstractEntity $entity, string $identifier): void
     {
-        try {
-            foreach ($this->createBanRequests($entity) as $name => $request) {
-                (new Client())->send($request, [
+        foreach ($this->createBanRequests($entity) as $request) {
+            try {
+                $this->bus->dispatch(new Envelope(new GuzzleRequestMessage($request, [
                     'debug' => $this->debug,
                     'timeout' => 3
-                ]);
-                if (null !== $this->logger) {
-                    $this->logger->debug(sprintf(
-                        'Reverse proxy cache-tag for entity "%s" banned.',
-                        $identifier
-                    ));
-                }
-            }
-        } catch (GuzzleException $e) {
-            if (null !== $this->logger) {
-                $this->logger->error($e->getMessage());
+                ])));
+            } catch (NoHandlerForMessageException $exception) {
+                $this->logger->error($exception->getMessage());
             }
         }
     }
