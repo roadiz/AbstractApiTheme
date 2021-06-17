@@ -79,6 +79,16 @@ final class CacheTagsBanSubscriber implements EventSubscriberInterface
             if (!$this->supportConfig()) {
                 return;
             }
+            /*
+             * We need to ban parent node too, when node becomes published, its cache-tag was
+             * not present on requests, so banning its own tag won't purge request, until we ban
+             * its parent
+             */
+            /** @var Node $parent */
+            $parent = $node->getParent();
+            if (null !== $parent) {
+                $this->banCacheTag($parent, $parent->getNodeName());
+            }
             $this->banCacheTag($node, $node->getNodeName());
         }
     }
