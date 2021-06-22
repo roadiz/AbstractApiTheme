@@ -30,6 +30,7 @@ Symfony ecosystem.
   + [Serialization context](#serialization-context)
   + [Breadcrumbs](#breadcrumbs)
   + [Errors](#errors)
+  + [Using Etags](#using-etags)
   
 ## Configuration
 
