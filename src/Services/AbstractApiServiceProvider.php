@@ -27,6 +27,7 @@ use Symfony\Component\HttpKernel\Fragment\InlineFragmentRenderer;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\Loader\YamlFileLoader;
 use Symfony\Component\Routing\RouteCollection;
+use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Http\Firewall\ExceptionListener;
 use Symfony\Component\Security\Http\FirewallMap;
 use Symfony\Component\Translation\Translator;
@@ -267,7 +268,7 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
          */
         $container['api.oauth2_authentication_manager'] = function (Container $c) {
             return new OAuth2Provider(
-                $c['userProvider'],
+                $c[UserProviderInterface::class],
                 $c[ResourceServer::class],
                 $c[OAuth2TokenFactory::class],
                 Kernel::SECURITY_DOMAIN
@@ -380,7 +381,7 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
                 $c['nodeApi']
             );
         });
-        
+
         $container[SearchApiRequestOptionsResolver::class] = $container->factory(function ($c) {
             return new SearchApiRequestOptionsResolver(
                 $c['defaultTranslation']->getLocale(),
