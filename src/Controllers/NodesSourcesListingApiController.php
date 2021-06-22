@@ -9,7 +9,6 @@ use RZ\Roadiz\Core\Entities\NodesSources;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Themes\AbstractApiTheme\Cache\CacheTagsCollection;
 use Themes\AbstractApiTheme\OptionsResolver\ApiRequestOptionsResolver;
 
 class NodesSourcesListingApiController extends AbstractNodeTypeApiController
@@ -87,31 +86,17 @@ class NodesSourcesListingApiController extends AbstractNodeTypeApiController
             ->setAttribute('request', $request)
             ->setAttribute('nodeType', $nodeType)
         ;
-        $response = new JsonResponse(
+
+        return $this->getJsonResponse(
             $serializer->serialize(
                 $entityListManager,
                 'json',
                 $context
             ),
-            JsonResponse::HTTP_OK,
-            [],
-            true
+            $context,
+            $request,
+            $this->get('api.cache.ttl')
         );
-
-        if ($context->hasAttribute('cache-tags') &&
-            $context->getAttribute('cache-tags') instanceof CacheTagsCollection) {
-            /** @var CacheTagsCollection $cacheTags */
-            $cacheTags = $context->getAttribute('cache-tags');
-            if ($cacheTags->count() > 0) {
-                $response->headers->add([
-                    'X-Cache-Tags' => implode(', ', $cacheTags->toArray())
-                ]);
-            }
-        }
-
-        $this->injectAlternateHrefLangLinks($request);
-
-        return $this->makeResponseCachable($request, $response, $this->get('api.cache.ttl'));
     }
 
     /**

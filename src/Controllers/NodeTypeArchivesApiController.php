@@ -97,20 +97,17 @@ class NodeTypeArchivesApiController extends AbstractNodeTypeApiController
             ->setAttribute('request', $request)
             ->setAttribute('nodeType', $nodeType)
         ;
-        $response = new JsonResponse(
+
+        return $this->getJsonResponse(
             $serializer->serialize(
                 $entityListManager,
                 'json',
                 $context
             ),
-            JsonResponse::HTTP_OK,
-            [],
-            true
+            $context,
+            $request,
+            $this->get('api.cache.ttl')
         );
-
-        $this->injectAlternateHrefLangLinks($request);
-
-        return $this->makeResponseCachable($request, $response, $this->get('api.cache.ttl'));
     }
 
     /**

@@ -13,7 +13,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Themes\AbstractApiTheme\Cache\CacheTagsCollection;
 use Themes\AbstractApiTheme\OptionsResolver\ApiRequestOptionsResolver;
 
 class NodeTypeSingleApiController extends AbstractNodeTypeApiController
@@ -168,36 +167,18 @@ class NodeTypeSingleApiController extends AbstractNodeTypeApiController
             ->setAttribute('request', $request)
             ->setAttribute('nodeType', $nodeSource->getNode()->getNodeType())
         ;
-        $response = new JsonResponse(
+        $ttl = $this->get('api.cache.ttl');
+        if (null !== $nodeSource->getNode()) {
+            $ttl = $nodeSource->getNode()->getTtl();
+        }
+        return $this->getJsonResponse(
             $serializer->serialize(
                 $nodeSource,
                 'json',
                 $context
             ),
-            JsonResponse::HTTP_OK,
-            [],
-            true
-        );
-
-        if ($context->hasAttribute('cache-tags') &&
-            $context->getAttribute('cache-tags') instanceof CacheTagsCollection) {
-            /** @var CacheTagsCollection $cacheTags */
-            $cacheTags = $context->getAttribute('cache-tags');
-            if ($cacheTags->count() > 0) {
-                $response->headers->add([
-                    'X-Cache-Tags' => implode(', ', $cacheTags->toArray())
-                ]);
-            }
-        }
-
-        $this->injectAlternateHrefLangLinks($request, $nodeSource);
-        $ttl = $this->get('api.cache.ttl');
-        if (null !== $nodeSource->getNode()) {
-            $ttl = $nodeSource->getNode()->getTtl();
-        }
-        return $this->makeResponseCachable(
+            $context,
             $request,
-            $response,
             $ttl
         );
     }

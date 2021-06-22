@@ -638,3 +638,10 @@ every request you make. You'll get message such as:
 
 with the right *status code* (40x or 50x). Make sure to catch and read your response data from your frontend
 framework when your request fails to know more about errors.
+
+### Using Etags
+
+Every NodeSources based response will contain a `ETag` header calculated on API response content checksum. 
+
+You can setup your API consumer to send a `If-None-Match` header containing the latest ETag found. API will return 
+an empty **304 Not Modified** response if content has not changed, or the whole response if it changed with a new *ETag* header. 
