@@ -9,8 +9,12 @@ use RZ\Roadiz\Contracts\NodeType\NodeTypeInterface;
 use RZ\Roadiz\Core\Entities\NodeType;
 use RZ\Roadiz\Core\Entities\Translation;
 use RZ\Roadiz\Core\Repositories\TranslationRepository;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Themes\AbstractApiTheme\AbstractApiThemeApp;
+use Themes\AbstractApiTheme\Cache\CacheTagsCollection;
 use Themes\AbstractApiTheme\Serialization\Exclusion\PropertiesExclusionStrategy;
 use Themes\AbstractApiTheme\Serialization\SerializationContextFactoryInterface;
 
@@ -125,5 +129,48 @@ abstract class AbstractNodeTypeApiController extends AbstractApiThemeApp
         }
 
         return $context;
+    }
+
+    /**
+     * @param string $jsonData
+     * @param SerializationContext $context
+     * @param Request $request
+     * @param int $ttl
+     * @return Response
+     */
+    protected function getJsonResponse(
+        string $jsonData,
+        SerializationContext $context,
+        Request $request,
+        int $ttl = 0
+    ): Response {
+        $response = new JsonResponse(
+            $jsonData,
+            JsonResponse::HTTP_OK,
+            [],
+            true
+        );
+
+        if ($context->hasAttribute('cache-tags') &&
+            $context->getAttribute('cache-tags') instanceof CacheTagsCollection) {
+            /** @var CacheTagsCollection $cacheTags */
+            $cacheTags = $context->getAttribute('cache-tags');
+            if ($cacheTags->count() > 0) {
+                $response->headers->add([
+                    'X-Cache-Tags' => implode(', ', $cacheTags->toArray())
+                ]);
+            }
+        }
+
+        $this->injectAlternateHrefLangLinks($request);
+        $response->setEtag(md5($response->getContent() ?: ''));
+        /*
+         * Returns a 304 if request Etag matches response's
+         */
+        if ($response->isNotModified($request)) {
+            return $response;
+        }
+
+        return $this->makeResponseCachable($request, $response, $ttl);
     }
 }
