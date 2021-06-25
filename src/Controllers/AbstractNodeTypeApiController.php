@@ -150,6 +150,13 @@ abstract class AbstractNodeTypeApiController extends AbstractApiThemeApp
             [],
             true
         );
+        $response->setEtag(md5($response->getContent() ?: ''));
+        /*
+         * Returns a 304 if request Etag matches response's
+         */
+        if ($response->isNotModified($request)) {
+            return $response;
+        }
 
         if ($context->hasAttribute('cache-tags') &&
             $context->getAttribute('cache-tags') instanceof CacheTagsCollection) {
@@ -163,13 +170,6 @@ abstract class AbstractNodeTypeApiController extends AbstractApiThemeApp
         }
 
         $this->injectAlternateHrefLangLinks($request);
-        $response->setEtag(md5($response->getContent() ?: ''));
-        /*
-         * Returns a 304 if request Etag matches response's
-         */
-        if ($response->isNotModified($request)) {
-            return $response;
-        }
 
         return $this->makeResponseCachable($request, $response, $ttl);
     }
