@@ -171,6 +171,7 @@ class NodeTypeSingleApiController extends AbstractNodeTypeApiController
         if (null !== $nodeSource->getNode()) {
             $ttl = $nodeSource->getNode()->getTtl();
         }
+        $this->injectNodeSourceAlternatePaths($request, $nodeSource);
         return $this->getJsonResponse(
             $serializer->serialize(
                 $nodeSource,

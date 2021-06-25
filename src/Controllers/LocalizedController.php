@@ -33,15 +33,15 @@ trait LocalizedController
 
     /**
      * @param Request $request
-     * @param NodesSources|mixed|null $resource
      */
-    protected function injectAlternateHrefLangLinks(Request $request, $resource = null): void
+    protected function injectAlternateHrefLangLinks(Request $request): void
     {
         if ($request->attributes->has('_route')) {
             $availableLocales = $this->getTranslationRepository()
                 ->getAvailableLocales();
             if (count($availableLocales) > 1 && !$request->query->has('path')) {
-                $links = [];
+                /** @var array<string> $links */
+                $links = $request->attributes->get(LinkedApiResponseSubscriber::LINKED_RESOURCES_ATTRIBUTE, []);
                 foreach ($availableLocales as $availableLocale) {
                     $linksParams = [
                         sprintf('<%s>', $this->getUrlGenerator()->generate(
@@ -64,12 +64,18 @@ trait LocalizedController
                 $request->attributes->set(LinkedApiResponseSubscriber::LINKED_RESOURCES_ATTRIBUTE, $links);
             }
         }
+    }
 
-        if ($resource instanceof NodesSources &&
-            null !== $resource->getNode() &&
-            null !== $resource->getNode()->getNodeType() &&
-            $resource->isReachable()) {
-            $node = $resource->getNode();
+    /**
+     * @param Request $request
+     * @param NodesSources $nodeSource
+     */
+    protected function injectNodeSourceAlternatePaths(Request $request, NodesSources $nodeSource): void
+    {
+        if (null !== $nodeSource->getNode() &&
+            null !== $nodeSource->getNode()->getNodeType() &&
+            $nodeSource->isReachable()) {
+            $node = $nodeSource->getNode();
             $this->getEntityManager()->refresh($node);
             /** @var array<string> $links */
             $links = $request->attributes->get(LinkedApiResponseSubscriber::LINKED_RESOURCES_ATTRIBUTE, []);
