@@ -18,6 +18,7 @@
         "phpstan/phpstan-doctrine": "^0.12.22",
         "roadiz/dts-generator": "dev-main",
         "roadiz/nodetype-contracts": "dev-main",
+        "roadiz/documents": "dev-develop",
         "roadiz/doc-generator": "dev-main",
         "roadiz/entity-generator": "dev-main"
     },
