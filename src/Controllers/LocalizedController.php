@@ -11,6 +11,7 @@ use Symfony\Cmf\Component\Routing\RouteObjectInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Themes\AbstractApiTheme\Subscriber\CachableApiResponseSubscriber;
 use Themes\AbstractApiTheme\Subscriber\LinkedApiResponseSubscriber;
 
 trait LocalizedController
@@ -27,6 +28,7 @@ trait LocalizedController
          */
         if (null === $locale) {
             $locale = $request->getPreferredLanguage($this->getTranslationRepository()->getAllLocales());
+            $request->attributes->set(CachableApiResponseSubscriber::VARY_ON_ACCEPT_LANGUAGE_ATTRIBUTE, true);
         }
         /*
          * Then fallback to default CMS locale
@@ -41,6 +43,7 @@ trait LocalizedController
         if (null === $translation) {
             throw new NotFoundHttpException('No translation for locale ' . $locale);
         }
+        $request->attributes->set(CachableApiResponseSubscriber::CONTENT_LANGUAGE_ATTRIBUTE, $translation->getLocale());
         return $translation;
     }
 

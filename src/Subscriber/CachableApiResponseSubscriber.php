@@ -9,18 +9,13 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 final class CachableApiResponseSubscriber implements EventSubscriberInterface
 {
-    /**
-     * @var bool
-     */
-    private $cachable = false;
-    /**
-     * @var int
-     */
-    private $minutes = 0;
-    /**
-     * @var bool
-     */
-    private $allowClientCache;
+    private bool $cachable = false;
+    private int $minutes = 0;
+    private bool $allowClientCache;
+
+    const VARY_ON_ORIGIN_ATTRIBUTE='response.vary_on_origin_attr';
+    const VARY_ON_ACCEPT_LANGUAGE_ATTRIBUTE='response.vary_on_accept_language_attr';
+    const CONTENT_LANGUAGE_ATTRIBUTE='response.content_language_attr';
 
     /**
      * @param int $minutes
@@ -55,22 +50,25 @@ final class CachableApiResponseSubscriber implements EventSubscriberInterface
         header_remove('vary');
         $response = $event->getResponse();
         $response->headers->remove('vary');
-        $response->setVary(implode(', ', [
+        $varyingHeaders = [
             'Accept-Encoding',
             'Accept',
             'Authorization',
-            'x-requested-with',
-            'Access-Control-Allow-Origin',
-            'x-api-key',
-            'Referer',
-            'Origin'
-        ]));
-
-        if ($event->getRequest()->isXmlHttpRequest()) {
-            $response->headers->add([
-                'X-Partial' => true
-            ]);
+            'x-api-key'
+        ];
+        if ($event->getRequest()->attributes->getBoolean(self::VARY_ON_ORIGIN_ATTRIBUTE)) {
+            $varyingHeaders[] = 'Origin';
         }
+        if ($event->getRequest()->attributes->getBoolean(self::VARY_ON_ACCEPT_LANGUAGE_ATTRIBUTE)) {
+            $varyingHeaders[] = 'Accept-Language';
+        }
+        if ($event->getRequest()->attributes->has(self::CONTENT_LANGUAGE_ATTRIBUTE)) {
+            $response->headers->set(
+                'content-language',
+                $event->getRequest()->attributes->getAlpha(self::CONTENT_LANGUAGE_ATTRIBUTE)
+            );
+        }
+        $response->setVary(implode(', ', $varyingHeaders));
 
         /*
          * Following directives only apply on cacheable responses.
@@ -81,8 +79,7 @@ final class CachableApiResponseSubscriber implements EventSubscriberInterface
 
         header_remove('Cache-Control');
         $response->headers->remove('cache-control');
-        $response->setPublic();
-        $response->setSharedMaxAge(60 * $this->minutes);
+        $response->setTtl(60 * $this->minutes);
         $response->headers->addCacheControlDirective('must-revalidate', true);
         if ($this->allowClientCache) {
             $response->setMaxAge(60 * $this->minutes);

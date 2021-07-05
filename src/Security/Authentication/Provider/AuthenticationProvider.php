@@ -1,10 +1,4 @@
 <?php
-/**
- * AbstractApiTheme - ApplicationProvider.php
- *
- * Initial version by: ambroisemaupate
- * Initial version created on: 2019-01-03
- */
 declare(strict_types=1);
 
 namespace Themes\AbstractApiTheme\Security\Authentication\Provider;
@@ -18,10 +12,7 @@ use Themes\AbstractApiTheme\Security\Authentication\Token\ApplicationToken;
 
 class AuthenticationProvider implements AuthenticationProviderInterface
 {
-    /**
-     * @var ApplicationProviderInterface
-     */
-    private $applicationProvider;
+    private ApplicationProviderInterface $applicationProvider;
 
     public function __construct(ApplicationProviderInterface $applicationProvider)
     {
@@ -57,7 +48,7 @@ class AuthenticationProvider implements AuthenticationProviderInterface
                 }
                 if ($application->getRefererRegex() !== "") {
                     if (preg_match('#'.$application->getRefererRegex().'#', $token->getReferer()) === 0) {
-                        throw new AuthenticationException('Referrer "'.$token->getReferer().'" is not allowed.');
+                        throw new AuthenticationException('Origin "'.$token->getReferer().'" is not allowed.');
                     }
                 }
 
