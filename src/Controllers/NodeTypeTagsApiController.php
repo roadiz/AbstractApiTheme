@@ -46,8 +46,7 @@ class NodeTypeTagsApiController extends AbstractNodeTypeApiController
         /** @var TagApiRequestOptionsResolver $apiOptionsResolver */
         $apiOptionsResolver = $this->get(TagApiRequestOptionsResolver::class);
         $options = $apiOptionsResolver->resolve($request->query->all());
-
-        $this->getTranslationOrNotFound($options['_locale']);
+        $this->translation = $this->getTranslationFromLocaleOrRequest($request, $options['_locale']);
 
         $defaultCriteria = [
             'translation' => $this->getTranslation(),

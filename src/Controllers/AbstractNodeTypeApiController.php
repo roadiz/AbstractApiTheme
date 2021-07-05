@@ -40,6 +40,12 @@ abstract class AbstractNodeTypeApiController extends AbstractApiThemeApp
         return $this->serializationGroups;
     }
 
+    protected function getDefaultLocale(): string
+    {
+        return $this->get('defaultTranslation')->getLocale();
+    }
+
+
     protected function getDefaultSerializationGroups(): array
     {
         return [
@@ -93,19 +99,6 @@ abstract class AbstractNodeTypeApiController extends AbstractApiThemeApp
         }
         $this->denyAccessUnlessNodeTypeGranted($nodeType);
         return $nodeType;
-    }
-
-    /**
-     * @param string $locale
-     * @return Translation
-     */
-    protected function getTranslationOrNotFound(string $locale): Translation
-    {
-        $this->translation = $this->get('em')->getRepository(Translation::class)->findOneByLocale($locale);
-        if (null === $this->translation) {
-            throw $this->createNotFoundException();
-        }
-        return $this->translation;
     }
 
     /**

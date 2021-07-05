@@ -11,28 +11,17 @@ use Symfony\Component\OptionsResolver\Options;
 
 abstract class AbstractApiRequestOptionsResolver
 {
-    protected ?string $defaultLocale;
     protected TagApi $tagApi;
     protected NodeApi $nodeApi;
 
     /**
-     * @param string|null $defaultLocale
      * @param TagApi      $tagApi
      * @param NodeApi     $nodeApi
      */
-    public function __construct(?string $defaultLocale, TagApi $tagApi, NodeApi $nodeApi)
+    public function __construct(TagApi $tagApi, NodeApi $nodeApi)
     {
-        $this->defaultLocale = $defaultLocale;
         $this->tagApi = $tagApi;
         $this->nodeApi = $nodeApi;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getDefaultLocale(): ?string
-    {
-        return $this->defaultLocale;
     }
 
     /**

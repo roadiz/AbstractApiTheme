@@ -366,7 +366,6 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
 
         $container[ApiRequestOptionsResolver::class] = $container->factory(function ($c) {
             return new ApiRequestOptionsResolver(
-                $c['defaultTranslation']->getLocale(),
                 $c['tagApi'],
                 $c['nodeApi'],
                 $c[ChainedPathResolver::class],
@@ -376,7 +375,6 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
 
         $container[TagApiRequestOptionsResolver::class] = $container->factory(function ($c) {
             return new TagApiRequestOptionsResolver(
-                $c['defaultTranslation']->getLocale(),
                 $c['tagApi'],
                 $c['nodeApi']
             );
@@ -384,7 +382,6 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
 
         $container[SearchApiRequestOptionsResolver::class] = $container->factory(function ($c) {
             return new SearchApiRequestOptionsResolver(
-                $c['defaultTranslation']->getLocale(),
                 $c['tagApi'],
                 $c['nodeApi'],
                 $c['em']

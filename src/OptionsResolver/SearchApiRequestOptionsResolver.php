@@ -18,18 +18,16 @@ final class SearchApiRequestOptionsResolver extends AbstractApiRequestOptionsRes
     private EntityManagerInterface $entityManager;
 
     /**
-     * @param string|null $defaultLocale
      * @param TagApi $tagApi
      * @param NodeApi $nodeApi
      * @param EntityManagerInterface $entityManager
      */
     public function __construct(
-        ?string $defaultLocale,
         TagApi $tagApi,
         NodeApi $nodeApi,
         EntityManagerInterface $entityManager
     ) {
-        parent::__construct($defaultLocale, $tagApi, $nodeApi);
+        parent::__construct($tagApi, $nodeApi);
         $this->entityManager = $entityManager;
     }
 
@@ -60,7 +58,7 @@ final class SearchApiRequestOptionsResolver extends AbstractApiRequestOptionsRes
         return [
             'itemsPerPage' => 15,
             'page' => 1,
-            '_locale' => $this->getDefaultLocale(),
+            '_locale' => null,
             '_preview' => false,
             'search' => null,
             'api_key' => null,
@@ -85,7 +83,7 @@ final class SearchApiRequestOptionsResolver extends AbstractApiRequestOptionsRes
             'node.visible' => null,
             'node.nodeType' => null,
         ]));
-        $resolver->setAllowedTypes('_locale', ['string']);
+        $resolver->setAllowedTypes('_locale', ['string', 'null']);
         $resolver->setAllowedTypes('search', ['string', 'null']);
         $resolver->setAllowedTypes('api_key', ['string', 'null']);
         $resolver->setAllowedTypes('properties', ['string[]', 'null']);

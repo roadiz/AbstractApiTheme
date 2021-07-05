@@ -57,8 +57,7 @@ class NodeTypeSingleApiController extends AbstractNodeTypeApiController
             $queryAll = $request->query->all();
         }
         $options = $apiOptionsResolver->resolve($queryAll, $nodeType);
-
-        $this->getTranslationOrNotFound($options['_locale']);
+        $this->translation = $this->getTranslationFromLocaleOrRequest($request, $options['_locale']);
 
         $criteria = [
             'node.nodeType' => $nodeType,
@@ -92,7 +91,7 @@ class NodeTypeSingleApiController extends AbstractNodeTypeApiController
             throw $this->createNotFoundException();
         }
         $this->denyAccessUnlessNodeTypeGranted($nodeType);
-        $this->getTranslationOrNotFound($options['_locale']);
+        $this->translation = $this->getTranslationFromLocaleOrRequest($request, $options['_locale']);
 
         /*
          * Get a routing resource array
