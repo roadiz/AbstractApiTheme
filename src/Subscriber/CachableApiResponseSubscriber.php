@@ -81,6 +81,10 @@ final class CachableApiResponseSubscriber implements EventSubscriberInterface
         $response->headers->remove('cache-control');
         $response->setTtl(60 * $this->minutes);
         $response->headers->addCacheControlDirective('must-revalidate', true);
+        /*
+         * Allows cache to serve expired content max 30sec while fetching fresh from backend
+         */
+        $response->headers->addCacheControlDirective('stale-while-revalidate', 30);
         if ($this->allowClientCache) {
             $response->setMaxAge(60 * $this->minutes);
         }
