@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Themes\AbstractApiTheme\OptionsResolver\ApiRequestOptionsResolver;
+use Themes\AbstractApiTheme\Subscriber\CachableApiResponseSubscriber;
 
 class NodeTypeSingleApiController extends AbstractNodeTypeApiController
 {
@@ -158,6 +159,10 @@ class NodeTypeSingleApiController extends AbstractNodeTypeApiController
         if (null === $this->translation) {
             $this->translation = $nodeSource->getTranslation();
         }
+        $request->attributes->set(
+            CachableApiResponseSubscriber::CONTENT_LANGUAGE_ATTRIBUTE,
+            $this->translation->getLocale()
+        );
 
         /** @var SerializerInterface $serializer */
         $serializer = $this->get('serializer');

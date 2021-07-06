@@ -37,9 +37,7 @@ trait LocalizedController
             $locale = $this->getDefaultLocale();
         }
         /** @var Translation|null $translation */
-        $translation = $this->getTranslationRepository()->findOneBy([
-            'locale' => $locale
-        ]);
+        $translation = $this->getTranslationRepository()->findOneAvailableByLocaleOrOverrideLocale($locale);
         if (null === $translation) {
             throw new NotFoundHttpException('No translation for locale ' . $locale);
         }
