@@ -13,7 +13,6 @@ final class CachableApiResponseSubscriber implements EventSubscriberInterface
     private int $minutes = 0;
     private bool $allowClientCache;
 
-    const VARY_ON_ORIGIN_ATTRIBUTE='response.vary_on_origin_attr';
     const VARY_ON_ACCEPT_LANGUAGE_ATTRIBUTE='response.vary_on_accept_language_attr';
     const CONTENT_LANGUAGE_ATTRIBUTE='response.content_language_attr';
 
@@ -53,12 +52,10 @@ final class CachableApiResponseSubscriber implements EventSubscriberInterface
         $varyingHeaders = [
             'Accept-Encoding',
             'Accept',
+            'Origin', // Needed if request comes from Nuxt backend instead of browser
             'Authorization',
             'x-api-key'
         ];
-        if ($event->getRequest()->attributes->getBoolean(self::VARY_ON_ORIGIN_ATTRIBUTE)) {
-            $varyingHeaders[] = 'Origin';
-        }
         if ($event->getRequest()->attributes->getBoolean(self::VARY_ON_ACCEPT_LANGUAGE_ATTRIBUTE)) {
             $varyingHeaders[] = 'Accept-Language';
         }

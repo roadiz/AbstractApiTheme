@@ -53,10 +53,6 @@ class ApplicationListener
             $token->setUser($application);
             $token->setReferer($request->headers->get('origin', '') ?? '');
 
-            if (!empty($application->getRefererRegex())) {
-                $request->attributes->set(CachableApiResponseSubscriber::VARY_ON_ORIGIN_ATTRIBUTE, true);
-            }
-
             try {
                 $authToken = $this->authenticationManager->authenticate($token);
                 $this->tokenStorage->setToken($authToken);
