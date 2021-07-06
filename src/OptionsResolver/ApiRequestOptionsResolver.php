@@ -25,20 +25,18 @@ final class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
     private EntityManagerInterface $entityManager;
 
     /**
-     * @param string|null $defaultLocale
      * @param TagApi $tagApi
      * @param NodeApi $nodeApi
      * @param PathResolverInterface $pathResolver
      * @param EntityManagerInterface $entityManager
      */
     public function __construct(
-        ?string $defaultLocale,
         TagApi $tagApi,
         NodeApi $nodeApi,
         PathResolverInterface $pathResolver,
         EntityManagerInterface $entityManager
     ) {
-        parent::__construct($defaultLocale, $tagApi, $nodeApi);
+        parent::__construct($tagApi, $nodeApi);
         $this->pathResolver = $pathResolver;
         $this->entityManager = $entityManager;
     }
@@ -72,7 +70,7 @@ final class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
             'itemsPerPage' => 15,
             'maxChildrenCount' => 30,
             'page' => 1,
-            '_locale' => $this->getDefaultLocale(),
+            '_locale' => null,
             '_preview' => false,
             'search' => null,
             'api_key' => null,
@@ -113,7 +111,7 @@ final class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
             'node.nodeType' => null,
             'node.home' => null
         ]));
-        $resolver->setAllowedTypes('_locale', ['string']);
+        $resolver->setAllowedTypes('_locale', ['string', 'null']);
         $resolver->setAllowedTypes('_node_source', [NodesSources::class, 'null']);
         $resolver->setAllowedTypes('search', ['string', 'null']);
         $resolver->setAllowedTypes('title', ['string', 'null']);

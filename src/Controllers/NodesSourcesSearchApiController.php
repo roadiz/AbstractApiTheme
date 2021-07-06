@@ -49,7 +49,7 @@ class NodesSourcesSearchApiController extends AbstractNodeTypeApiController
             }
         }
 
-        $this->getTranslationOrNotFound($options['_locale']);
+        $this->translation = $this->getTranslationFromLocaleOrRequest($request, $options['_locale']);
 
         $defaultCriteria = [
             'translation' => $this->getTranslation(),

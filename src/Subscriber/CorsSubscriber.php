@@ -16,7 +16,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
  *
  * @author Jordi Boggiano <j.boggiano@seld.be>
  */
-class CorsSubscriber implements EventSubscriberInterface
+final class CorsSubscriber implements EventSubscriberInterface
 {
     const SHOULD_ALLOW_ORIGIN_ATTR = '_nelmio_cors_should_allow_origin';
     const SHOULD_FORCE_ORIGIN_ATTR = '_nelmio_cors_should_force_origin';
