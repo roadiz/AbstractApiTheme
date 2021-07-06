@@ -60,6 +60,7 @@ use Themes\AbstractApiTheme\OptionsResolver\TagApiRequestOptionsResolver;
 use Themes\AbstractApiTheme\Routing\ApiRouteCollection;
 use Themes\AbstractApiTheme\Routing\ChainedPathResolver;
 use Themes\AbstractApiTheme\Routing\RedirectionPathResolver;
+use Themes\AbstractApiTheme\Routing\RootPathResolver;
 use Themes\AbstractApiTheme\Security\Authentication\Provider\AuthenticationProvider;
 use Themes\AbstractApiTheme\Security\Authentication\Provider\OAuth2Provider;
 use Themes\AbstractApiTheme\Security\Authentication\Token\OAuth2TokenFactory;
@@ -354,12 +355,17 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
             return new RedirectionPathResolver($c['em']);
         };
 
+        $container[RootPathResolver::class] = function (Container $c) {
+            return new RootPathResolver($c['request_stack'], $c['em'], $c['settingsBag']);
+        };
+
         /*
          * Resolve redirection and nodeSource at the same time.
          */
         $container[ChainedPathResolver::class] = function (Container $c) {
             return new ChainedPathResolver([
                 $c[RedirectionPathResolver::class],
+                $c[RootPathResolver::class],
                 $c[NodesSourcesPathResolver::class]
             ]);
         };
