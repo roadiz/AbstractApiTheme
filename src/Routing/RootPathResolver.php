@@ -62,7 +62,8 @@ final class RootPathResolver implements PathResolverInterface
          * If no _locale query param is defined check Accept-Language header
          */
         $locale = $request->getPreferredLanguage(
-            $translationRepository->getAllLocales()
+            // Available locales should be sort for default locale to be in first position.
+            $translationRepository->getAvailableLocales()
         );
         $request->attributes->set(CachableApiResponseSubscriber::VARY_ON_ACCEPT_LANGUAGE_ATTRIBUTE, true);
         /*
