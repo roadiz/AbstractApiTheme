@@ -37,8 +37,7 @@ class NodesSourcesListingApiController extends AbstractNodeTypeApiController
         /** @var ApiRequestOptionsResolver $apiOptionsResolver */
         $apiOptionsResolver = $this->get(ApiRequestOptionsResolver::class);
         $options = $apiOptionsResolver->resolve($request->query->all(), null);
-
-        $this->getTranslationOrNotFound($options['_locale']);
+        $this->translation = $this->getTranslationFromLocaleOrRequest($request, $options['_locale']);
 
         $defaultCriteria = [
             'translation' => $this->getTranslation(),

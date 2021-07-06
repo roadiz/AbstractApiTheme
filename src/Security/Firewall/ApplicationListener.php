@@ -1,10 +1,4 @@
 <?php
-/**
- * AbstractApiTheme - ApplicationListener.php
- *
- * Initial version by: ambroisemaupate
- * Initial version created on: 2019-01-03
- */
 declare(strict_types=1);
 
 namespace Themes\AbstractApiTheme\Security\Firewall;
@@ -17,21 +11,13 @@ use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Themes\AbstractApiTheme\Exception\InvalidApiKeyException;
 use Themes\AbstractApiTheme\Extractor\ApplicationExtractorInterface;
 use Themes\AbstractApiTheme\Security\Authentication\Token\ApplicationToken;
+use Themes\AbstractApiTheme\Subscriber\CachableApiResponseSubscriber;
 
 class ApplicationListener
 {
-    /**
-     * @var AuthenticationManagerInterface
-     */
-    private $authenticationManager;
-    /**
-     * @var TokenStorageInterface
-     */
-    private $tokenStorage;
-    /**
-     * @var ApplicationExtractorInterface
-     */
-    private $applicationExtractor;
+    private AuthenticationManagerInterface $authenticationManager;
+    private TokenStorageInterface $tokenStorage;
+    private ApplicationExtractorInterface $applicationExtractor;
 
     /**
      * @param AuthenticationManagerInterface $authenticationManager
@@ -65,7 +51,11 @@ class ApplicationListener
         if (null !== $application) {
             $token = new ApplicationToken();
             $token->setUser($application);
-            $token->setReferer($request->headers->get('referer', '') ?? '');
+            $token->setReferer($request->headers->get('origin', '') ?? '');
+
+            if (!empty($application->getRefererRegex())) {
+                $request->attributes->set(CachableApiResponseSubscriber::VARY_ON_ORIGIN_ATTRIBUTE, true);
+            }
 
             try {
                 $authToken = $this->authenticationManager->authenticate($token);

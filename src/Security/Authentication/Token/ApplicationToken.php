@@ -1,10 +1,4 @@
 <?php
-/**
- * AbstractApiTheme - ApplicationToken.php
- *
- * Initial version by: ambroisemaupate
- * Initial version created on: 2019-01-03
- */
 declare(strict_types=1);
 
 namespace Themes\AbstractApiTheme\Security\Authentication\Token;
@@ -19,7 +13,7 @@ class ApplicationToken extends AbstractToken
      * @var string
      * @Serializer\Groups({"user"})
      */
-    protected $referer = '';
+    protected string $referer = '';
 
     /**
      * @inheritDoc

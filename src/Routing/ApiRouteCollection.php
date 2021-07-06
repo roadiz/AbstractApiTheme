@@ -102,17 +102,17 @@ class ApiRouteCollection extends DeferredRouteCollection
         NodeTypes $nodeTypesBag,
         Settings $settingsBag,
         Stopwatch $stopwatch = null,
-        $apiPrefix = '/api',
-        $apiVersion = '1.0',
-        $nodeTypeWhitelist = null,
-        $rootControllerClass = RootApiController::class,
-        $nodeTypeListingControllerClass = NodeTypeListingApiController::class,
-        $nodeTypeSingleControllerClass = NodeTypeSingleApiController::class,
-        $userControllerClass = UserApiController::class,
-        $nodeTypeTagsControllerClass = NodeTypeTagsApiController::class,
-        $nodesSourcesListingApiControllerClass = NodesSourcesListingApiController::class,
-        $nodesSourcesSearchApiControllerClass = NodesSourcesSearchApiController::class,
-        $nodeTypeArchivesControllerClass = NodeTypeArchivesApiController::class
+        string $apiPrefix = '/api',
+        string $apiVersion = '1.0',
+        ?array $nodeTypeWhitelist = null,
+        string $rootControllerClass = RootApiController::class,
+        string $nodeTypeListingControllerClass = NodeTypeListingApiController::class,
+        string $nodeTypeSingleControllerClass = NodeTypeSingleApiController::class,
+        string $userControllerClass = UserApiController::class,
+        string $nodeTypeTagsControllerClass = NodeTypeTagsApiController::class,
+        string $nodesSourcesListingApiControllerClass = NodesSourcesListingApiController::class,
+        string $nodesSourcesSearchApiControllerClass = NodesSourcesSearchApiController::class,
+        string $nodeTypeArchivesControllerClass = NodeTypeArchivesApiController::class
     ) {
         $this->stopwatch = $stopwatch;
         $this->settingsBag = $settingsBag;

@@ -5,10 +5,11 @@ namespace Themes\AbstractApiTheme\Routing;
 
 use Doctrine\ORM\EntityManagerInterface;
 use RZ\Roadiz\Core\Entities\Redirection;
+use RZ\Roadiz\Core\Routing\PathResolverInterface;
 use RZ\Roadiz\Core\Routing\ResourceInfo;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
-final class RedirectionPathResolver implements \RZ\Roadiz\Core\Routing\PathResolverInterface
+final class RedirectionPathResolver implements PathResolverInterface
 {
     private EntityManagerInterface $entityManager;
 

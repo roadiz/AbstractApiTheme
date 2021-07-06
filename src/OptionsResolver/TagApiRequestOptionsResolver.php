@@ -29,7 +29,7 @@ final class TagApiRequestOptionsResolver extends AbstractApiRequestOptionsResolv
             'itemsPerPage' => 15,
             'maxChildrenCount' => 30,
             'page' => 1,
-            '_locale' => $this->getDefaultLocale(),
+            '_locale' => null,
             '_preview' => false,
             'search' => null,
             'api_key' => null,
@@ -52,6 +52,7 @@ final class TagApiRequestOptionsResolver extends AbstractApiRequestOptionsResolv
             'parent' => false,
             'visible' => null,
         ]));
+        $resolver->setAllowedTypes('_locale', ['string', 'null']);
         $resolver->setAllowedTypes('properties', ['string[]', 'null']);
         $resolver->setAllowedTypes('search', ['string', 'null']);
         $resolver->setAllowedTypes('tagName', ['string', 'null']);
