@@ -207,7 +207,7 @@ $container['api.cors_options'] = [
     'allow_headers' => true,
     'origin_regex' => false,
     'allow_methods' => ['GET'],
-    'expose_headers' => [],
+    'expose_headers' => ['link', 'etag'],
     'max_age' => 60*60*24
 ];
 ```
@@ -307,7 +307,7 @@ can be helpful for avoiding *document* or *node reference* fields to bloat your 
 
 - itemsPerPage: `int`
 - page: `int`
-- _locale: `string`
+- _locale: `string` If _locale is not set, Roadiz will negotiate with existing `Accept-Language` header
 - search: `string`
 - order: `array` Example `order[publishedAt]: DESC` with values:
   - `ASC`
@@ -356,6 +356,14 @@ the right locale, or you won't get any result with `search` or `path` filters ag
 If you get one result, you'll find canonical path in `hydra:member > 0 > url` field to create a redirection in
 your frontend framework and advertise node-source new URL.
 
+##### Redirect home path with Accept-Language
+
+Using `path` filter with `/` value **only**, you can send `Accept-Language` header to the API to let it decide with
+translation is best for your consumer. If a valid data is found, API will respond with `Content-Language` header
+contain accepted locale.
+To enable this behaviour, you must enable `force_locale` Roadiz setting to make sure each home page path 
+displays its locale and to avoid infinite redirection loops.
+
 ### Search nodes-sources
 
 - `/api/1.0/nodes-sources/search`: Search all nodes-sources against a `search` param using *Apache Solr* engine
@@ -379,7 +387,7 @@ If your search parameter is longer than 3 characters, each API result item will 
 
 - itemsPerPage: `int`
 - page: `int`
-- _locale: `string`
+- _locale: `string` If _locale is not set, Roadiz will negotiate with existing `Accept-Language` header
 - search: `string`
 - tags: `array<string>`
 - node.parent: `int` or `string` (node-name)
@@ -398,7 +406,7 @@ If you created a `Event` node-type, you may want to list any `Tags` attached to 
 
 - itemsPerPage: `int`
 - page: `int`
-- _locale: `string`
+- _locale: `string` If _locale is not set, Roadiz will negotiate with existing `Accept-Language` header
 - search: `string`: This will search on `tagName` and translation `name`
 - order: `array` Example `order[position]: ASC` with values:
   - `ASC`
@@ -441,7 +449,7 @@ If you created a `Event` node-type, you may want to list any archives from *even
 
 #### Filters
 
-- _locale: `string`
+- _locale: `string` If _locale is not set, Roadiz will negotiate with existing `Accept-Language` header
 - tags: `array<string>`
 - tagExclusive: `bool`
 - node.parent: `int` or `string` (node-name)
