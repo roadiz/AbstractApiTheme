@@ -17,19 +17,8 @@ class AuthorizationRequestSubscriber implements EventSubscriberInterface
 {
     const AUTHORIZATION_GRANT = 'authorization_code';
 
-    /**
-     * @var TokenStorageInterface
-     */
-    protected $tokenStorage;
-
-    /**
-     * @var RequestStack
-     */
-    protected $requestStack;
-
-    /**
-     * @var InlineFragmentRenderer
-     */
+    protected TokenStorageInterface $tokenStorage;
+    protected RequestStack $requestStack;
     private InlineFragmentRenderer $renderer;
 
     /**
