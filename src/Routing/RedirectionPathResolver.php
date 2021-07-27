@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Themes\AbstractApiTheme\Routing;
 
-use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Persistence\ManagerRegistry;
 use RZ\Roadiz\Core\Entities\Redirection;
 use RZ\Roadiz\Core\Routing\PathResolverInterface;
 use RZ\Roadiz\Core\Routing\ResourceInfo;
@@ -11,14 +11,14 @@ use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
 final class RedirectionPathResolver implements PathResolverInterface
 {
-    private EntityManagerInterface $entityManager;
+    private ManagerRegistry $managerRegistry;
 
     /**
-     * @param EntityManagerInterface $entityManager
+     * @param ManagerRegistry $managerRegistry
      */
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(ManagerRegistry $managerRegistry)
     {
-        $this->entityManager = $entityManager;
+        $this->managerRegistry = $managerRegistry;
     }
 
     /**
@@ -30,7 +30,7 @@ final class RedirectionPathResolver implements PathResolverInterface
         bool $allowRootPaths = false
     ): ResourceInfo {
         /** @var Redirection|null $redirection */
-        $redirection = $this->entityManager->getRepository(Redirection::class)->findOneByQuery($path);
+        $redirection = $this->managerRegistry->getRepository(Redirection::class)->findOneByQuery($path);
 
         if (null === $redirection) {
             throw new ResourceNotFoundException('No redirection matches path');

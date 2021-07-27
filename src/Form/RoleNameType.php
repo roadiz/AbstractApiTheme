@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace Themes\AbstractApiTheme\Form;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Persistence\ManagerRegistry;
 use RZ\Roadiz\Core\Entities\Role;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -14,29 +14,20 @@ use Symfony\Component\String\UnicodeString;
 
 class RoleNameType extends AbstractType
 {
-    /**
-     * @var string
-     */
-    protected $rolePrefix;
-    /**
-     * @var string
-     */
-    protected $baseRole;
-    /**
-     * @var EntityManagerInterface
-     */
-    protected $entityManager;
+    protected string $rolePrefix;
+    protected string $baseRole;
+    protected ManagerRegistry $managerRegistry;
 
     /**
      * @param string $rolePrefix
      * @param string $baseRole
-     * @param EntityManagerInterface $entityManager
+     * @param ManagerRegistry $managerRegistry
      */
-    public function __construct(string $rolePrefix, string $baseRole, EntityManagerInterface $entityManager)
+    public function __construct(string $rolePrefix, string $baseRole, ManagerRegistry $managerRegistry)
     {
         $this->rolePrefix = $rolePrefix;
         $this->baseRole = $baseRole;
-        $this->entityManager = $entityManager;
+        $this->managerRegistry = $managerRegistry;
     }
 
     /**
@@ -54,7 +45,7 @@ class RoleNameType extends AbstractType
          * Use normalizer to populate choices from ChoiceType
          */
         $resolver->setNormalizer('choices', function (Options $options, $choices) {
-            $roles = $this->entityManager->getRepository(Role::class)->findAll();
+            $roles = $this->managerRegistry->getRepository(Role::class)->findAll();
             $roles = array_filter($roles, function (Role $role) {
                 return (new UnicodeString($role->getRole()))->startsWith($this->rolePrefix);
             });

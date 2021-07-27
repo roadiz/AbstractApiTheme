@@ -130,10 +130,7 @@ class NodeTypeTagsApiController extends AbstractNodeTypeApiController
         ?TranslationInterface $translation,
         Tag $parentTag = null
     ): QueryBuilder {
-        /**
-         * @var QueryBuilder $qb
-         */
-        $qb = $this->get('em')
+        $qb = $this->getDoctrine()
             ->getRepository(Tag::class)
             ->createQueryBuilder('t');
 

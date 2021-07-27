@@ -4,6 +4,8 @@ declare(strict_types=1);
 namespace Themes\AbstractApiTheme\Controllers;
 
 use Doctrine\Common\Annotations\AnnotationReader;
+use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ObjectManager;
 use JMS\Serializer\DeserializationContext;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
@@ -40,6 +42,16 @@ abstract class AbstractApiPostController extends AbstractApiThemeApp
      */
     abstract protected function getPreCreatedEvent($entity): Event;
 
+    protected function getDoctrine(): ManagerRegistry
+    {
+        return $this->get(ManagerRegistry::class);
+    }
+
+    protected function getEntityManager(): ObjectManager
+    {
+        return $this->getDoctrine()->getManager();
+    }
+
     /**
      * @param Request $request
      * @return Response
@@ -68,8 +80,8 @@ abstract class AbstractApiPostController extends AbstractApiThemeApp
             $this->validateEntity($entity);
 
             $this->get('dispatcher')->dispatch($this->getPreCreatedEvent($entity));
-            $this->get('em')->persist($entity);
-            $this->get('em')->flush();
+            $this->getEntityManager()->persist($entity);
+            $this->getEntityManager()->flush();
 
             if ($entity instanceof NodesSources) {
                 $msg = $this->getTranslator()->trans(

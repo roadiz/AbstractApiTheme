@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Themes\AbstractApiTheme\Services;
 
 use Defuse\Crypto\Key;
+use Doctrine\Persistence\ManagerRegistry;
 use League\OAuth2\Server\AuthorizationServer;
 use League\OAuth2\Server\CryptKey;
 use League\OAuth2\Server\Repositories\AccessTokenRepositoryInterface;
@@ -107,7 +108,7 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
             return new RoleNameType(
                 $c['api.oauth2_role_prefix'],
                 $c['api.base_role'],
-                $c['em'],
+                $c[ManagerRegistry::class],
             );
         };
 
@@ -253,7 +254,7 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
          * @return ApplicationExtractor
          */
         $container['api.application_extractor'] = function (Container $c) {
-            return new ApplicationExtractor($c, $c['api.application_class']);
+            return new ApplicationExtractor($c[ManagerRegistry::class], $c['api.application_class']);
         };
 
         /**
@@ -355,11 +356,11 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
         };
 
         $container[RedirectionPathResolver::class] = function (Container $c) {
-            return new RedirectionPathResolver($c['em']);
+            return new RedirectionPathResolver($c[ManagerRegistry::class]);
         };
 
         $container[RootPathResolver::class] = function (Container $c) {
-            return new RootPathResolver($c['request_stack'], $c['em'], $c['settingsBag']);
+            return new RootPathResolver($c['request_stack'], $c[ManagerRegistry::class], $c['settingsBag']);
         };
 
         /*
@@ -378,7 +379,7 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
                 $c['tagApi'],
                 $c['nodeApi'],
                 $c[ChainedPathResolver::class],
-                $c['em']
+                $c[ManagerRegistry::class]
             );
         });
 
@@ -393,7 +394,7 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
             return new SearchApiRequestOptionsResolver(
                 $c['tagApi'],
                 $c['nodeApi'],
-                $c['em']
+                $c[ManagerRegistry::class]
             );
         });
 
@@ -478,7 +479,7 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
         $container->extend('dispatcher', function (EventDispatcherInterface $dispatcher, Container $c) {
             $dispatcher->addSubscriber(new CorsSubscriber($c['api.cors_options']));
             $dispatcher->addSubscriber(new LinkedApiResponseSubscriber());
-            $dispatcher->addSubscriber(new RoadizUserRoleResolveSubscriber($c['em']));
+            $dispatcher->addSubscriber(new RoadizUserRoleResolveSubscriber($c[ManagerRegistry::class]));
             $dispatcher->addSubscriber(new AuthorizationRequestSubscriber(
                 $c['securityTokenStorage'],
                 $c['requestStack'],
@@ -502,7 +503,7 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
          * @return ClientRepository
          */
         $container[ClientRepositoryInterface::class] = function (Container $c) {
-            return new ClientRepository($c['em']);
+            return new ClientRepository($c[ManagerRegistry::class]);
         };
 
         $container[RefreshTokenRepositoryInterface::class] = function (Container $c) {
@@ -526,7 +527,7 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
          */
         $container[AuthCodeRepositoryInterface::class] = function (Container $c) {
             return new AuthCodeRepository(
-                $c['em'],
+                $c[ManagerRegistry::class],
                 $c[ScopeConverter::class],
                 $c[ClientRepositoryInterface::class]
             );
@@ -537,7 +538,7 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
          * @return AccessTokenRepository
          */
         $container[AccessTokenRepositoryInterface::class] = function (Container $c) {
-            return new AccessTokenRepository($c['em']);
+            return new AccessTokenRepository($c[ManagerRegistry::class]);
         };
 
         $container[AuthorizationRequestResolveEventFactory::class] = function (Container $c) {

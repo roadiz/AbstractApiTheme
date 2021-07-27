@@ -4,6 +4,8 @@ declare(strict_types=1);
 namespace Themes\AbstractApiTheme\Controllers;
 
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ObjectManager;
 use JMS\Serializer\SerializationContext;
 use RZ\Roadiz\Contracts\NodeType\NodeTypeInterface;
 use RZ\Roadiz\Core\Entities\NodeType;
@@ -61,12 +63,14 @@ abstract class AbstractNodeTypeApiController extends AbstractApiThemeApp
 
     abstract protected function denyAccessUnlessNodeTypeGranted(NodeTypeInterface $nodeType): void;
 
-    /**
-     * @return EntityManagerInterface
-     */
-    protected function getEntityManager(): EntityManagerInterface
+    protected function getDoctrine(): ManagerRegistry
     {
-        return $this->get('em');
+        return $this->get(ManagerRegistry::class);
+    }
+
+    protected function getEntityManager(): ObjectManager
+    {
+        return $this->getDoctrine()->getManager();
     }
 
     /**
@@ -93,7 +97,7 @@ abstract class AbstractNodeTypeApiController extends AbstractApiThemeApp
     protected function getNodeTypeOrDeny(int $nodeTypeId): NodeTypeInterface
     {
         /** @var NodeTypeInterface|null $nodeType */
-        $nodeType = $this->get('em')->find(NodeType::class, $nodeTypeId);
+        $nodeType = $this->getEntityManager()->find(NodeType::class, $nodeTypeId);
         if (null === $nodeType) {
             throw $this->createNotFoundException();
         }

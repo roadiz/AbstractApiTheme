@@ -4,6 +4,8 @@ declare(strict_types=1);
 namespace Themes\AbstractApiTheme\Extractor;
 
 use Doctrine\ORM\EntityRepository;
+use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ObjectRepository;
 use Pimple\Container;
 use RZ\Roadiz\Core\ContainerAwareInterface;
 use RZ\Roadiz\Core\ContainerAwareTrait;
@@ -19,20 +21,22 @@ use Themes\AbstractApiTheme\Security\Authentication\Provider\ApplicationProvider
  *
  * @package Themes\AbstractApiTheme\Extractor
  */
-class ApplicationExtractor implements ApplicationExtractorInterface, ApplicationProviderInterface, ContainerAwareInterface
+class ApplicationExtractor implements ApplicationExtractorInterface, ApplicationProviderInterface
 {
-    use ContainerAwareTrait;
-
+    /**
+     * @var class-string
+     */
     protected string $applicationClass;
+    private ManagerRegistry $managerRegistry;
 
     /**
-     * @param Container $container
-     * @param string    $applicationClass
+     * @param ManagerRegistry $managerRegistry
+     * @param class-string $applicationClass
      */
-    public function __construct(Container $container, string $applicationClass)
+    public function __construct(ManagerRegistry $managerRegistry, string $applicationClass)
     {
-        $this->container = $container;
         $this->applicationClass = $applicationClass;
+        $this->managerRegistry = $managerRegistry;
     }
 
     /**
@@ -61,9 +65,9 @@ class ApplicationExtractor implements ApplicationExtractorInterface, Application
         return $this->getApiKey($request) !== null;
     }
 
-    protected function getRepository(): EntityRepository
+    protected function getRepository(): ObjectRepository
     {
-        return $this->get('em')->getRepository($this->applicationClass);
+        return $this->managerRegistry->getRepository($this->applicationClass);
     }
 
     /**
