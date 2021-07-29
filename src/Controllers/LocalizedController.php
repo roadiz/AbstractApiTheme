@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Themes\AbstractApiTheme\Controllers;
 
-use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Persistence\ObjectManager;
 use RZ\Roadiz\Core\Entities\NodesSources;
 use RZ\Roadiz\Core\Entities\Translation;
 use RZ\Roadiz\Core\Repositories\TranslationRepository;
@@ -17,7 +17,7 @@ use Themes\AbstractApiTheme\Subscriber\LinkedApiResponseSubscriber;
 trait LocalizedController
 {
     abstract protected function getUrlGenerator(): UrlGeneratorInterface;
-    abstract protected function getEntityManager(): EntityManagerInterface;
+    abstract protected function getEntityManager(): ObjectManager;
     abstract protected function getTranslationRepository(): TranslationRepository;
     abstract protected function getDefaultLocale(): string;
 
