@@ -592,15 +592,16 @@ namespace App\Breadcrumbs;
 
 use RZ\Roadiz\Core\Entities\NodesSources;
 use Themes\AbstractApiTheme\Breadcrumbs\BreadcrumbsFactoryInterface;
+use Themes\AbstractApiTheme\Breadcrumbs\BreadcrumbsInterface;
 use Themes\AbstractApiTheme\Breadcrumbs\Breadcrumbs;
 
 final class BreadcrumbsFactory implements BreadcrumbsFactoryInterface
 {
     /**
      * @param NodesSources|null $nodesSources
-     * @return Breadcrumbs|null
+     * @return BreadcrumbsInterface|null
      */
-    public function create(?NodesSources $nodesSources): ?Breadcrumbs
+    public function create(?NodesSources $nodesSources): ?BreadcrumbsInterface
     {
         if (null === $nodesSources ||
             null === $nodesSources->getNode() ||
