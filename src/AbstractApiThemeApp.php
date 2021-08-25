@@ -19,12 +19,12 @@ class AbstractApiThemeApp extends FrontendController
 {
     use AbstractApiThemeTrait;
 
-    protected static $themeName = 'Abstract Api theme';
-    protected static $themeAuthor = 'REZO ZERO';
-    protected static $themeCopyright = 'REZO ZERO';
-    protected static $themeDir = 'AbstractApiTheme';
-    protected static $backendTheme = false;
-    public static $priority = 9;
+    protected static string $themeName = 'Abstract Api theme';
+    protected static string $themeAuthor = 'REZO ZERO';
+    protected static string $themeCopyright = 'REZO ZERO';
+    protected static string $themeDir = 'AbstractApiTheme';
+    protected static bool $backendTheme = false;
+    public static int $priority = 9;
 
     /**
      * @inheritDoc
