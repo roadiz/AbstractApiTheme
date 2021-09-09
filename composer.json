@@ -19,6 +19,10 @@
         "roadiz/dts-generator": "dev-main",
         "roadiz/nodetype-contracts": "dev-main",
         "roadiz/documents": "dev-develop",
+        "roadiz/markdown": "dev-develop",
+        "roadiz/models": "dev-develop",
+        "roadiz/rozier": "dev-develop",
+        "roadiz/openid": "dev-main",
         "roadiz/doc-generator": "dev-main",
         "roadiz/entity-generator": "dev-main"
     },

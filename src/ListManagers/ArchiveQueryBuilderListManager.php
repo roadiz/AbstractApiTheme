@@ -59,7 +59,7 @@ final class ArchiveQueryBuilderListManager extends QueryBuilderListManager
     /**
      * @inheritDoc
      */
-    public function getItemCount()
+    public function getItemCount(): int
     {
         $this->getPaginator();
         return count($this->dates);

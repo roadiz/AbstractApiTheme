@@ -78,7 +78,7 @@ final class SolrSearchListManager extends AbstractEntityListManager
     /**
      * @inheritDoc
      */
-    public function getItemCount()
+    public function getItemCount(): int
     {
         if (null !== $this->searchResults) {
             return $this->searchResults->getResultCount();
