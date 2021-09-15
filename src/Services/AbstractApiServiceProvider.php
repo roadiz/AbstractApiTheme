@@ -404,11 +404,6 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
             return new SerializationContextFactory($c['api.use_cache_tags']);
         };
 
-        $container['api.application_factory'] = $container->factory(function ($c) {
-            $className = $c['api.application_class'];
-            return new $className($c['api.base_role'], $c['config']["appNamespace"]);
-        });
-
         $container[ApplicationController::class] = function (Container $c) {
             return new ApplicationController(
                 $c['api.application_class'],
