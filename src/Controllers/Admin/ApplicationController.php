@@ -3,14 +3,31 @@ declare(strict_types=1);
 
 namespace Themes\AbstractApiTheme\Controllers\Admin;
 
+use JMS\Serializer\SerializerInterface;
 use RZ\Roadiz\Core\AbstractEntities\PersistableInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Themes\AbstractApiTheme\Entity\Application;
 use Themes\AbstractApiTheme\Form\ApplicationType;
+use Themes\AbstractApiTheme\Model\ApplicationFactory;
 use Themes\Rozier\Controllers\AbstractAdminController;
 
 class ApplicationController extends AbstractAdminController
 {
+    private string $applicationClass;
+    private ApplicationFactory $applicationFactory;
+
+    public function __construct(
+        string $applicationClass,
+        ApplicationFactory $applicationFactory,
+        SerializerInterface $serializer,
+        UrlGeneratorInterface $urlGenerator
+    ) {
+        parent::__construct($serializer, $urlGenerator);
+        $this->applicationClass = $applicationClass;
+        $this->applicationFactory = $applicationFactory;
+    }
+
     /**
      * @return string
      */
@@ -21,8 +38,7 @@ class ApplicationController extends AbstractAdminController
 
     protected function supports(PersistableInterface $item): bool
     {
-        $className = $this->get('api.application_class');
-        return $item instanceof $className;
+        return $item instanceof $this->applicationClass;
     }
 
     protected function getNamespace(): string
@@ -32,7 +48,7 @@ class ApplicationController extends AbstractAdminController
 
     protected function createEmptyItem(Request $request): PersistableInterface
     {
-        return $this->get('api.application_factory');
+        return ($this->applicationFactory)();
     }
 
     protected function getTemplateFolder(): string
@@ -47,7 +63,7 @@ class ApplicationController extends AbstractAdminController
 
     protected function getEntityClass(): string
     {
-        return $this->get('api.application_class');
+        return $this->applicationClass;
     }
 
     protected function getFormType(): string

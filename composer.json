@@ -22,8 +22,10 @@
         "roadiz/markdown": "dev-develop",
         "roadiz/models": "dev-develop",
         "roadiz/rozier": "dev-develop",
-        "roadiz/openid": "dev-main",
-        "roadiz/doc-generator": "dev-main",
+        "roadiz/openid": "dev-develop",
+        "roadiz/jwt": "dev-main",
+        "roadiz/random": "dev-main",
+        "roadiz/doc-generator": "dev-develop",
         "roadiz/entity-generator": "dev-main"
     },
     "autoload": {

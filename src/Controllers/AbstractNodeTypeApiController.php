@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace Themes\AbstractApiTheme\Controllers;
 
-use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\ObjectManager;
 use JMS\Serializer\SerializationContext;

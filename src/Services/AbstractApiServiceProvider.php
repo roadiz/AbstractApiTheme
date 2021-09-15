@@ -35,6 +35,7 @@ use Symfony\Component\Security\Http\FirewallMap;
 use Symfony\Component\Translation\Translator;
 use Themes\AbstractApiTheme\Breadcrumbs\BreadcrumbsFactoryInterface;
 use Themes\AbstractApiTheme\Cache\CacheTagsCollection;
+use Themes\AbstractApiTheme\Controllers\Admin\ApplicationController;
 use Themes\AbstractApiTheme\Controllers\NodesSourcesListingApiController;
 use Themes\AbstractApiTheme\Controllers\NodesSourcesSearchApiController;
 use Themes\AbstractApiTheme\Controllers\NodeTypeArchivesApiController;
@@ -50,6 +51,7 @@ use Themes\AbstractApiTheme\Entity\Application;
 use Themes\AbstractApiTheme\Event\AuthorizationRequestResolveEventFactory;
 use Themes\AbstractApiTheme\Extractor\ApplicationExtractor;
 use Themes\AbstractApiTheme\Form\RoleNameType;
+use Themes\AbstractApiTheme\Model\ApplicationFactory;
 use Themes\AbstractApiTheme\OAuth2\JwtRequestFactory;
 use Themes\AbstractApiTheme\OAuth2\OAuth2JwtConfigurationFactory;
 use Themes\AbstractApiTheme\OAuth2\Repository\AccessTokenRepository;
@@ -406,6 +408,23 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
             $className = $c['api.application_class'];
             return new $className($c['api.base_role'], $c['config']["appNamespace"]);
         });
+
+        $container[ApplicationController::class] = function (Container $c) {
+            return new ApplicationController(
+                $c['api.application_class'],
+                $c[ApplicationFactory::class],
+                $c['serializer'],
+                $c['router']
+            );
+        };
+
+        $container[ApplicationFactory::class] = function (Container $c) {
+            return new ApplicationFactory(
+                $c['api.application_class'],
+                $c['api.base_role'],
+                $c['config']['appNamespace']
+            );
+        };
 
         $container['api.reference_type'] = function () {
             return UrlGeneratorInterface::ABSOLUTE_URL;
