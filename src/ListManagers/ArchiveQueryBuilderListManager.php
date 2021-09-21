@@ -28,6 +28,7 @@ final class ArchiveQueryBuilderListManager extends QueryBuilderListManager
 
     /**
      * @return Paginator
+     * @throws \Exception
      */
     protected function getPaginator(): Paginator
     {

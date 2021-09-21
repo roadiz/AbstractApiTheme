@@ -53,7 +53,7 @@ abstract class AbstractApiRequestOptionsResolver
      */
     protected function normalizeDateTimeFilter($value)
     {
-        if (null !== $value && is_string($value)) {
+        if (is_string($value)) {
             return new \DateTime($value);
         }
         if (is_array($value)) {

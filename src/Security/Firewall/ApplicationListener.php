@@ -11,7 +11,6 @@ use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Themes\AbstractApiTheme\Exception\InvalidApiKeyException;
 use Themes\AbstractApiTheme\Extractor\ApplicationExtractorInterface;
 use Themes\AbstractApiTheme\Security\Authentication\Token\ApplicationToken;
-use Themes\AbstractApiTheme\Subscriber\CachableApiResponseSubscriber;
 
 class ApplicationListener
 {

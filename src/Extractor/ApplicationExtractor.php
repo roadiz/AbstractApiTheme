@@ -3,12 +3,8 @@ declare(strict_types=1);
 
 namespace Themes\AbstractApiTheme\Extractor;
 
-use Doctrine\ORM\EntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\ObjectRepository;
-use Pimple\Container;
-use RZ\Roadiz\Core\ContainerAwareInterface;
-use RZ\Roadiz\Core\ContainerAwareTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Themes\AbstractApiTheme\Entity\Application;
 use Themes\AbstractApiTheme\Security\Authentication\Provider\ApplicationProviderInterface;

@@ -13,18 +13,9 @@ use RZ\Roadiz\JWT\JwtConfigurationFactory;
 
 final class OAuth2JwtConfigurationFactory implements JwtConfigurationFactory
 {
-    /**
-     * @var string
-     */
-    private $privateKeyPath;
-    /**
-     * @var string
-     */
-    private $publicKeyPath;
-    /**
-     * @var string|null
-     */
-    private $passphrase;
+    private string $privateKeyPath;
+    private string $publicKeyPath;
+    private ?string $passphrase;
 
     /**
      * @param string $privateKeyPath
