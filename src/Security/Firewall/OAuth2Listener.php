@@ -16,30 +16,11 @@ use Themes\AbstractApiTheme\Security\Authentication\Token\OAuth2TokenFactory;
 
 final class OAuth2Listener
 {
-    /**
-     * @var TokenStorageInterface
-     */
-    private $tokenStorage;
-
-    /**
-     * @var AuthenticationManagerInterface
-     */
-    private $authenticationManager;
-
-    /**
-     * @var HttpMessageFactoryInterface
-     */
-    private $httpMessageFactory;
-
-    /**
-     * @var OAuth2TokenFactory
-     */
-    private $oauth2TokenFactory;
-
-    /**
-     * @var string
-     */
-    private $providerKey;
+    private TokenStorageInterface $tokenStorage;
+    private AuthenticationManagerInterface $authenticationManager;
+    private HttpMessageFactoryInterface $httpMessageFactory;
+    private OAuth2TokenFactory $oauth2TokenFactory;
+    private string $providerKey;
 
     public function __construct(
         TokenStorageInterface $tokenStorage,

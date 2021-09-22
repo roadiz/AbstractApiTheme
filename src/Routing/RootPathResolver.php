@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Themes\AbstractApiTheme\Routing;
 
-use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Persistence\ManagerRegistry;
 use RZ\Roadiz\Core\Bags\Settings;
 use RZ\Roadiz\Core\Entities\NodesSources;
 use RZ\Roadiz\Core\Entities\Translation;
@@ -24,19 +24,19 @@ use Themes\AbstractApiTheme\Subscriber\CachableApiResponseSubscriber;
 final class RootPathResolver implements PathResolverInterface
 {
     private RequestStack $requestStack;
-    private EntityManagerInterface $entityManager;
+    private ManagerRegistry $managerRegistry;
     private Settings $settingsBag;
 
     /**
      * @param RequestStack $requestStack
-     * @param EntityManagerInterface $entityManager
+     * @param ManagerRegistry $managerRegistry
      * @param Settings $settingsBag
      */
-    public function __construct(RequestStack $requestStack, EntityManagerInterface $entityManager, Settings $settingsBag)
+    public function __construct(RequestStack $requestStack, ManagerRegistry $managerRegistry, Settings $settingsBag)
     {
         $this->requestStack = $requestStack;
         $this->settingsBag = $settingsBag;
-        $this->entityManager = $entityManager;
+        $this->managerRegistry = $managerRegistry;
     }
 
     /**
@@ -57,7 +57,7 @@ final class RootPathResolver implements PathResolverInterface
             throw new ResourceNotFoundException();
         }
         /** @var TranslationRepository $translationRepository */
-        $translationRepository = $this->entityManager->getRepository(Translation::class);
+        $translationRepository = $this->managerRegistry->getRepository(Translation::class);
         /*
          * If no _locale query param is defined check Accept-Language header
          */
@@ -83,7 +83,7 @@ final class RootPathResolver implements PathResolverInterface
         $request->attributes->set(CachableApiResponseSubscriber::CONTENT_LANGUAGE_ATTRIBUTE, $translation->getLocale());
 
         /** @var NodesSources|null $nodeSource */
-        $nodeSource = $this->entityManager->getRepository(NodesSources::class)->findOneBy([
+        $nodeSource = $this->managerRegistry->getRepository(NodesSources::class)->findOneBy([
             'node.home' => true,
             'translation' => $translation
         ]);

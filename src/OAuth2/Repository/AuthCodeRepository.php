@@ -3,13 +3,14 @@ declare(strict_types=1);
 
 namespace Themes\AbstractApiTheme\OAuth2\Repository;
 
-use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ObjectManager;
+use Doctrine\Persistence\ObjectRepository;
 use League\OAuth2\Server\Entities\AuthCodeEntityInterface;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Exception\UniqueTokenIdentifierConstraintViolationException;
 use League\OAuth2\Server\Repositories\AuthCodeRepositoryInterface;
 use League\OAuth2\Server\Repositories\ClientRepositoryInterface;
-use RZ\Roadiz\Core\Repositories\EntityRepository;
 use Themes\AbstractApiTheme\Converter\ScopeConverter;
 use Themes\AbstractApiTheme\Entity\AuthorizationCode;
 use Themes\AbstractApiTheme\Exception\OAuth2AuthenticationFailedException;
@@ -17,34 +18,23 @@ use Themes\AbstractApiTheme\Model\AuthCode;
 
 final class AuthCodeRepository implements AuthCodeRepositoryInterface
 {
-    /**
-     * @var EntityManagerInterface
-     */
-    protected $entityManager;
+    protected ManagerRegistry $managerRegistry;
+    protected ScopeConverter $scopeConverter;
+    protected ClientRepositoryInterface $clientRepository;
 
     /**
-     * @var ScopeConverter
-     */
-    protected $scopeConverter;
-
-    /**
-     * @var ClientRepositoryInterface
-     */
-    protected $clientRepository;
-
-    /**
-     * @param EntityManagerInterface $entityManager
+     * @param ManagerRegistry $managerRegistry
      * @param ScopeConverter $scopeConverter
      * @param ClientRepositoryInterface $clientRepository
      */
     public function __construct(
-        EntityManagerInterface $entityManager,
+        ManagerRegistry $managerRegistry,
         ScopeConverter $scopeConverter,
         ClientRepositoryInterface $clientRepository
     ) {
-        $this->entityManager = $entityManager;
         $this->scopeConverter = $scopeConverter;
         $this->clientRepository = $clientRepository;
+        $this->managerRegistry = $managerRegistry;
     }
 
     /**
@@ -56,11 +46,20 @@ final class AuthCodeRepository implements AuthCodeRepositoryInterface
     }
 
     /**
-     * @return EntityRepository<AuthorizationCode>
+     * @return ObjectRepository <AuthorizationCode>
      */
-    protected function getRepository(): EntityRepository
+    protected function getRepository(): ObjectRepository
     {
-        return $this->entityManager->getRepository(AuthorizationCode::class);
+        return $this->getManager()->getRepository(AuthorizationCode::class);
+    }
+
+    protected function getManager(): ObjectManager
+    {
+        $manager = $this->managerRegistry->getManagerForClass(AuthorizationCode::class);
+        if (null === $manager) {
+            throw new \RuntimeException('No manager was found for ' . AuthorizationCode::class);
+        }
+        return $manager;
     }
 
     /**
@@ -79,8 +78,7 @@ final class AuthCodeRepository implements AuthCodeRepositoryInterface
         }
 
         $this->buildAuthorizationCode($authCodeEntity);
-
-        $this->entityManager->flush();
+        $this->getManager()->flush();
     }
 
     /**
@@ -99,8 +97,7 @@ final class AuthCodeRepository implements AuthCodeRepositoryInterface
         }
 
         $authorizationCode->revoke();
-
-        $this->entityManager->flush();
+        $this->getManager()->flush();
     }
 
     /**
@@ -140,7 +137,7 @@ final class AuthCodeRepository implements AuthCodeRepositoryInterface
                 )
                 ->setScopes($authCode->getScopes())
             ;
-            $this->entityManager->persist($authorizationCode);
+            $this->getManager()->persist($authorizationCode);
             return $authorizationCode;
         }
         throw new OAuth2AuthenticationFailedException('Client does not exist.');

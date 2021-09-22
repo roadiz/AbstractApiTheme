@@ -11,7 +11,7 @@ final class NaiveBreadcrumbsFactory implements BreadcrumbsFactoryInterface
      * @param NodesSources|null $nodesSources
      * @return Breadcrumbs|null
      */
-    public function create(?NodesSources $nodesSources): ?Breadcrumbs
+    public function create(?NodesSources $nodesSources): ?BreadcrumbsInterface
     {
         if (null === $nodesSources ||
             null === $nodesSources->getNode() ||

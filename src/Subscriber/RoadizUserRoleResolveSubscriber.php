@@ -3,24 +3,21 @@ declare(strict_types=1);
 
 namespace Themes\AbstractApiTheme\Subscriber;
 
-use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Persistence\ManagerRegistry;
 use RZ\Roadiz\Core\Entities\User;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Themes\AbstractApiTheme\Event\RoleResolveEvent;
 
 class RoadizUserRoleResolveSubscriber implements EventSubscriberInterface
 {
-    /**
-     * @var EntityManagerInterface
-     */
-    protected $entityManager;
+    protected ManagerRegistry $managerRegistry;
 
     /**
-     * @param EntityManagerInterface $entityManager
+     * @param ManagerRegistry $managerRegistry
      */
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(ManagerRegistry $managerRegistry)
     {
-        $this->entityManager = $entityManager;
+        $this->managerRegistry = $managerRegistry;
     }
 
     /**
@@ -41,7 +38,7 @@ class RoadizUserRoleResolveSubscriber implements EventSubscriberInterface
     {
         if ($event->getUserIdentifier() !== null) {
             /** @var User|null $user */
-            $user = $this->entityManager->getRepository(User::class)->findOneBy([
+            $user = $this->managerRegistry->getRepository(User::class)->findOneBy([
                 'username' => $event->getUserIdentifier()
             ]);
             if (null !== $user && !$user->isSuperAdmin()) {

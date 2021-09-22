@@ -3,13 +3,13 @@ declare(strict_types=1);
 
 namespace Themes\AbstractApiTheme\OptionsResolver;
 
-use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Persistence\ObjectManager;
 use RZ\Roadiz\Contracts\NodeType\NodeTypeInterface;
 use RZ\Roadiz\Core\Entities\NodeType;
 
 trait NodeTypeAwareOptionResolverTrait
 {
-    abstract protected function getEntityManager(): EntityManagerInterface;
+    abstract protected function getEntityManager(): ObjectManager;
 
     /**
      * @param int|string|array<int|string> $nodeTypes

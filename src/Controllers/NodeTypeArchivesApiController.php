@@ -121,11 +121,11 @@ class NodeTypeArchivesApiController extends AbstractNodeTypeApiController
         array &$criteria
     ): QueryBuilder {
         if (null !== $nodeType) {
-            $qb = $this->get('em')
+            $qb = $this->getDoctrine()
                 ->getRepository($nodeType->getSourceEntityFullQualifiedClassName())
                 ->createQueryBuilder('p');
         } else {
-            $qb = $this->get('em')
+            $qb = $this->getDoctrine()
                 ->getRepository(NodesSources::class)
                 ->createQueryBuilder('p');
         }

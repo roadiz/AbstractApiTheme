@@ -16,25 +16,10 @@ use Themes\AbstractApiTheme\Security\Authentication\Token\OAuth2TokenFactory;
 
 final class OAuth2Provider implements AuthenticationProviderInterface
 {
-    /**
-     * @var UserProviderInterface
-     */
-    private $userProvider;
-
-    /**
-     * @var ResourceServer
-     */
-    private $resourceServer;
-
-    /**
-     * @var OAuth2TokenFactory
-     */
-    private $oauth2TokenFactory;
-
-    /**
-     * @var string
-     */
-    private $providerKey;
+    private UserProviderInterface $userProvider;
+    private ResourceServer $resourceServer;
+    private OAuth2TokenFactory $oauth2TokenFactory;
+    private string $providerKey;
 
     public function __construct(
         UserProviderInterface $userProvider,

@@ -57,9 +57,6 @@ class AuthorizationController extends AbstractApiThemeApp
             /** @var UserConverterInterface $userConverter */
             $userConverter = $this->get(UserConverterInterface::class);
 
-            /** @var EventDispatcherInterface $eventDispatcher */
-            $eventDispatcher = $this->get('dispatcher');
-
             /** @var AuthorizationRequestResolveEventFactory $eventFactory */
             $eventFactory = $this->get(AuthorizationRequestResolveEventFactory::class);
             $authRequest = $server->validateAuthorizationRequest($serverRequest);
@@ -77,7 +74,7 @@ class AuthorizationController extends AbstractApiThemeApp
             }
 
             /** @var AuthorizationRequestResolveEvent $event */
-            $event = $eventDispatcher->dispatch(
+            $event = $this->dispatchEvent(
                 $eventFactory->fromAuthorizationRequest($authRequest)
             );
 

@@ -83,7 +83,7 @@ class NodeTypeSingleApiController extends AbstractNodeTypeApiController
     public function bySlugAction(Request $request, int $nodeTypeId, string $slug): Response
     {
         /** @var NodeTypeInterface|null $nodeType */
-        $nodeType = $this->get('em')->find(NodeType::class, $nodeTypeId);
+        $nodeType = $this->getEntityManager()->find(NodeType::class, $nodeTypeId);
         /** @var ApiRequestOptionsResolver $apiOptionsResolver */
         $apiOptionsResolver = $this->get(ApiRequestOptionsResolver::class);
         $options = $apiOptionsResolver->resolve($request->query->all(), $nodeType);
@@ -97,7 +97,7 @@ class NodeTypeSingleApiController extends AbstractNodeTypeApiController
         /*
          * Get a routing resource array
          */
-        $array = $this->get('em')->getRepository(Node::class)
+        $array = $this->getDoctrine()->getRepository(Node::class)
             ->findNodeTypeNameAndSourceIdByIdentifier(
                 $slug,
                 $this->getTranslation(),

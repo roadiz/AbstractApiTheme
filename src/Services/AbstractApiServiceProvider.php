@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Themes\AbstractApiTheme\Services;
 
 use Defuse\Crypto\Key;
+use Doctrine\Persistence\ManagerRegistry;
 use League\OAuth2\Server\AuthorizationServer;
 use League\OAuth2\Server\CryptKey;
 use League\OAuth2\Server\Repositories\AccessTokenRepositoryInterface;
@@ -24,6 +25,7 @@ use Symfony\Bridge\PsrHttpMessage\HttpMessageFactoryInterface;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpKernel\Fragment\InlineFragmentRenderer;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\Loader\YamlFileLoader;
 use Symfony\Component\Routing\RouteCollection;
@@ -32,6 +34,8 @@ use Symfony\Component\Security\Http\Firewall\ExceptionListener;
 use Symfony\Component\Security\Http\FirewallMap;
 use Symfony\Component\Translation\Translator;
 use Themes\AbstractApiTheme\Breadcrumbs\BreadcrumbsFactoryInterface;
+use Themes\AbstractApiTheme\Cache\CacheTagsCollection;
+use Themes\AbstractApiTheme\Controllers\Admin\ApplicationController;
 use Themes\AbstractApiTheme\Controllers\NodesSourcesListingApiController;
 use Themes\AbstractApiTheme\Controllers\NodesSourcesSearchApiController;
 use Themes\AbstractApiTheme\Controllers\NodeTypeArchivesApiController;
@@ -47,6 +51,7 @@ use Themes\AbstractApiTheme\Entity\Application;
 use Themes\AbstractApiTheme\Event\AuthorizationRequestResolveEventFactory;
 use Themes\AbstractApiTheme\Extractor\ApplicationExtractor;
 use Themes\AbstractApiTheme\Form\RoleNameType;
+use Themes\AbstractApiTheme\Model\ApplicationFactory;
 use Themes\AbstractApiTheme\OAuth2\JwtRequestFactory;
 use Themes\AbstractApiTheme\OAuth2\OAuth2JwtConfigurationFactory;
 use Themes\AbstractApiTheme\OAuth2\Repository\AccessTokenRepository;
@@ -78,6 +83,7 @@ use Themes\AbstractApiTheme\Serialization\TagApiSubscriber;
 use Themes\AbstractApiTheme\Serialization\TagTranslationNameSubscriber;
 use Themes\AbstractApiTheme\Serialization\TokenSubscriber;
 use Themes\AbstractApiTheme\Subscriber\AuthorizationRequestSubscriber;
+use Themes\AbstractApiTheme\Subscriber\CacheTagsBanSubscriber;
 use Themes\AbstractApiTheme\Subscriber\CorsSubscriber;
 use Themes\AbstractApiTheme\Subscriber\LinkedApiResponseSubscriber;
 use Themes\AbstractApiTheme\Subscriber\RoadizUserRoleResolveSubscriber;
@@ -104,7 +110,7 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
             return new RoleNameType(
                 $c['api.oauth2_role_prefix'],
                 $c['api.base_role'],
-                $c['em'],
+                $c[ManagerRegistry::class],
             );
         };
 
@@ -250,7 +256,7 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
          * @return ApplicationExtractor
          */
         $container['api.application_extractor'] = function (Container $c) {
-            return new ApplicationExtractor($c, $c['api.application_class']);
+            return new ApplicationExtractor($c[ManagerRegistry::class], $c['api.application_class']);
         };
 
         /**
@@ -352,11 +358,11 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
         };
 
         $container[RedirectionPathResolver::class] = function (Container $c) {
-            return new RedirectionPathResolver($c['em']);
+            return new RedirectionPathResolver($c[ManagerRegistry::class]);
         };
 
         $container[RootPathResolver::class] = function (Container $c) {
-            return new RootPathResolver($c['request_stack'], $c['em'], $c['settingsBag']);
+            return new RootPathResolver($c['request_stack'], $c[ManagerRegistry::class], $c['settingsBag']);
         };
 
         /*
@@ -375,7 +381,7 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
                 $c['tagApi'],
                 $c['nodeApi'],
                 $c[ChainedPathResolver::class],
-                $c['em']
+                $c[ManagerRegistry::class]
             );
         });
 
@@ -390,7 +396,7 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
             return new SearchApiRequestOptionsResolver(
                 $c['tagApi'],
                 $c['nodeApi'],
-                $c['em']
+                $c[ManagerRegistry::class]
             );
         });
 
@@ -398,10 +404,22 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
             return new SerializationContextFactory($c['api.use_cache_tags']);
         };
 
-        $container['api.application_factory'] = $container->factory(function ($c) {
-            $className = $c['api.application_class'];
-            return new $className($c['api.base_role'], $c['config']["appNamespace"]);
-        });
+        $container[ApplicationController::class] = function (Container $c) {
+            return new ApplicationController(
+                $c['api.application_class'],
+                $c[ApplicationFactory::class],
+                $c['serializer'],
+                $c['router']
+            );
+        };
+
+        $container[ApplicationFactory::class] = function (Container $c) {
+            return new ApplicationFactory(
+                $c['api.application_class'],
+                $c['api.base_role'],
+                $c['config']['appNamespace']
+            );
+        };
 
         $container['api.reference_type'] = function () {
             return UrlGeneratorInterface::ABSOLUTE_URL;
@@ -475,12 +493,22 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
         $container->extend('dispatcher', function (EventDispatcherInterface $dispatcher, Container $c) {
             $dispatcher->addSubscriber(new CorsSubscriber($c['api.cors_options']));
             $dispatcher->addSubscriber(new LinkedApiResponseSubscriber());
-            $dispatcher->addSubscriber(new RoadizUserRoleResolveSubscriber($c['em']));
+            $dispatcher->addSubscriber(new RoadizUserRoleResolveSubscriber($c[ManagerRegistry::class]));
             $dispatcher->addSubscriber(new AuthorizationRequestSubscriber(
                 $c['securityTokenStorage'],
                 $c['requestStack'],
                 new InlineFragmentRenderer($c['kernel'], $dispatcher)
             ));
+
+            if ($c['api.use_cache_tags'] === true) {
+                $dispatcher->addSubscriber(new CacheTagsBanSubscriber(
+                    $c['config'],
+                    new CacheTagsCollection(),
+                    $c[MessageBusInterface::class],
+                    $c['logger.cache'],
+                    $c['kernel']->isDebug()
+                ));
+            }
             return $dispatcher;
         });
 
@@ -489,7 +517,7 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
          * @return ClientRepository
          */
         $container[ClientRepositoryInterface::class] = function (Container $c) {
-            return new ClientRepository($c['em']);
+            return new ClientRepository($c[ManagerRegistry::class]);
         };
 
         $container[RefreshTokenRepositoryInterface::class] = function (Container $c) {
@@ -513,7 +541,7 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
          */
         $container[AuthCodeRepositoryInterface::class] = function (Container $c) {
             return new AuthCodeRepository(
-                $c['em'],
+                $c[ManagerRegistry::class],
                 $c[ScopeConverter::class],
                 $c[ClientRepositoryInterface::class]
             );
@@ -524,7 +552,7 @@ class AbstractApiServiceProvider implements ServiceProviderInterface
          * @return AccessTokenRepository
          */
         $container[AccessTokenRepositoryInterface::class] = function (Container $c) {
-            return new AccessTokenRepository($c['em']);
+            return new AccessTokenRepository($c[ManagerRegistry::class]);
         };
 
         $container[AuthorizationRequestResolveEventFactory::class] = function (Container $c) {

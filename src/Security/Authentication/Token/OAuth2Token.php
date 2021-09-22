@@ -11,10 +11,7 @@ use Symfony\Component\String\UnicodeString;
 
 class OAuth2Token extends AbstractToken
 {
-    /**
-     * @var string
-     */
-    private $providerKey;
+    private string $providerKey;
 
     public function __construct(
         ServerRequestInterface $serverRequest,

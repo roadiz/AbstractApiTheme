@@ -3,7 +3,8 @@ declare(strict_types=1);
 
 namespace Themes\AbstractApiTheme\OptionsResolver;
 
-use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ObjectManager;
 use RZ\Roadiz\CMS\Utils\NodeApi;
 use RZ\Roadiz\CMS\Utils\TagApi;
 use RZ\Roadiz\Contracts\NodeType\NodeTypeInterface;
@@ -22,31 +23,31 @@ final class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
     use NodeTypeAwareOptionResolverTrait;
 
     private PathResolverInterface $pathResolver;
-    private EntityManagerInterface $entityManager;
+    private ManagerRegistry $managerRegistry;
 
     /**
      * @param TagApi $tagApi
      * @param NodeApi $nodeApi
      * @param PathResolverInterface $pathResolver
-     * @param EntityManagerInterface $entityManager
+     * @param ManagerRegistry $managerRegistry
      */
     public function __construct(
         TagApi $tagApi,
         NodeApi $nodeApi,
         PathResolverInterface $pathResolver,
-        EntityManagerInterface $entityManager
+        ManagerRegistry $managerRegistry
     ) {
         parent::__construct($tagApi, $nodeApi);
         $this->pathResolver = $pathResolver;
-        $this->entityManager = $entityManager;
+        $this->managerRegistry = $managerRegistry;
     }
 
     /**
-     * @return EntityManagerInterface
+     * @return ObjectManager
      */
-    protected function getEntityManager(): EntityManagerInterface
+    protected function getEntityManager(): ObjectManager
     {
-        return $this->entityManager;
+        return $this->managerRegistry->getManager();
     }
 
     /**

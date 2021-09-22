@@ -3,24 +3,21 @@ declare(strict_types=1);
 
 namespace Themes\AbstractApiTheme\OAuth2\Repository;
 
-use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Persistence\ManagerRegistry;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Repositories\ClientRepositoryInterface;
 use Themes\AbstractApiTheme\Entity\Application;
 
 class ClientRepository implements ClientRepositoryInterface
 {
-    /**
-     * @var EntityManagerInterface
-     */
-    protected $entityManager;
+    protected ManagerRegistry $managerRegistry;
 
     /**
-     * @param EntityManagerInterface $entityManager
+     * @param ManagerRegistry $managerRegistry
      */
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(ManagerRegistry $managerRegistry)
     {
-        $this->entityManager = $entityManager;
+        $this->managerRegistry = $managerRegistry;
     }
 
     /**
@@ -29,7 +26,7 @@ class ClientRepository implements ClientRepositoryInterface
      */
     public function getClientEntity($clientIdentifier)
     {
-        return $this->entityManager
+        return $this->managerRegistry
             ->getRepository(Application::class)
             ->findOneBy([
                 'apiKey' => trim($clientIdentifier),

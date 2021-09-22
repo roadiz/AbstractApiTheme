@@ -6,7 +6,7 @@ namespace Themes\AbstractApiTheme\Breadcrumbs;
 use JMS\Serializer\Annotation as Serializer;
 use RZ\Roadiz\Core\Entities\NodesSources;
 
-final class Breadcrumbs
+final class Breadcrumbs implements BreadcrumbsInterface
 {
     /**
      * @var array<NodesSources>

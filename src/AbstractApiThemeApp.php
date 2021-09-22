@@ -5,13 +5,13 @@ namespace Themes\AbstractApiTheme;
 
 use Pimple\Container;
 use RZ\Roadiz\CMS\Controllers\FrontendController;
-use RZ\Roadiz\Core\Bags\Settings;
 use RZ\Roadiz\Core\Kernel;
 use RZ\Roadiz\Preview\PreviewResolverInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\EventListener\AbstractSessionListener;
 use Symfony\Component\String\UnicodeString;
 use Themes\AbstractApiTheme\Subscriber\CachableApiResponseSubscriber;
 
@@ -19,12 +19,12 @@ class AbstractApiThemeApp extends FrontendController
 {
     use AbstractApiThemeTrait;
 
-    protected static $themeName = 'Abstract Api theme';
-    protected static $themeAuthor = 'REZO ZERO';
-    protected static $themeCopyright = 'REZO ZERO';
-    protected static $themeDir = 'AbstractApiTheme';
-    protected static $backendTheme = false;
-    public static $priority = 9;
+    protected static string $themeName = 'Abstract Api theme';
+    protected static string $themeAuthor = 'REZO ZERO';
+    protected static string $themeCopyright = 'REZO ZERO';
+    protected static string $themeDir = 'AbstractApiTheme';
+    protected static bool $backendTheme = false;
+    public static int $priority = 9;
 
     /**
      * @inheritDoc
@@ -73,18 +73,17 @@ class AbstractApiThemeApp extends FrontendController
         $kernel = $this->get('kernel');
         /** @var RequestStack $requestStack */
         $requestStack = $kernel->get('requestStack');
-        /** @var Settings $settings */
-        $settings = $this->get('settingsBag');
         /** @var EventDispatcherInterface $dispatcher */
         $dispatcher = $this->get('dispatcher');
         /** @var PreviewResolverInterface $previewResolver */
         $previewResolver = $this->get(PreviewResolverInterface::class);
+        $response->headers->add([AbstractSessionListener::NO_AUTO_CACHE_CONTROL_HEADER => true]);
         if (!$previewResolver->isPreview() &&
             !$kernel->isDebug() &&
             $requestStack->getMasterRequest() === $request &&
             $request->isMethodCacheable() &&
             $minutes > 0 &&
-            !$settings->get('maintenance_mode', false)) {
+            !$this->getSettingsBag()->get('maintenance_mode', false)) {
             $dispatcher->addSubscriber(
                 new CachableApiResponseSubscriber($minutes, true, $allowClientCache)
             );

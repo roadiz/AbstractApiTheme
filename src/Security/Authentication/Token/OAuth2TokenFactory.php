@@ -8,14 +8,8 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 final class OAuth2TokenFactory
 {
-    /**
-     * @var string
-     */
-    private $rolePrefix;
-    /**
-     * @var string
-     */
-    private $baseRole;
+    private string $rolePrefix;
+    private string $baseRole;
 
     /**
      * @param string $rolePrefix

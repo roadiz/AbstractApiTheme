@@ -7,5 +7,5 @@ use RZ\Roadiz\Core\Entities\NodesSources;
 
 interface BreadcrumbsFactoryInterface
 {
-    public function create(?NodesSources $nodesSources): ?Breadcrumbs;
+    public function create(?NodesSources $nodesSources): ?BreadcrumbsInterface;
 }

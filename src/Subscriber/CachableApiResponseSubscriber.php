@@ -5,6 +5,7 @@ namespace Themes\AbstractApiTheme\Subscriber;
 
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
+use Symfony\Component\HttpKernel\EventListener\AbstractSessionListener;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 final class CachableApiResponseSubscriber implements EventSubscriberInterface
@@ -75,6 +76,7 @@ final class CachableApiResponseSubscriber implements EventSubscriberInterface
         }
 
         header_remove('Cache-Control');
+        $response->headers->add([AbstractSessionListener::NO_AUTO_CACHE_CONTROL_HEADER => true]);
         $response->headers->remove('cache-control');
         $response->setTtl(60 * $this->minutes);
         $response->headers->addCacheControlDirective('must-revalidate', true);
