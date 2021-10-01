@@ -86,8 +86,8 @@ class NodesSourcesSearchApiController extends AbstractNodeTypeApiController
             $this->getSearchHandler(),
             $criteria
         );
-        $entityListManager->setItemPerPage($options['itemsPerPage']);
-        $entityListManager->setPage($options['page']);
+        $entityListManager->setItemPerPage((int) $options['itemsPerPage']);
+        $entityListManager->setPage((int) $options['page']);
         $entityListManager->handle();
 
         /** @var SerializerInterface $serializer */
