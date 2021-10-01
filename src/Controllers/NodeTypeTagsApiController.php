@@ -94,8 +94,8 @@ class NodeTypeTagsApiController extends AbstractNodeTypeApiController
             't',
             $this->get('kernel')->isDebug()
         );
-        $entityListManager->setItemPerPage($options['itemsPerPage']);
-        $entityListManager->setPage($options['page']);
+        $entityListManager->setItemPerPage((int) $options['itemsPerPage']);
+        $entityListManager->setPage((int) $options['page']);
         $entityListManager->handle();
 
         /** @var SerializerInterface $serializer */
