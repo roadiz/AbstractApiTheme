@@ -73,8 +73,8 @@ class NodeTypeListingApiController extends AbstractNodeTypeApiController
             $criteria,
             null !== $options['order'] ? $options['order'] : []
         );
-        $entityListManager->setItemPerPage($options['itemsPerPage']);
-        $entityListManager->setPage($options['page']);
+        $entityListManager->setItemPerPage((int) $options['itemsPerPage']);
+        $entityListManager->setPage((int) $options['page']);
         $entityListManager->handle();
 
         /** @var SerializerInterface $serializer */
