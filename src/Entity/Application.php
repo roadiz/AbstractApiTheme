@@ -66,14 +66,14 @@ class Application extends AbstractDateTimed implements UserInterface, AdvancedUs
 
     /**
      * @var array<string>
-     * @ORM\Column(type="json", name="roles")
+     * @ORM\Column(type="json", name="roles", nullable=true)
      * @Serializer\Groups({"user"})
      */
     private $roles = [];
 
     /**
      * @var array<string>
-     * @ORM\Column(type="json", name="grant_types")
+     * @ORM\Column(type="json", name="grant_types", nullable=true)
      * @Serializer\Groups({"user"})
      */
     private $grantTypes = [];
@@ -244,7 +244,7 @@ class Application extends AbstractDateTimed implements UserInterface, AdvancedUs
      */
     public function getRoles()
     {
-        return $this->roles;
+        return $this->roles ?? [];
     }
 
     /**
@@ -373,7 +373,7 @@ class Application extends AbstractDateTimed implements UserInterface, AdvancedUs
      */
     public function getGrantTypes(): array
     {
-        return $this->grantTypes;
+        return $this->grantTypes ?? [];
     }
 
     /**
