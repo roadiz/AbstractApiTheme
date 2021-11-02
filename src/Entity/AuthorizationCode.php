@@ -46,7 +46,7 @@ class AuthorizationCode extends AbstractEntity
 
     /**
      * @var ScopeEntityInterface[]
-     * @ORM\Column(name="scopes", type="json")
+     * @ORM\Column(name="scopes", type="json", nullable=true)
      */
     private $scopes = [];
 
@@ -138,7 +138,7 @@ class AuthorizationCode extends AbstractEntity
      */
     public function getScopes(): array
     {
-        return $this->scopes;
+        return $this->scopes ?? [];
     }
 
     /**
