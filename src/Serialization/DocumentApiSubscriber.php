@@ -16,6 +16,9 @@ use Themes\AbstractApiTheme\Cache\CacheTagsCollection;
 final class DocumentApiSubscriber implements EventSubscriberInterface
 {
     private Packages $packages;
+    private StaticPropertyMetadata $typePropertyMeta;
+    private StaticPropertyMetadata $urlPropertyMeta;
+    private StaticPropertyMetadata $thumbnailPropertyMeta;
 
     /**
      * @param Packages $packages
@@ -23,6 +26,19 @@ final class DocumentApiSubscriber implements EventSubscriberInterface
     public function __construct(Packages $packages)
     {
         $this->packages = $packages;
+        $this->typePropertyMeta = new StaticPropertyMetadata('string', '@type', []);
+        $this->urlPropertyMeta = new StaticPropertyMetadata(
+            'string',
+            'url',
+            '',
+            ['urls']
+        );
+        $this->thumbnailPropertyMeta = new StaticPropertyMetadata(
+            Document::class,
+            'thumbnail',
+            null,
+            ['thumbnail']
+        );
     }
 
     public static function getSubscribedEvents()
@@ -58,20 +74,18 @@ final class DocumentApiSubscriber implements EventSubscriberInterface
                 $cacheTags->addDocument($document);
             }
             $visitor->visitProperty(
-                new StaticPropertyMetadata('string', '@type', []),
+                $this->typePropertyMeta,
                 'Document'
             );
 
-            $urlProperty = new StaticPropertyMetadata(
-                'string',
-                'url',
-                '',
-                ['urls']
-            );
-            if (in_array('urls', $context->getAttribute('groups')) &&
-                !$exclusionStrategy->shouldSkipProperty($urlProperty, $context)) {
+            /*
+             * If document is not private, API can expose a public download link.
+             */
+            if (!$document->isPrivate() &&
+                in_array('urls', $context->getAttribute('groups')) &&
+                !$exclusionStrategy->shouldSkipProperty($this->urlPropertyMeta, $context)) {
                 $visitor->visitProperty(
-                    $urlProperty,
+                    $this->urlPropertyMeta,
                     $this->packages->getUrl(
                         $document->getRelativePath() ?? '',
                         \RZ\Roadiz\Utils\Asset\Packages::DOCUMENTS
@@ -79,17 +93,11 @@ final class DocumentApiSubscriber implements EventSubscriberInterface
                 );
             }
 
-            $thumbnailProperty = new StaticPropertyMetadata(
-                Document::class,
-                'thumbnail',
-                null,
-                ['thumbnail']
-            );
             if (in_array('thumbnail', $context->getAttribute('groups')) &&
-                !$exclusionStrategy->shouldSkipProperty($thumbnailProperty, $context) &&
+                !$exclusionStrategy->shouldSkipProperty($this->thumbnailPropertyMeta, $context) &&
                 $document instanceof HasThumbnailInterface) {
                 $visitor->visitProperty(
-                    $thumbnailProperty,
+                    $this->thumbnailPropertyMeta,
                     $document->getThumbnails()->first() ?: null
                 );
             }
