@@ -81,7 +81,8 @@ class NodeTypeTagsApiController extends AbstractNodeTypeApiController
         $queryBuilder = $this->getAvailableTags(
             $nodeType,
             $this->getTranslation(),
-            $criteria['parent'] ?? null
+            $criteria['parent'] ?? null,
+            $criteria['visible'] ?? null
         );
         if (isset($options['order'])) {
             foreach ($options['order'] as $field => $direction) {
@@ -122,13 +123,14 @@ class NodeTypeTagsApiController extends AbstractNodeTypeApiController
      * @param NodeTypeInterface|null $nodeType
      * @param TranslationInterface|null $translation
      * @param Tag|null $parentTag
-     *
+     * @param bool|null $visible
      * @return QueryBuilder
      */
     protected function getAvailableTags(
         ?NodeTypeInterface $nodeType,
         ?TranslationInterface $translation,
-        Tag $parentTag = null
+        Tag $parentTag = null,
+        ?bool $visible = null
     ): QueryBuilder {
         $qb = $this->getDoctrine()
             ->getRepository(Tag::class)
@@ -136,8 +138,12 @@ class NodeTypeTagsApiController extends AbstractNodeTypeApiController
 
         $qb->select('t, tt')
             ->leftJoin('t.translatedTags', 'tt')
-            ->innerJoin('t.nodes', 'n')
-            ->andWhere($qb->expr()->eq('t.visible', true));
+            ->innerJoin('t.nodes', 'n');
+
+        if (null !== $visible) {
+            $qb->andWhere($qb->expr()->eq('t.visible', ':visible'))
+                ->setParameter('visible', $visible);
+        }
 
         if (null !== $translation) {
             $qb->andWhere($qb->expr()->eq('tt.translation', ':translation'))
