@@ -400,7 +400,7 @@ If your search parameter is longer than 3 characters, each API result item will 
 - `/api/1.0/{node-type-name}/tags`: Fetch all tags used in nodes-sources from a given type.
 
 If you created a `Event` node-type, you may want to list any `Tags` attached to *events*, API will be available at 
-`/api/1.0/event/tags` endpoint.
+`/api/1.0/event/tags` endpoint. Be careful, this endpoint will display all tags, visible or not, unless you filter them.
 
 #### Filters
 
