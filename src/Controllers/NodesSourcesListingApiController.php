@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Themes\AbstractApiTheme\OptionsResolver\ApiRequestOptionsResolver;
+use Themes\AbstractApiTheme\OptionsResolver\NodeTypeApiRequestOptionResolverInterface;
 
 class NodesSourcesListingApiController extends AbstractNodeTypeApiController
 {
@@ -34,7 +35,7 @@ class NodesSourcesListingApiController extends AbstractNodeTypeApiController
      */
     public function defaultAction(Request $request): Response
     {
-        /** @var ApiRequestOptionsResolver $apiOptionsResolver */
+        /** @var NodeTypeApiRequestOptionResolverInterface $apiOptionsResolver */
         $apiOptionsResolver = $this->get(ApiRequestOptionsResolver::class);
         $options = $apiOptionsResolver->resolve($request->query->all(), null);
         $this->translation = $this->getTranslationFromLocaleOrRequest($request, $options['_locale']);

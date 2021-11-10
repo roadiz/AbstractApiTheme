@@ -9,7 +9,7 @@ use RZ\Roadiz\Core\Entities\Node;
 use RZ\Roadiz\Core\Entities\Tag;
 use Symfony\Component\OptionsResolver\Options;
 
-abstract class AbstractApiRequestOptionsResolver
+abstract class AbstractApiRequestOptionsResolver implements ApiRequestOptionResolverInterface
 {
     protected TagApi $tagApi;
     protected NodeApi $nodeApi;
@@ -134,15 +134,15 @@ abstract class AbstractApiRequestOptionsResolver
      */
     protected function normalizeTagFilter($value): ?Tag
     {
-        if (null !== $value && $value instanceof Tag) {
+        if ($value instanceof Tag) {
             return $value;
         }
-        if (null !== $value && is_string($value)) {
+        if (is_string($value)) {
             return $this->tagApi->getOneBy([
                 'tagName' => $value,
             ]);
         }
-        if (null !== $value && is_numeric($value)) {
+        if (is_numeric($value)) {
             return $this->tagApi->getOneBy([
                 'id' => $value,
             ]);
@@ -157,10 +157,10 @@ abstract class AbstractApiRequestOptionsResolver
      */
     protected function normalizeNodeFilter($value): ?Node
     {
-        if (null !== $value && $value instanceof Node) {
+        if ($value instanceof Node) {
             return $value;
         }
-        if (null !== $value && is_numeric($value)) {
+        if (is_numeric($value)) {
             return $this->nodeApi->getOneBy([
                 'id' => $value,
             ]);
@@ -168,8 +168,7 @@ abstract class AbstractApiRequestOptionsResolver
         /*
          * Test against an IRI
          */
-        if (null !== $value &&
-            is_string($value) &&
+        if (is_string($value) &&
             1 === preg_match(
                 '#/(?<nodeType>[a-zA-Z\-\_0-9]+)/(?<id>[0-9]+)/(?<locale>[a-z]{2,3})#',
                 $value,
@@ -183,7 +182,7 @@ abstract class AbstractApiRequestOptionsResolver
         /*
          * Test against nodeName
          */
-        if (null !== $value && is_string($value)) {
+        if (is_string($value)) {
             return $this->nodeApi->getOneBy([
                 'nodeName' => $value,
             ]);
