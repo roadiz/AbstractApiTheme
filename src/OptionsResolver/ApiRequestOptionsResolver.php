@@ -19,7 +19,7 @@ use Symfony\Component\OptionsResolver\Exception\InvalidOptionsException;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-final class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver implements NodeTypeApiRequestOptionResolverInterface
+class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver implements NodeTypeApiRequestOptionResolverInterface
 {
     use NodeTypeAwareOptionResolverTrait;
 
