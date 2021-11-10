@@ -84,14 +84,7 @@ final class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver 
         ];
     }
 
-    /**
-     * @param array         $options
-     * @param NodeTypeInterface|null $nodeType
-     *
-     * @return array
-     * @throws \Exception
-     */
-    protected function configureOptions(array $options, ?NodeTypeInterface $nodeType): array
+    public function buildOptionsResolver(): OptionsResolver
     {
         $resolver = new OptionsResolver();
         $resolver->setDefaults(array_merge($this->getMetaOptions(), [
@@ -239,6 +232,20 @@ final class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver 
             }
             return $this->normalizeTagFilter($value);
         });
+
+        return $resolver;
+    }
+
+    /**
+     * @param array $options
+     * @param NodeTypeInterface|null $nodeType
+     *
+     * @return array
+     * @throws \Exception
+     */
+    protected function configureOptions(array $options, ?NodeTypeInterface $nodeType = null): array
+    {
+        $resolver = $this->buildOptionsResolver();
 
         /*
          * Search criteria is enabled on NodeTypeFields ONLY if they are
