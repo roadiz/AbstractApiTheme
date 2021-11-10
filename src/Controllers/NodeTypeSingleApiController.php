@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Themes\AbstractApiTheme\OptionsResolver\ApiRequestOptionsResolver;
+use Themes\AbstractApiTheme\OptionsResolver\NodeTypeApiRequestOptionResolverInterface;
 use Themes\AbstractApiTheme\Subscriber\CachableApiResponseSubscriber;
 
 class NodeTypeSingleApiController extends AbstractNodeTypeApiController
@@ -48,7 +49,7 @@ class NodeTypeSingleApiController extends AbstractNodeTypeApiController
     {
         $nodeType = $this->getNodeTypeOrDeny($nodeTypeId);
 
-        /** @var ApiRequestOptionsResolver $apiOptionsResolver */
+        /** @var NodeTypeApiRequestOptionResolverInterface $apiOptionsResolver */
         $apiOptionsResolver = $this->get(ApiRequestOptionsResolver::class);
         if (null !== $_locale) {
             $queryAll = array_merge($request->query->all(), [
@@ -84,7 +85,7 @@ class NodeTypeSingleApiController extends AbstractNodeTypeApiController
     {
         /** @var NodeTypeInterface|null $nodeType */
         $nodeType = $this->getEntityManager()->find(NodeType::class, $nodeTypeId);
-        /** @var ApiRequestOptionsResolver $apiOptionsResolver */
+        /** @var NodeTypeApiRequestOptionResolverInterface $apiOptionsResolver */
         $apiOptionsResolver = $this->get(ApiRequestOptionsResolver::class);
         $options = $apiOptionsResolver->resolve($request->query->all(), $nodeType);
 
@@ -123,7 +124,7 @@ class NodeTypeSingleApiController extends AbstractNodeTypeApiController
 
     public function byPathAction(Request $request): Response
     {
-        /** @var ApiRequestOptionsResolver $apiOptionsResolver */
+        /** @var NodeTypeApiRequestOptionResolverInterface $apiOptionsResolver */
         $apiOptionsResolver = $this->get(ApiRequestOptionsResolver::class);
         $options = $apiOptionsResolver->resolve($request->query->all(), null);
         if (!isset($options['id'])) {
