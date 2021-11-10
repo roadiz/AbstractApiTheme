@@ -7,7 +7,7 @@ use Symfony\Component\OptionsResolver\Exception\InvalidOptionsException;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-final class TagApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
+final class TagApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver implements SimpleApiRequestOptionResolverInterface
 {
     /**
      * @param array $params

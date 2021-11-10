@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Themes\AbstractApiTheme\OptionsResolver\ApiRequestOptionsResolver;
+use Themes\AbstractApiTheme\OptionsResolver\NodeTypeApiRequestOptionResolverInterface;
 
 class NodeTypeListingApiController extends AbstractNodeTypeApiController
 {
@@ -29,7 +30,7 @@ class NodeTypeListingApiController extends AbstractNodeTypeApiController
     {
         $nodeType = $this->getNodeTypeOrDeny($nodeTypeId);
 
-        /** @var ApiRequestOptionsResolver $apiOptionsResolver */
+        /** @var NodeTypeApiRequestOptionResolverInterface $apiOptionsResolver */
         $apiOptionsResolver = $this->get(ApiRequestOptionsResolver::class);
         $options = $apiOptionsResolver->resolve($request->query->all(), $nodeType);
         $this->translation = $this->getTranslationFromLocaleOrRequest($request, $options['_locale']);

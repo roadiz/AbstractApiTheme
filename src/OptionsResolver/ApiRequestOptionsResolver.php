@@ -8,6 +8,7 @@ use Doctrine\Persistence\ObjectManager;
 use RZ\Roadiz\CMS\Utils\NodeApi;
 use RZ\Roadiz\CMS\Utils\TagApi;
 use RZ\Roadiz\Contracts\NodeType\NodeTypeInterface;
+use RZ\Roadiz\Core\AbstractEntities\AbstractField;
 use RZ\Roadiz\Core\Entities\Node;
 use RZ\Roadiz\Core\Entities\NodesSources;
 use RZ\Roadiz\Core\Entities\NodeType;
@@ -18,7 +19,7 @@ use Symfony\Component\OptionsResolver\Exception\InvalidOptionsException;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-final class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
+final class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver implements NodeTypeApiRequestOptionResolverInterface
 {
     use NodeTypeAwareOptionResolverTrait;
 
@@ -250,15 +251,15 @@ final class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
             /** @var NodeTypeField $field */
             foreach ($indexedFields as $field) {
                 switch ($field->getType()) {
-                    case NodeTypeField::DATE_T:
-                    case NodeTypeField::DATETIME_T:
+                    case AbstractField::DATE_T:
+                    case AbstractField::DATETIME_T:
                         $resolver->setInfo($field->getVarName(), $field->getDescription() ?? $field->getLabel());
                         $resolver->setDefault($field->getVarName(), null);
                         $resolver->setNormalizer($field->getVarName(), function (Options $options, $value) {
                             return $this->normalizeDateTimeFilter($value);
                         });
                         break;
-                    case NodeTypeField::BOOLEAN_T:
+                    case AbstractField::BOOLEAN_T:
                         $resolver->setInfo($field->getVarName(), $field->getDescription() ?? $field->getLabel());
                         $resolver->setDefault($field->getVarName(), null);
                         $resolver->setNormalizer($field->getVarName(), function (Options $options, $value) {
@@ -268,9 +269,9 @@ final class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
                             return null;
                         });
                         break;
-                    case NodeTypeField::STRING_T:
-                    case NodeTypeField::COUNTRY_T:
-                    case NodeTypeField::ENUM_T:
+                    case AbstractField::STRING_T:
+                    case AbstractField::COUNTRY_T:
+                    case AbstractField::ENUM_T:
                         $resolver->setInfo($field->getVarName(), $field->getDescription() ?? $field->getLabel());
                         $resolver->setDefault($field->getVarName(), null);
                         $resolver->setAllowedTypes($field->getVarName(), ['null', 'string', 'array']);
@@ -304,15 +305,14 @@ final class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver
         /*
          * Normalize redirected node-sources
          */
-        if (null !== $resource &&
-            $resource instanceof Redirection &&
+        if ($resource instanceof Redirection &&
             null !== $resource->getRedirectNodeSource()) {
             return $resource->getRedirectNodeSource();
         }
         /*
          * Or plain node-source
          */
-        if (null !== $resource && $resource instanceof NodesSources) {
+        if ($resource instanceof NodesSources) {
             return $resource;
         }
         return null;
