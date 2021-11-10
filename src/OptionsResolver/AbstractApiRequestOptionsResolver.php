@@ -30,6 +30,17 @@ abstract class AbstractApiRequestOptionsResolver implements ApiRequestOptionReso
     abstract protected function getMetaOptions(): array;
 
     /**
+     * @param array $options
+     *
+     * @return array
+     * @throws \Exception
+     */
+    protected function configureOptions(array $options): array
+    {
+        return $this->buildOptionsResolver()->resolve($options);
+    }
+
+    /**
      * @param mixed $value
      *
      * @return bool

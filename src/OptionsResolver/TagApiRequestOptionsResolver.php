@@ -38,13 +38,7 @@ final class TagApiRequestOptionsResolver extends AbstractApiRequestOptionsResolv
         ];
     }
 
-    /**
-     * @param array $options
-     *
-     * @return array
-     * @throws \Exception
-     */
-    protected function configureOptions(array $options): array
+    public function buildOptionsResolver(): OptionsResolver
     {
         $resolver = new OptionsResolver();
         $resolver->setDefaults(array_merge($this->getMetaOptions(), [
@@ -100,7 +94,7 @@ final class TagApiRequestOptionsResolver extends AbstractApiRequestOptionsResolv
             return $this->normalizeTagFilter($value);
         });
 
-        return $resolver->resolve($options);
+        return $resolver;
     }
 
     /**
