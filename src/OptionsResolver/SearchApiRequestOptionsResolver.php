@@ -12,7 +12,7 @@ use RZ\Roadiz\Core\Entities\NodeType;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-final class SearchApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver implements SimpleApiRequestOptionResolverInterface
+class SearchApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver implements SimpleApiRequestOptionResolverInterface
 {
     use NodeTypeAwareOptionResolverTrait;
 
