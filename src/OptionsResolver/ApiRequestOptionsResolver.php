@@ -260,15 +260,15 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver implem
                 switch ($field->getType()) {
                     case AbstractField::DATE_T:
                     case AbstractField::DATETIME_T:
-                        $resolver->setInfo($field->getVarName(), $field->getDescription() ?? $field->getLabel());
                         $resolver->setDefault($field->getVarName(), null);
+                        $resolver->setInfo($field->getVarName(), $field->getDescription() ?? $field->getLabel());
                         $resolver->setNormalizer($field->getVarName(), function (Options $options, $value) {
                             return $this->normalizeDateTimeFilter($value);
                         });
                         break;
                     case AbstractField::BOOLEAN_T:
-                        $resolver->setInfo($field->getVarName(), $field->getDescription() ?? $field->getLabel());
                         $resolver->setDefault($field->getVarName(), null);
+                        $resolver->setInfo($field->getVarName(), $field->getDescription() ?? $field->getLabel());
                         $resolver->setNormalizer($field->getVarName(), function (Options $options, $value) {
                             if (null !== $value) {
                                 return $this->normalizeBoolean($value);
@@ -279,8 +279,8 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver implem
                     case AbstractField::STRING_T:
                     case AbstractField::COUNTRY_T:
                     case AbstractField::ENUM_T:
-                        $resolver->setInfo($field->getVarName(), $field->getDescription() ?? $field->getLabel());
                         $resolver->setDefault($field->getVarName(), null);
+                        $resolver->setInfo($field->getVarName(), $field->getDescription() ?? $field->getLabel());
                         $resolver->setAllowedTypes($field->getVarName(), ['null', 'string', 'array']);
                         $resolver->setNormalizer($field->getVarName(), function (Options $options, $value) {
                             if (null !== $value) {
