@@ -252,11 +252,11 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver implem
          * indexed
          */
         if (null !== $nodeType) {
-            $indexedFields = $nodeType->getFields()->filter(function (NodeTypeField $field) {
-                return $field->isIndexed();
-            });
-            /** @var NodeTypeField $field */
-            foreach ($indexedFields as $field) {
+            /*
+             * We need to select ALL fields, not only indexed, because single_table setup are not compatible
+             * with indexed node-type fields.
+             */
+            foreach ($nodeType->getFields() as $field) {
                 switch ($field->getType()) {
                     case AbstractField::DATE_T:
                     case AbstractField::DATETIME_T:
@@ -312,8 +312,7 @@ class ApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver implem
         /*
          * Normalize redirected node-sources
          */
-        if ($resource instanceof Redirection &&
-            null !== $resource->getRedirectNodeSource()) {
+        if ($resource instanceof Redirection && null !== $resource->getRedirectNodeSource()) {
             return $resource->getRedirectNodeSource();
         }
         /*
