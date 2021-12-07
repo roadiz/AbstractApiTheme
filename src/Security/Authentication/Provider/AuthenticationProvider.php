@@ -86,6 +86,7 @@ class AuthenticationProvider implements AuthenticationProviderInterface
                 return $result;
             }
         }
+        throw new AuthenticationException("The API Key authentication failed.");
     }
 
     /**

@@ -20,6 +20,8 @@ class NodeTypeApiController extends AbstractApiThemeApp
             'nodes_sources_base',
             'tag_base',
             'nodes_sources_default',
+            'document_display',
+            'thumbnail',
             'urls',
             'meta',
         ];
@@ -45,6 +47,8 @@ class NodeTypeApiController extends AbstractApiThemeApp
         return [
             'nodes_sources_base',
             'nodes_source_children',
+            'document_display',
+            'thumbnail',
             'tag_base',
             'nodes_sources_default',
             'urls',
@@ -58,6 +62,8 @@ class NodeTypeApiController extends AbstractApiThemeApp
             'walker', // rezozero tree-walker
             'children', // rezozero tree-walker
             'nodes_sources',
+            'document_display',
+            'thumbnail',
             'tag_base',
             'urls',
         ];

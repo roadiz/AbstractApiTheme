@@ -104,13 +104,12 @@ final class ApiRouteCollection extends DeferredRouteCollection
             if (null === $this->nodeTypeWhitelist) {
                 /** @var NodeType[] $nodeTypes */
                 $nodeTypes = $this->nodeTypesBag->all();
-                /** @var NodeType $nodeType */
                 foreach ($nodeTypes as $nodeType) {
                     $this->addCollection($this->getCollectionForNodeType($nodeType));
                 }
             } else {
                 foreach ($this->nodeTypeWhitelist as $nodeTypeName) {
-                    /** @var NodeType|null $nodeTypes */
+                    /** @var NodeType|null $nodeType */
                     $nodeType = $this->nodeTypesBag->get($nodeTypeName);
                     if (null !== $nodeType) {
                         $this->addCollection($this->getCollectionForNodeType($nodeType));
