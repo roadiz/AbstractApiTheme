@@ -28,5 +28,10 @@
             "name": "Ambroise Maupate",
             "email": "ambroise@rezo-zero.com"
         }
-    ]
+    ],
+    "config": {
+        "allow-plugins": {
+            "composer/package-versions-deprecated": true
+        }
+    }
 }

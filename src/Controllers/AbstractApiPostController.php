@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Themes\AbstractApiTheme\Controllers;
@@ -8,7 +9,7 @@ use JMS\Serializer\DeserializationContext;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
 use ReflectionClass;
-use RZ\Roadiz\Core\AbstractEntities\AbstractEntity;
+use RZ\Roadiz\Core\AbstractEntities\PersistableInterface;
 use RZ\Roadiz\Core\Entities\NodesSources;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -30,12 +31,12 @@ abstract class AbstractApiPostController extends AbstractApiThemeApp
     abstract protected function validateAccess(): void;
 
     /**
-     * @return class-string<AbstractEntity>
+     * @return class-string<PersistableInterface>
      */
     abstract protected function getEntityClassname(): string;
 
     /**
-     * @param AbstractEntity $entity
+     * @param PersistableInterface $entity
      * @return Event
      */
     abstract protected function getPreCreatedEvent($entity): Event;
@@ -56,7 +57,7 @@ abstract class AbstractApiPostController extends AbstractApiThemeApp
             }
             /** @var SerializerInterface $serializer */
             $serializer = $this->get('serializer');
-            /** @var AbstractEntity $entity */
+            /** @var PersistableInterface $entity */
             $entity = $serializer->deserialize(
                 $jsonContent,
                 $this->getEntityClassname(),
@@ -64,52 +65,57 @@ abstract class AbstractApiPostController extends AbstractApiThemeApp
                 $this->getDeserializationContext()
             );
 
-            $entity = $this->normalizeEntity($entity);
-            $this->validateEntity($entity);
-
-            $this->get('dispatcher')->dispatch($this->getPreCreatedEvent($entity));
-            $this->get('em')->persist($entity);
-            $this->get('em')->flush();
-
-            if ($entity instanceof NodesSources) {
-                $msg = $this->getTranslator()->trans(
-                    'entity.%name%.%type%.has_been_created',
-                    [
-                        '%name%' => $entity->getTitle(),
-                        '%type%' => $this->getEntityClassname(),
-                    ]
-                );
-                $this->get('logger')->info($msg, ['source' => $entity]);
-            } else {
-                $msg = $this->getTranslator()->trans(
-                    'entity.%name%.%type%.has_been_created',
-                    [
-                        '%name%' => (string) $entity,
-                        '%type%' => $this->getEntityClassname(),
-                    ]
-                );
-                $this->get('logger')->info($msg);
-            }
-
-            $response = new JsonResponse(
-                $serializer->serialize(
-                    $entity,
-                    'json',
-                    $this->getSerializationContext()
-                ),
-                JsonResponse::HTTP_OK,
-                [],
-                true
-            );
-
-            return $this->makeResponseCachable(
-                $request,
-                $response,
-                0
-            );
+            return $this->handleEntity($request, $entity, $serializer);
         }
 
         throw new BadRequestHttpException('Content type must be application/json');
+    }
+
+    protected function handleEntity(Request $request, PersistableInterface $entity, SerializerInterface $serializer): Response
+    {
+        $entity = $this->normalizeEntity($entity);
+        $this->validateEntity($entity);
+
+        $this->get('dispatcher')->dispatch($this->getPreCreatedEvent($entity));
+        $this->get('em')->persist($entity);
+        $this->get('em')->flush();
+
+        if ($entity instanceof NodesSources) {
+            $msg = $this->getTranslator()->trans(
+                'entity.%name%.%type%.has_been_created',
+                [
+                    '%name%' => $entity->getTitle(),
+                    '%type%' => $this->getEntityClassname(),
+                ]
+            );
+            $this->get('logger')->info($msg, ['source' => $entity]);
+        } else {
+            $msg = $this->getTranslator()->trans(
+                'entity.%name%.%type%.has_been_created',
+                [
+                    '%name%' => (string) $entity,
+                    '%type%' => $this->getEntityClassname(),
+                ]
+            );
+            $this->get('logger')->info($msg);
+        }
+
+        $response = new JsonResponse(
+            $serializer->serialize(
+                $entity,
+                'json',
+                $this->getSerializationContext()
+            ),
+            JsonResponse::HTTP_OK,
+            [],
+            true
+        );
+
+        return $this->makeResponseCachable(
+            $request,
+            $response,
+            0
+        );
     }
 
     protected function getSerializationContext(): SerializationContext
