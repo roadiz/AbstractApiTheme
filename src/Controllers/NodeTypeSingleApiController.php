@@ -8,6 +8,7 @@ use RZ\Roadiz\Contracts\NodeType\NodeTypeInterface;
 use RZ\Roadiz\Core\Entities\Node;
 use RZ\Roadiz\Core\Entities\NodesSources;
 use RZ\Roadiz\Core\Entities\NodeType;
+use RZ\Roadiz\Preview\PreviewResolverInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -51,6 +52,9 @@ class NodeTypeSingleApiController extends AbstractNodeTypeApiController
 
         /** @var NodeTypeApiRequestOptionResolverInterface $apiOptionsResolver */
         $apiOptionsResolver = $this->get(ApiRequestOptionsResolver::class);
+        /** @var PreviewResolverInterface $previewResolver */
+        $previewResolver = $this->get(PreviewResolverInterface::class);
+
         if (null !== $_locale) {
             $queryAll = array_merge($request->query->all(), [
                 '_locale' => $_locale
@@ -67,7 +71,7 @@ class NodeTypeSingleApiController extends AbstractNodeTypeApiController
             'translation' => $this->getTranslation(),
         ];
 
-        if ($nodeType->isPublishable()) {
+        if ($nodeType->isPublishable() && !$previewResolver->isPreview()) {
             $criteria['publishedAt'] = ['<=', new \DateTime()];
         }
 
@@ -87,6 +91,8 @@ class NodeTypeSingleApiController extends AbstractNodeTypeApiController
         $nodeType = $this->getEntityManager()->find(NodeType::class, $nodeTypeId);
         /** @var NodeTypeApiRequestOptionResolverInterface $apiOptionsResolver */
         $apiOptionsResolver = $this->get(ApiRequestOptionsResolver::class);
+        /** @var PreviewResolverInterface $previewResolver */
+        $previewResolver = $this->get(PreviewResolverInterface::class);
         $options = $apiOptionsResolver->resolve($request->query->all(), $nodeType);
 
         if (null === $nodeType) {
@@ -115,7 +121,7 @@ class NodeTypeSingleApiController extends AbstractNodeTypeApiController
             'translation' => $this->getTranslation(),
         ];
 
-        if ($nodeType->isPublishable()) {
+        if ($nodeType->isPublishable() && !$previewResolver->isPreview()) {
             $criteria['publishedAt'] = ['<=', new \DateTime()];
         }
 

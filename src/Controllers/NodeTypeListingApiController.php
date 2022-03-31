@@ -6,6 +6,7 @@ namespace Themes\AbstractApiTheme\Controllers;
 use JMS\Serializer\SerializerInterface;
 use RZ\Roadiz\Contracts\NodeType\NodeTypeInterface;
 use RZ\Roadiz\Core\Entities\NodesSources;
+use RZ\Roadiz\Preview\PreviewResolverInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -32,6 +33,8 @@ class NodeTypeListingApiController extends AbstractNodeTypeApiController
 
         /** @var NodeTypeApiRequestOptionResolverInterface $apiOptionsResolver */
         $apiOptionsResolver = $this->get(ApiRequestOptionsResolver::class);
+        /** @var PreviewResolverInterface $previewResolver */
+        $previewResolver = $this->get(PreviewResolverInterface::class);
         $options = $apiOptionsResolver->resolve($request->query->all(), $nodeType);
         $this->translation = $this->getTranslationFromLocaleOrRequest($request, $options['_locale']);
 
@@ -39,7 +42,7 @@ class NodeTypeListingApiController extends AbstractNodeTypeApiController
             'translation' => $this->getTranslation(),
         ];
 
-        if ($nodeType->isPublishable()) {
+        if ($nodeType->isPublishable() && !$previewResolver->isPreview()) {
             $defaultCriteria['publishedAt'] = ['<=', new \DateTime()];
         }
 
