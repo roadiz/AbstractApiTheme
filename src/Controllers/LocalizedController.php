@@ -51,12 +51,13 @@ trait LocalizedController
     protected function injectAlternateHrefLangLinks(Request $request): void
     {
         if ($request->attributes->has('_route')) {
-            $availableLocales = $this->getTranslationRepository()
-                ->getAvailableLocales();
-            if (count($availableLocales) > 1 && !$request->query->has('path')) {
+            /** @var Translation[] $availableTranslations */
+            $availableTranslations = $this->getTranslationRepository()
+                ->findAllAvailable();
+            if (count($availableTranslations) > 1 && !$request->query->has('path')) {
                 /** @var array<string> $links */
                 $links = $request->attributes->get(LinkedApiResponseSubscriber::LINKED_RESOURCES_ATTRIBUTE, []);
-                foreach ($availableLocales as $availableLocale) {
+                foreach ($availableTranslations as $availableTranslation) {
                     $linksParams = [
                         sprintf('<%s>', $this->getUrlGenerator()->generate(
                             $request->attributes->get('_route'),
@@ -64,13 +65,14 @@ trait LocalizedController
                                 $request->query->all(),
                                 $request->attributes->get('_route_params'),
                                 [
-                                    '_locale' => $availableLocale
+                                    '_locale' => $availableTranslation->getLocale()
                                 ]
                             ),
                             UrlGeneratorInterface::ABSOLUTE_URL
                         )),
                         'rel="alternate"',
-                        'hreflang="'.$availableLocale.'"',
+                        'hreflang="'.$availableTranslation->getLocale().'"',
+                        'title="'.$availableTranslation->getName().'"',
                         'type="application/json"'
                     ];
                     $links[] = implode('; ', $linksParams);
@@ -106,6 +108,7 @@ trait LocalizedController
                     )),
                     'rel="alternate"',
                     'hreflang="'.$nodeSource->getTranslation()->getPreferredLocale().'"',
+                    'title="'.$nodeSource->getTranslation()->getName().'"',
                     'type="text/html"'
                 ];
                 $links[] = implode('; ', $linksParams);
