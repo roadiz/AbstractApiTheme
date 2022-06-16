@@ -22,6 +22,7 @@ class NodeTypeApiController extends AbstractApiThemeApp
             'nodes_sources_default',
             'document_display',
             'thumbnail',
+            'document_thumbnails',
             'urls',
             'meta',
         ];
@@ -49,6 +50,7 @@ class NodeTypeApiController extends AbstractApiThemeApp
             'nodes_source_children',
             'document_display',
             'thumbnail',
+            'document_thumbnails',
             'tag_base',
             'nodes_sources_default',
             'urls',
@@ -64,6 +66,7 @@ class NodeTypeApiController extends AbstractApiThemeApp
             'nodes_sources',
             'document_display',
             'thumbnail',
+            'document_thumbnails',
             'tag_base',
             'urls',
         ];
