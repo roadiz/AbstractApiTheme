@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Themes\AbstractApiTheme\OptionsResolver;
 
+use RZ\Roadiz\Core\Entities\Node;
 use Symfony\Component\OptionsResolver\Exception\InvalidOptionsException;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -45,12 +46,14 @@ class TagApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver imp
             'tagName' => null,
             'parent' => false,
             'visible' => null,
+            'node.parent' => false,
         ]));
         $resolver->setAllowedTypes('_locale', ['string', 'null']);
         $resolver->setAllowedTypes('properties', ['string[]', 'null']);
         $resolver->setAllowedTypes('search', ['string', 'null']);
         $resolver->setAllowedTypes('tagName', ['string', 'null']);
         $resolver->setAllowedTypes('api_key', ['string', 'null']);
+        $resolver->setAllowedTypes('node.parent', ['boolean', 'string', Node::class, 'null']);
         $resolver->setAllowedTypes('order', ['array', 'null']);
         $resolver->setAllowedTypes('visible', ['boolean', 'string', 'int', 'null']);
 
@@ -88,6 +91,10 @@ class TagApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver imp
                 }
             }
             return $value;
+        });
+
+        $resolver->setNormalizer('node.parent', function (Options $options, $value) {
+            return $this->normalizeNodeFilter($value);
         });
 
         $resolver->setNormalizer('parent', function (Options $options, $value) {

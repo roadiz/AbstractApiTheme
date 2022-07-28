@@ -411,6 +411,8 @@ If you created a `Event` node-type, you may want to list any `Tags` attached to 
 - order: `array` Example `order[position]: ASC` with values:
   - `ASC`
   - `DESC`
+- node.parent: `int` or `string` (node-name)
+- parent: `int` or `string` (tag-name)
 - properties: `array` Filters serialized properties by their names    
 
 On `Tag` content:
