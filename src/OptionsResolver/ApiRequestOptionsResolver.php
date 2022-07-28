@@ -12,7 +12,6 @@ use RZ\Roadiz\Core\AbstractEntities\AbstractField;
 use RZ\Roadiz\Core\Entities\Node;
 use RZ\Roadiz\Core\Entities\NodesSources;
 use RZ\Roadiz\Core\Entities\NodeType;
-use RZ\Roadiz\Core\Entities\NodeTypeField;
 use RZ\Roadiz\Core\Entities\Redirection;
 use RZ\Roadiz\Core\Routing\PathResolverInterface;
 use Symfony\Component\OptionsResolver\Exception\InvalidOptionsException;

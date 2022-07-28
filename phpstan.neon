@@ -1,8 +1,8 @@
 parameters:
-    level: max
+    level: 3
     paths:
         - src
-    excludes_analyse:
+    excludePaths:
         - */node_modules/*
         - */bower_components/*
         - */static/*
