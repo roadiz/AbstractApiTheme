@@ -1,3 +1,9 @@
+## 4.0.14 (2022-07-28)
+
+### Bug Fixes
+
+* **Tags:** Need to normalize node.parent filter for Tags ([bf6c083](https://github.com/roadiz/AbstractApiTheme/commit/bf6c0838727b8fdc151ab1cf8614c76597322af8))
+
 ## 4.0.13 (2022-07-28)
 
 ### Features
