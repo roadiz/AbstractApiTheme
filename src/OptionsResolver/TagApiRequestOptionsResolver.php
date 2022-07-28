@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Themes\AbstractApiTheme\OptionsResolver;
 
 use RZ\Roadiz\Core\Entities\Node;
+use RZ\Roadiz\Core\Entities\Tag;
 use Symfony\Component\OptionsResolver\Exception\InvalidOptionsException;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -43,6 +44,7 @@ class TagApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver imp
     {
         $resolver = new OptionsResolver();
         $resolver->setDefaults(array_merge($this->getMetaOptions(), [
+            'id' => null,
             'tagName' => null,
             'parent' => false,
             'visible' => null,
@@ -56,6 +58,7 @@ class TagApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver imp
         $resolver->setAllowedTypes('node.parent', ['boolean', 'string', Node::class, 'null']);
         $resolver->setAllowedTypes('order', ['array', 'null']);
         $resolver->setAllowedTypes('visible', ['boolean', 'string', 'int', 'null']);
+        $resolver->setAllowedTypes('id', ['int', 'array', Tag::class, 'null']);
 
         $resolver->setNormalizer('_preview', function (Options $options, $value) {
             return $this->normalizeBoolean($value);
