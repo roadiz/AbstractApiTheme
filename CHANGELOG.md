@@ -1,3 +1,9 @@
+## 4.0.15 (2022-07-28)
+
+### Bug Fixes
+
+* **Tags:** Missing `id` tag filtering param ([bbbf3ab](https://github.com/roadiz/AbstractApiTheme/commit/bbbf3abea09978fae0032b6c610af190ad0fa445))
+
 ## 4.0.14 (2022-07-28)
 
 ### Bug Fixes
