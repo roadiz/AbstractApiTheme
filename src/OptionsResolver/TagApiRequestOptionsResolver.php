@@ -111,6 +111,16 @@ class TagApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver imp
      */
     protected function normalizeQueryParams(array $options): array
     {
+        foreach ($options as $key => $value) {
+            if ($key === 'node_parent') {
+                $options['node.parent'] = $this->normalizeNodeFilter($value);
+                if (null === $options['node.parent']) {
+                    // Force NO results if filter does not resolve.
+                    $options['id'] = 0;
+                }
+                unset($options['node_parent']);
+            }
+        }
         return $options;
     }
 }
