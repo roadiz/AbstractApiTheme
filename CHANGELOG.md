@@ -1,3 +1,10 @@
+## 4.0.16 (2022-12-21)
+
+
+### Bug Fixes
+
+* Validate strictly datetime formats for archive ([24f2d5f](https://github.com/roadiz/AbstractApiTheme/commit/24f2d5f2737d9fda2c95fe19a836c1ccbc906684))
+
 ## 4.0.15 (2022-07-28)
 
 ### Bug Fixes
