@@ -7,6 +7,7 @@ use RZ\Roadiz\CMS\Utils\NodeApi;
 use RZ\Roadiz\CMS\Utils\TagApi;
 use RZ\Roadiz\Core\Entities\Node;
 use RZ\Roadiz\Core\Entities\Tag;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\OptionsResolver\Options;
 
 abstract class AbstractApiRequestOptionsResolver implements ApiRequestOptionResolverInterface
@@ -64,30 +65,34 @@ abstract class AbstractApiRequestOptionsResolver implements ApiRequestOptionReso
      */
     protected function normalizeDateTimeFilter($value)
     {
-        if (is_string($value)) {
-            return new \DateTime($value);
+        try {
+            if (is_string($value)) {
+                return new \DateTime($value);
+            }
+            if (is_array($value)) {
+                if (isset($value['after']) && isset($value['before'])) {
+                    return ['BETWEEN', new \DateTime($value['after']), new \DateTime($value['before'])];
+                }
+                if (isset($value['strictly_after']) && isset($value['strictly_before'])) {
+                    return ['BETWEEN', new \DateTime($value['strictly_after']), new \DateTime($value['strictly_before'])];
+                }
+                if (isset($value['after'])) {
+                    return ['>=', new \DateTime($value['after'])];
+                }
+                if (isset($value['strictly_after'])) {
+                    return ['>', new \DateTime($value['strictly_after'])];
+                }
+                if (isset($value['before'])) {
+                    return ['<=', new \DateTime($value['before'])];
+                }
+                if (isset($value['strictly_before'])) {
+                    return ['<', new \DateTime($value['strictly_before'])];
+                }
+            }
+            return $value;
+        } catch (\Exception $e) {
+            throw new BadRequestHttpException('Invalid date format', $e);
         }
-        if (is_array($value)) {
-            if (isset($value['after']) && isset($value['before'])) {
-                return ['BETWEEN', new \DateTime($value['after']), new \DateTime($value['before'])];
-            }
-            if (isset($value['strictly_after']) && isset($value['strictly_before'])) {
-                return ['BETWEEN', new \DateTime($value['strictly_after']), new \DateTime($value['strictly_before'])];
-            }
-            if (isset($value['after'])) {
-                return ['>=', new \DateTime($value['after'])];
-            }
-            if (isset($value['strictly_after'])) {
-                return ['>', new \DateTime($value['strictly_after'])];
-            }
-            if (isset($value['before'])) {
-                return ['<=', new \DateTime($value['before'])];
-            }
-            if (isset($value['strictly_before'])) {
-                return ['<', new \DateTime($value['strictly_before'])];
-            }
-        }
-        return $value;
     }
 
     protected function limitPublishedAtEndDate(\DateTime $endDate): \DateTime
@@ -115,19 +120,19 @@ abstract class AbstractApiRequestOptionsResolver implements ApiRequestOptionReso
          */
         if (null !== $options['archive'] && $options['archive'] !== '') {
             $archive = $options['archive'];
-            if (preg_match('#[0-9]{4}\-[0-9]{2}\-[0-9]{2}#', $archive) > 0) {
+            if (preg_match('#^[0-9]{4}\-[0-9]{2}\-[0-9]{2}$#', $archive) > 0) {
                 $startDate = new \DateTime($archive . ' 00:00:00');
                 $endDate = clone $startDate;
                 $endDate->add(new \DateInterval('P1D'));
 
                 return ['BETWEEN', $startDate, $this->limitPublishedAtEndDate($endDate)];
-            } elseif (preg_match('#[0-9]{4}\-[0-9]{2}#', $archive) > 0) {
+            } elseif (preg_match('#^[0-9]{4}\-[0-9]{2}$#', $archive) > 0) {
                 $startDate = new \DateTime($archive . '-01 00:00:00');
                 $endDate = clone $startDate;
                 $endDate->add(new \DateInterval('P1M'));
 
                 return ['BETWEEN', $startDate, $this->limitPublishedAtEndDate($endDate)];
-            } elseif (preg_match('#[0-9]{4}#', $archive) > 0) {
+            } elseif (preg_match('#^[0-9]{4}$#', $archive) > 0) {
                 $startDate = new \DateTime($archive . '-01-01 00:00:00');
                 $endDate = clone $startDate;
                 $endDate->add(new \DateInterval('P1Y'));
