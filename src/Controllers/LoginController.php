@@ -21,10 +21,7 @@ class LoginController extends AbstractApiThemeApp
             throw new BadRequestHttpException('User is already authenticated.');
         }
 
-        $form = $this->createForm(LoginType::class, null, [
-            'urlGenerator' => $this->get('urlGenerator'),
-            'requestStack' => $this->get('requestStack'),
-        ]);
+        $form = $this->createForm(LoginType::class);
         $this->assignation['form'] = $form->createView();
 
         $helper = $this->get('securityAuthenticationUtils');
