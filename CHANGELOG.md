@@ -1,3 +1,10 @@
+## [4.0.17 (2023-07-19)](https://github.com/roadiz/AbstractApiTheme/compare/4.0.16...4.0.17)
+
+
+### Bug Fixes
+
+* Do not provide options to `LoginType`, they are auto-wired ([c721e01](https://github.com/roadiz/AbstractApiTheme/commit/c721e01d6abe41c413e078a10832ef68cfcb6a2f))
+
 ## 4.0.16 (2022-12-21)
 
 
