@@ -84,7 +84,8 @@ class NodeTypeTagsApiController extends AbstractNodeTypeApiController
             $criteria['parent'] ?? null,
             $criteria['visible'] ?? null,
             $criteria['id'] ?? null,
-            $criteria['node.parent'] ?? null
+            $criteria['node.parent'] ?? null,
+            $criteria['node.tags.tagName'] ?? null
         );
         if (isset($options['order'])) {
             foreach ($options['order'] as $field => $direction) {
@@ -128,6 +129,7 @@ class NodeTypeTagsApiController extends AbstractNodeTypeApiController
      * @param bool|null $visible
      * @param string|int|null $id
      * @param Node|null $parentNode
+     * @param Tag|array<Tag>|null $nodeTags
      * @return QueryBuilder
      */
     protected function getAvailableTags(
@@ -136,7 +138,8 @@ class NodeTypeTagsApiController extends AbstractNodeTypeApiController
         Tag $parentTag = null,
         ?bool $visible = null,
         $id = null,
-        ?Node $parentNode = null
+        ?Node $parentNode = null,
+        $nodeTags = null
     ): QueryBuilder {
         $qb = $this->getDoctrine()
             ->getRepository(Tag::class)
@@ -182,6 +185,16 @@ class NodeTypeTagsApiController extends AbstractNodeTypeApiController
             $qb->innerJoin('n.tags', 'implicitTags')
                 ->andWhere($qb->expr()->in('implicitTags.id', ':implicitTags'))
                 ->setParameter(':implicitTags', $this->getImplicitTags());
+        }
+
+        if (\is_array($nodeTags) && count($nodeTags)) {
+            $qb->innerJoin('n.tags', 'additionalTags')
+                ->andWhere($qb->expr()->in('additionalTags.id', ':additionalTags'))
+                ->setParameter(':additionalTags', $nodeTags);
+        } elseif ($nodeTags instanceof Tag) {
+            $qb->innerJoin('n.tags', 'additionalTags')
+                ->andWhere($qb->expr()->in('additionalTags.id', ':additionalTags'))
+                ->setParameter(':additionalTags', [$nodeTags]);
         }
 
         if (null !== $parentTag) {

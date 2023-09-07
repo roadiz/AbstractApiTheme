@@ -1,3 +1,10 @@
+## [4.0.18 (2023-09-07)](https://github.com/roadiz/AbstractApiTheme/compare/4.0.17...4.0.18)
+
+
+### Features
+
+* **Tags:** Added `node.tags.tagName` Tag filter ([03aa517](https://github.com/roadiz/AbstractApiTheme/commit/03aa5173f5d40de3d12ac82a275a3d0d07a4f3c4))
+
 ## [4.0.17 (2023-07-19)](https://github.com/roadiz/AbstractApiTheme/compare/4.0.16...4.0.17)
 
 
