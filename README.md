@@ -412,6 +412,7 @@ If you created a `Event` node-type, you may want to list any `Tags` attached to 
   - `ASC`
   - `DESC`
 - node.parent: `int` or `string` (node-name)
+- node.tags.tagName: `int` or `string`, or `array` (tag-name)
 - parent: `int` or `string` (tag-name)
 - properties: `array` Filters serialized properties by their names    
 
