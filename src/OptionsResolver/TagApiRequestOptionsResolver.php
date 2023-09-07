@@ -49,6 +49,7 @@ class TagApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver imp
             'parent' => false,
             'visible' => null,
             'node.parent' => false,
+            'node.tags.tagName' => null,
         ]));
         $resolver->setAllowedTypes('_locale', ['string', 'null']);
         $resolver->setAllowedTypes('properties', ['string[]', 'null']);
@@ -56,6 +57,7 @@ class TagApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver imp
         $resolver->setAllowedTypes('tagName', ['string', 'null']);
         $resolver->setAllowedTypes('api_key', ['string', 'null']);
         $resolver->setAllowedTypes('node.parent', ['boolean', 'string', Node::class, 'null']);
+        $resolver->setAllowedTypes('node.tags.tagName', ['string', Tag::class, 'array', 'null']);
         $resolver->setAllowedTypes('order', ['array', 'null']);
         $resolver->setAllowedTypes('visible', ['boolean', 'string', 'int', 'null']);
         $resolver->setAllowedTypes('id', ['int', 'array', Tag::class, 'null']);
@@ -104,6 +106,15 @@ class TagApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver imp
             return $this->normalizeTagFilter($value);
         });
 
+        $resolver->setNormalizer('node.tags.tagName', function (Options $options, $value) {
+            if (\is_array($value)) {
+                return array_filter(array_map(function ($singleValue) {
+                    return $this->normalizeTagFilter($singleValue);
+                }, $value));
+            }
+            return $this->normalizeTagFilter($value);
+        });
+
         return $resolver;
     }
 
@@ -122,6 +133,20 @@ class TagApiRequestOptionsResolver extends AbstractApiRequestOptionsResolver imp
                     $options['id'] = 0;
                 }
                 unset($options['node_parent']);
+            }
+            if ($key === 'node_tags_tagName') {
+                if (\is_array($value)) {
+                    $options['node.tags.tagName'] = array_filter(array_map(function ($singleValue) {
+                        return $this->normalizeTagFilter($singleValue);
+                    }, $value));
+                } else {
+                    $options['node.tags.tagName'] = $this->normalizeTagFilter($value);
+                }
+                if (null === $options['node.tags.tagName']) {
+                    // Force NO results if filter does not resolve.
+                    $options['id'] = 0;
+                }
+                unset($options['node_tags_tagName']);
             }
         }
         return $options;
