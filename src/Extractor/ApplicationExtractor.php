@@ -50,7 +50,15 @@ class ApplicationExtractor implements ApplicationExtractorInterface, Application
             $apiKey = $request->headers->get('x-api-key', null);
         }
 
-        return $apiKey;
+        // Some HTTP clients send `null` as a string (Bruno, Postman, etc.)
+        if (\is_string($apiKey) && (
+            trim($apiKey) === 'null' ||
+            trim($apiKey) === ''
+        )) {
+            return null;
+        }
+
+        return null !== $apiKey ? trim($apiKey) : null;
     }
 
     /**
