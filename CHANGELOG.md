@@ -1,3 +1,10 @@
+## [4.0.19 (2024-11-22)](https://github.com/roadiz/AbstractApiTheme/compare/4.0.18...4.0.19)
+
+
+### Bug Fixes
+
+* Some HTTP clients send `null` as a string (Bruno, Postman, etc.) ([5508916](https://github.com/roadiz/AbstractApiTheme/commit/5508916b30124ced33a69f75bc1693687e1b5402))
+
 ## [4.0.18 (2023-09-07)](https://github.com/roadiz/AbstractApiTheme/compare/4.0.17...4.0.18)
 
 
